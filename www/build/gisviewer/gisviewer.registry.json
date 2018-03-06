@@ -1,0 +1,36 @@
+{
+  "namespace": "gisviewer",
+  "fsNamespace": "gisviewer",
+  "loader": "../gisviewer.js",
+  "core": "gisviewer.zjdbbygr.js",
+  "corePolyfilled": "gisviewer.qwdrzqsw.js",
+  "components": {
+    "dev-component": {
+      "$": "ucniigfx"
+    },
+    "draw-bar-plugin": {
+      "$": "ucniigfx"
+    },
+    "full-screen-plugin": {
+      "$": "ucniigfx"
+    },
+    "gis-viewer": {
+      "$": "ucniigfx"
+    },
+    "map-container": {
+      "$": "ucniigfx"
+    },
+    "mini-map-plugin": {
+      "$": "ucniigfx"
+    },
+    "scale-control-plugin": {
+      "$": "ucniigfx"
+    },
+    "tool-bar": {
+      "$": "ucniigfx"
+    },
+    "zoom-to-extent-plugin": {
+      "$": "ucniigfx"
+    }
+  }
+}
