@@ -1,7 +1,7 @@
 const sass = require("@stencil/sass");
 
 exports.config = {
-  namespace: "gisviewer", // Files prefix name convention
+  namespace: "gisviewer",
   generateDistribution: true,
   serviceWorker: false,
 

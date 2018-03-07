@@ -1,2 +1,76 @@
 /*! Built with http://stenciljs.com */
-!function(i,e,n,t,r,s,o,c,a,g,l){!function(i,e,n,t,r,s,o,c,a,g,l,u,p){(i.gisviewer=i.gisviewer||{}).components=l,(p=l.filter(function(i){return i[2]}).map(function(i){return i[0]})).length&&((u=e.createElement("style")).innerHTML=p.join()+"{visibility:hidden}.hydrated{visibility:inherit}",u.setAttribute("data-styles",""),e.head.insertBefore(u,e.head.firstChild)),(u=n[n.length-1])&&u.src&&(s=(p=u.src.split("/").slice(0,-1)).join("/")+(p.length?"/":"")+"gisviewer/"),(u=e.createElement("script")).src=s+(function(i,e,n,t){return e.search.indexOf("core=es5")>-1||"file:"===e.protocol||!i.customElements||!i.fetch||!(i.CSS&&i.CSS.supports&&i.CSS.supports("color","var(--c)"))||!("noModule"in n)||function(i){try{return new Function('import("")'),!1}catch(i){}return!0}()}(i,i.location,u)?"gisviewer.qwdrzqsw.js":"gisviewer.zjdbbygr.js"),u.setAttribute("data-path",s),u.setAttribute("data-namespace","gisviewer"),e.head.appendChild(u)}(i,e,e.scripts,0,0,"/build/gisviewer/",0,0,0,0,[["dev-component","ucniigfx",1,[["gisViewerState",5]]],["draw-bar-plugin","ucniigfx",1,[["drawControl",5],["gisMap",1,"gis-map",1]]],["full-screen-plugin","ucniigfx",1,[["fullScreenControl",5],["gisMap",1]]],["gis-viewer","ucniigfx",1,[["changeUnits",6],["gisEl",7],["gisViewerProps",1]]],["map-container","ucniigfx",1,[["changeUnits",6],["gisMap",5],["gisViewerProps",1],["metric",5]],0,[["distanceUnitsEm","changeUnitsHandler"]]],["mini-map-plugin","ucniigfx",1,[["config",1],["gisMap",1],["minimapControl",5]]],["scale-control-plugin","ucniigfx",1,[["gisMap",1],["metric",1,1,3],["scaleControl",5]]],["tool-bar","ucniigfx",1,[["gisMap",1]]],["zoom-to-extent-plugin","ucniigfx",1,[["gisMap",1],["zoomControl",5]]]],void 0)}(window,document);
+(function(win, doc, appNamespace, urlNamespace, publicPath, discoverPublicPath, appCore, appCoreSsr, appCorePolyfilled, hydratedCssClass, components) {
+
+function init(win, doc, docScripts, appNamespace, urlNamespace, publicPath, discoverPublicPath, appCore, appCorePolyfilled, hydratedCssClass, components, x, y) {
+    // create global namespace if it doesn't already exist
+    (win[appNamespace] = win[appNamespace] || {}).components = components;
+    y = components.filter(function (c) { return c[2]; }).map(function (c) { return c[0]; });
+    if (y.length) {
+        // auto hide components until they been fully hydrated
+        // reusing the "x" and "i" variables from the args for funzies
+        x = doc.createElement('style');
+        x.innerHTML = y.join() + '{visibility:hidden}.' + hydratedCssClass + '{visibility:inherit}';
+        x.setAttribute('data-styles', '');
+        doc.head.insertBefore(x, doc.head.firstChild);
+    }
+    // get this current script
+    // script tag cannot use "async" attribute
+    if (discoverPublicPath) {
+        x = docScripts[docScripts.length - 1];
+        if (x && x.src) {
+            y = x.src.split('/').slice(0, -1);
+            publicPath = (y.join('/')) + (y.length ? '/' : '') + urlNamespace + '/';
+        }
+    }
+    // request the core this browser needs
+    // test for native support of custom elements and fetch
+    // if either of those are not supported, then use the core w/ polyfills
+    // also check if the page was build with ssr or not
+    x = doc.createElement('script');
+    x.src = publicPath + (usePolyfills(win, win.location, x, 'import("")') ? appCorePolyfilled : appCore);
+    x.setAttribute('data-path', publicPath);
+    x.setAttribute('data-namespace', urlNamespace);
+    doc.head.appendChild(x);
+}
+function usePolyfills(win, location, scriptElm, dynamicImportTest) {
+    // fyi, dev mode has verbose if/return statements
+    // but it minifies to a nice 'lil one-liner ;)
+    if (location.search.indexOf('core=es5') > -1) {
+        // force es5 polyfill w/ ?core=es5 querystring
+        return true;
+    }
+    if (location.protocol === 'file:') {
+        // file protocol cannot use dynamic module imports
+        return true;
+    }
+    if (!win.customElements) {
+        // does not have customElement support
+        return true;
+    }
+    if (!win.fetch) {
+        // does not have fetch support
+        return true;
+    }
+    if (!(win.CSS && win.CSS.supports && win.CSS.supports('color', 'var(--c)'))) {
+        // does not have CSS variables support
+        return true;
+    }
+    if (!('noModule' in scriptElm)) {
+        // does not have static ES module support
+        return true;
+    }
+    return doesNotSupportsDynamicImports(dynamicImportTest);
+}
+function doesNotSupportsDynamicImports(dynamicImportTest) {
+    try {
+        new Function(dynamicImportTest);
+        return false;
+    }
+    catch (e) { }
+    return true;
+}
+
+
+init(win, doc, doc.scripts, appNamespace, urlNamespace, publicPath, discoverPublicPath, appCore, appCoreSsr, appCorePolyfilled, hydratedCssClass, components);
+
+})(window, document, "gisviewer","gisviewer","/build/gisviewer/",true,"gisviewer.core.js","es5-build-disabled.js","hydrated",[["dev-component","dev-component",1,[["gisViewerState",5]]],["draw-bar-plugin","dev-component",1,[["drawControl",5],["gisMap",1,"gis-map",1]]],["full-screen-plugin","dev-component",1,[["fullScreenControl",5],["gisMap",1]]],["gis-viewer","dev-component",1,[["changeUnits",6],["gisEl",7],["gisViewerProps",1]]],["map-container","dev-component",1,[["changeUnits",6],["gisMap",5],["gisViewerProps",1],["metric",5]],0,[["distanceUnitsEm","changeUnitsHandler"]]],["mini-map-plugin","dev-component",1,[["config",1],["gisMap",1],["minimapControl",5]]],["scale-control-plugin","dev-component",1,[["gisMap",1],["metric",1,1,3],["scaleControl",5]]],["tool-bar","dev-component",1,[["gisMap",1]]],["zoom-to-extent-plugin","dev-component",1,[["gisMap",1],["zoomControl",5]]]]);

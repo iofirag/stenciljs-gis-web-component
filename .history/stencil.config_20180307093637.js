@@ -1,7 +1,7 @@
 const sass = require("@stencil/sass");
 
 exports.config = {
-  namespace: "gisviewer", // Files prefix name convention
+  namespace: "gisviewer",
   generateDistribution: true,
   serviceWorker: false,
 
@@ -30,7 +30,7 @@ exports.config = {
     { dest: "images", src: "../node_modules/leaflet-fullscreen/dist" }
     // { dest: '/', src: '../src/components/gis-viewer/map-container/tool-bar/zoom-to-extent-plugin/allarga-foto.png' },
     // { src: 'styles', dest: 'css' }
-  ]
+  ]g
 };
 
 exports.devServer = {
