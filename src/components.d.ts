@@ -19,8 +19,15 @@ declare global {
 }
 
 import {
+  CoordinateSystemType,
+  DrawBarConfig,
+  FullScreenConfig,
   GisViewerProps,
-  MiniMapOptions,
+  MiniMapConfig,
+  MouseCoordinateConfig,
+  ScaleControlConfig,
+  ToolbarConfig,
+  ZoomToExtentConfig,
 } from './models/apiModels';
 
 import {
@@ -137,7 +144,39 @@ declare global {
   }
   namespace JSXElements {
     export interface MiniMapPluginAttributes extends HTMLAttributes {
-      config?: MiniMapOptions;
+      config?: MiniMapConfig;
+      gisMap?: L.Map;
+    }
+  }
+}
+
+
+import {
+  MouseCoordinagePlugin as MouseCoordinatePlugin
+} from './components/gis-viewer/map-container/mouse-coordinate-plugin/mouse-coordinate-plugin';
+
+declare global {
+  interface HTMLMouseCoordinatePluginElement extends MouseCoordinatePlugin, HTMLStencilElement {
+  }
+  var HTMLMouseCoordinatePluginElement: {
+    prototype: HTMLMouseCoordinatePluginElement;
+    new (): HTMLMouseCoordinatePluginElement;
+  };
+  interface HTMLElementTagNameMap {
+    "mouse-coordinate-plugin": HTMLMouseCoordinatePluginElement;
+  }
+  interface ElementTagNameMap {
+    "mouse-coordinate-plugin": HTMLMouseCoordinatePluginElement;
+  }
+  namespace JSX {
+    interface IntrinsicElements {
+      "mouse-coordinate-plugin": JSXElements.MouseCoordinatePluginAttributes;
+    }
+  }
+  namespace JSXElements {
+    export interface MouseCoordinatePluginAttributes extends HTMLAttributes {
+      config?: MouseCoordinateConfig;
+      coordinateSystemType?: CoordinateSystemType;
       gisMap?: L.Map;
     }
   }
@@ -168,6 +207,7 @@ declare global {
   }
   namespace JSXElements {
     export interface ScaleControlPluginAttributes extends HTMLAttributes {
+      config?: ScaleControlConfig;
       gisMap?: L.Map;
       metric?: boolean;
     }
@@ -177,7 +217,7 @@ declare global {
 
 import {
   DrawBarPlugin as DrawBarPlugin
-} from './components/gis-viewer/map-container/tool-bar/draw-bar/draw-bar';
+} from './components/gis-viewer/map-container/tool-bar/draw-bar-plugin/draw-bar-plugin';
 
 declare global {
   interface HTMLDrawBarPluginElement extends DrawBarPlugin, HTMLStencilElement {
@@ -199,7 +239,9 @@ declare global {
   }
   namespace JSXElements {
     export interface DrawBarPluginAttributes extends HTMLAttributes {
-      gisMap?: any;
+      config?: DrawBarConfig;
+      gisMap?: L.Map;
+      metric?: boolean;
     }
   }
 }
@@ -229,6 +271,7 @@ declare global {
   }
   namespace JSXElements {
     export interface FullScreenPluginAttributes extends HTMLAttributes {
+      config?: FullScreenConfig;
       gisMap?: L.Map;
     }
   }
@@ -259,7 +302,9 @@ declare global {
   }
   namespace JSXElements {
     export interface ToolBarAttributes extends HTMLAttributes {
+      config?: ToolbarConfig;
       gisMap?: L.Map;
+      metric?: boolean;
     }
   }
 }
@@ -289,6 +334,7 @@ declare global {
   }
   namespace JSXElements {
     export interface ZoomToExtentPluginAttributes extends HTMLAttributes {
+      config?: ZoomToExtentConfig;
       gisMap?: L.Map;
     }
   }

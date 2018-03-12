@@ -1,0 +1,360 @@
+// @import '/vendor/leaflet/leaflet.css';
+// @import url('/leaflet.css');
+// @import url('/node_modules/leaflet/leaflet.css');
+
+// my-app {
+//   // header {
+//   //   background: #5851ff;
+//   //   color: white;
+//   //   height: 56px;
+//   //   display: flex;
+//   //   align-items: center;
+//   //   box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
+//   // }
+
+//   // h1 {
+//   //   font-size: 1.4rem;
+//   //   font-weight: 500;
+//   //   color: #fff;
+//   //   padding: 0 12px;
+//   // }
+// }
+// gis-viewer {
+  // #map {
+  //   margin: 0;
+  //   padding: 0;
+  //   width: 100%;
+  //   height: 100%;
+  //   z-index: 1;
+  //   position: absolute !important;
+  // }
+// }
+
+$map-controls-width: 30px;
+$map-controls-height: 30px;
+$map-controls-background-size: 22px 22px;
+$selected: rgba(0, 166, 218, 1);
+$unselected: #505050;
+$marker-background-selected: #ffffcc;
+$clusterBoxShadow: rgba(80, 80, 80, 0.7);
+
+@function clusterBoxShodowOpacity ($opacity) {
+  @return rgba(80, 80, 80, $opacity);
+}
+
+#map,
+.map-wrap {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  position: absolute !important;
+}
+
+.marker-svg {
+  stroke-width: 2px;
+  outline: none;
+  path {
+    transition: all 0.2s ease-in-out;
+  }
+  filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.5));
+}
+
+.intecept-svg {
+  outline: none;
+  filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.5));
+  .first-circle,
+  .secon-circle,
+  .third-circle {
+    display: none;
+  }
+
+  .circle-1 {
+    fill: transparent;
+    display: none;
+    stroke: rgba(0, 166, 218, 1);
+    stroke-width: 5%;
+    transform: scale(0.5);
+    transform-origin: center center;
+    animation: pulse-me 1.5s linear infinite;
+  }
+  .circle-2 {
+    @extend .circle-1;
+    animation-delay: 0.5s;
+  }
+  .circle-3 {
+    @extend .circle-1;
+    animation-delay: 1s;
+  }
+
+  #circle {
+    transition: all 0.2s ease-in-out;
+  }
+
+  #v-sign {
+    transition: all 0.2s ease-in-out;
+  }
+
+  &.highlighted {
+    .circle-1,
+    .circle-2,
+    .circle-3 {
+      display: block;
+    }
+
+    svg {
+      filter: drop-shadow(0px 2px 2px rgba(0, 0, 0, 0.1));
+    }
+  }
+}
+}
+// LEAFLET TOOLTIP override
+
+.leaflet-popup-content-wrapper {
+  border-radius: initial !important;
+
+  .leaflet-popup-content {
+    margin: 10px 15px !important;
+    width: 195px !important;
+  }
+}
+
+.leaflet-popup-close-button {
+  display: none !important;
+}
+
+.tooltip-row {
+  display: flex;
+  margin: 8px 0;
+}
+
+.tooltip-row-key {
+  margin-right: 24px;
+  min-width: 64px;
+}
+
+.tooltip-row-value {
+  min-width: 100px;
+  color: rgba(0, 0, 0, 0.54);
+}
+
+.tooltip-row-key,
+.tooltip-row-value {
+  display: block;
+
+  &::first-letter {
+    text-transform: capitalize;
+  }
+}
+
+//END LEAFLET TOOLTIP
+.clsCluster {
+  width: 40px !important;
+  height: 40px !important;
+  margin-left: -20px !important;
+  margin-top: -20px !important;
+}
+
+.leaflet-touch {
+  .leaflet-control-layers-toggle {
+    width: 30px;
+    height: 30px;
+    background-size: $map-controls-background-size;
+  }
+}
+
+.leaflet-popup-tip-container {
+  display: none !important;
+}
+
+.leaflet-touch {
+  .geocoder-control {
+    height: $map-controls-height;
+    width: $map-controls-width;
+    background-size: $map-controls-background-size;
+  }
+
+  .geocoder-control-input {
+    height: $map-controls-height;
+  }
+}
+
+.leaflet-control-custom {
+  width: $map-controls-width;
+  height: $map-controls-height;
+  background-color: white;
+  background-size: $map-controls-background-size;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.leaflet-zoom-hide {
+  z-index: 2;
+}
+
+.clsGis {
+  width: 100%;
+  height: 300px;
+}
+
+.clsClusterLastChild {
+  background-color: rgba(188, 188, 188, 0.7);
+}
+
+.leaflet-map-pane canvas {
+  z-index: 450;
+}
+
+.firstSeenWkt {
+  stroke: rgb(6, 176, 28);
+  stroke-opacity: 1;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: rgb(6, 176, 28);
+  fill-opacity: 0.2;
+  fill-rule: evenodd;
+}
+
+.lastSeenWkt {
+  stroke: rgb(21, 164, 249);
+  stroke-opacity: 1;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: rgb(21, 164, 249);
+  fill-opacity: 0.2;
+  fill-rule: evenodd;
+}
+
+.leaflet-control-attribution {
+  display: none;
+}
+
+.leaflet-control {
+  cursor: pointer;
+}
+
+.leaflet-left,
+.leaflet-right,
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 50;
+}
+
+.leaflet-marker-icon.textLabelClass {
+  // !important used because leaflet are using inline-style
+  width: initial !important;
+  height: initial !important;
+  white-space: nowrap;
+  text-shadow: 0 0 0.1em black, 0 0 0.1em black, 0 0 0.1em black,
+    0 0 0.1em black, 0 0 0.1em;
+  color: yellow;
+}
+
+.export-button,
+.import-button {
+  position: absolute;
+  z-index: 9;
+}
+
+.export-button {
+  left: 100px;
+}
+
+.import-button {
+  left: 157px;
+}
+
+.close-bt {
+  cursor: pointer;
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 20px;
+}
+
+.leaflet-interactive {
+  transition: fill 0.2s ease-in-out;
+}
+
+@keyframes pulse-me {
+  0% {
+    stroke: rgba(0, 166, 218, 0);
+  }
+  50% {
+    stroke: rgba(0, 166, 218, 0.4);
+    stroke-width: 5%;
+  }
+  70% {
+    stroke: rgba(0, 166, 218, 1);
+  }
+  100% {
+    transform: scale(1.8);
+    stroke: rgba(0, 166, 218, 0);
+    stroke-width: 1%;
+  }
+}
+
+.marker-cluster {
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(80, 80, 80, 1);
+  box-shadow: 1px 1px 3px 2px rgba(61, 61, 61, 0.1);
+
+  div {
+    margin: 0px !important;
+    background-color: initial !important;
+  }
+
+  span {
+    color: white;
+    font-size: 9px;
+  }
+
+  &.highlighted {
+    animation: pulse-me-cluster 1s linear infinite;
+  }
+
+  &.selected-cluster {
+    background-color: rgba(255, 255, 204, 1);
+    box-shadow: inset 0px 0px 0px 2px rgba(0, 166, 218, 1),
+      1px 1px 3px 2px rgba(61, 61, 61, 0.1);
+    span {
+      color: $selected;
+    }
+  }
+
+  &.selected-cluster.highlighted {
+    animation: pulse-me-cluster-selected 1s linear infinite;
+  }
+}
+
+@keyframes pulse-me-cluster {
+  0% {
+    box-shadow: 0px 0px 0px 0px rgba(0, 166, 218, 0);
+  }
+  50% {
+    box-shadow: 0px 0px 0px 4px rgba(0, 166, 218, 0.8);
+  }
+  100% {
+    box-shadow: 0px 0px 0px 0px rgba(0, 166, 218, 0);
+  }
+}
+
+@keyframes pulse-me-cluster-selected {
+  0% {
+    box-shadow: 0px 0px 0px 0px rgba(0, 166, 218, 0),
+      inset 0px 0px 0px 2px rgba(0, 166, 218, 0.8);
+  }
+  50% {
+    box-shadow: 0px 0px 0px 4px rgba(0, 166, 218, 0.8),
+      inset 0px 0px 0px 2px rgba(0, 166, 218, 0.8);
+  }
+  100% {
+    box-shadow: 0px 0px 0px 0px rgba(0, 166, 218, 0),
+      inset 0px 0px 0px 2px rgba(0, 166, 218, 0.8);
+  }
+}

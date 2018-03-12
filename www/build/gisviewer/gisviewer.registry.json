@@ -2,35 +2,38 @@
   "namespace": "gisviewer",
   "fsNamespace": "gisviewer",
   "loader": "../gisviewer.js",
-  "core": "gisviewer.zjdbbygr.js",
-  "corePolyfilled": "gisviewer.qwdrzqsw.js",
+  "core": "gisviewer.core.js",
+  "corePolyfilled": "es5-build-disabled.js",
   "components": {
     "dev-component": {
-      "$": "ucniigfx"
+      "$": "dev-component"
     },
     "draw-bar-plugin": {
-      "$": "ucniigfx"
+      "$": "draw-bar-plugin"
     },
     "full-screen-plugin": {
-      "$": "ucniigfx"
+      "$": "dev-component"
     },
     "gis-viewer": {
-      "$": "ucniigfx"
+      "$": "dev-component"
     },
     "map-container": {
-      "$": "ucniigfx"
+      "$": "dev-component"
     },
     "mini-map-plugin": {
-      "$": "ucniigfx"
+      "$": "mini-map-plugin"
+    },
+    "mouse-coordinate-plugin": {
+      "$": "mouse-coordinate-plugin"
     },
     "scale-control-plugin": {
-      "$": "ucniigfx"
+      "$": "scale-control-plugin"
     },
     "tool-bar": {
-      "$": "ucniigfx"
+      "$": "dev-component"
     },
     "zoom-to-extent-plugin": {
-      "$": "ucniigfx"
+      "$": "zoom-to-extent-plugin"
     }
   }
 }
