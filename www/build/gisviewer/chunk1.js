@@ -10,6 +10,7 @@ const TOOL_BAR_TAG = 'tool-bar';
 const DRAW_BAR_PLUGIN_TAG = 'draw-bar-plugin';
 const ZOOM_TO_EXTENT_PLUGIN_TAG = 'zoom-to-extent-plugin';
 const FULL_SCREEN_PLUGIN_TAG = 'full-screen-plugin';
+const MEASURE_PLUGIN_TAG = 'measure-plugin';
 const MINI_MAP_PLUGIN_TAG = 'mini-map-plugin';
 const SCALE_CONTROL_PLUGIN_TAG = 'scale-control-plugin';
 const MOUSE_COORDINATE_PLUGIN_TAG = 'mouse-coordinate-plugin';
@@ -23,6 +24,8 @@ class Utils {
     }
     static log_componentDidUnload(compName) {
         console.log(`componentDidUnload ${compName}`);
+    }
+    static doNothing(imports) {
     }
 }
 
@@ -13835,4 +13838,4 @@ exports.map = createMap;
 });
 
 export default Utils;
-export { FULL_SCREEN_PLUGIN_TAG, leafletSrc as default$1, GIS_VIEWER_TAG, MAP_CONTAINER_TAG, TOOL_BAR_TAG, commonjsGlobal, createCommonjsModule, DRAW_BAR_PLUGIN_TAG, leafletSrc as __moduleExports, MINI_MAP_PLUGIN_TAG, MOUSE_COORDINATE_PLUGIN_TAG, SCALE_CONTROL_PLUGIN_TAG, ZOOM_TO_EXTENT_PLUGIN_TAG };
+export { FULL_SCREEN_PLUGIN_TAG, leafletSrc as default$1, GIS_VIEWER_TAG, MAP_CONTAINER_TAG, TOOL_BAR_TAG, commonjsGlobal, createCommonjsModule, DRAW_BAR_PLUGIN_TAG, leafletSrc as __moduleExports, MEASURE_PLUGIN_TAG, MINI_MAP_PLUGIN_TAG, MOUSE_COORDINATE_PLUGIN_TAG, SCALE_CONTROL_PLUGIN_TAG, ZOOM_TO_EXTENT_PLUGIN_TAG };

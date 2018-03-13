@@ -20,6 +20,9 @@
     "map-container": {
       "$": "dev-component"
     },
+    "measure-plugin": {
+      "$": "measure-plugin"
+    },
     "mini-map-plugin": {
       "$": "mini-map-plugin"
     },

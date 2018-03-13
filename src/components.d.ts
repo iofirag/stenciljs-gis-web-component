@@ -20,9 +20,11 @@ declare global {
 
 import {
   CoordinateSystemType,
+  DistanceUnitType,
   DrawBarConfig,
   FullScreenConfig,
   GisViewerProps,
+  MeasureConfig,
   MiniMapConfig,
   MouseCoordinateConfig,
   ScaleControlConfig,
@@ -208,8 +210,8 @@ declare global {
   namespace JSXElements {
     export interface ScaleControlPluginAttributes extends HTMLAttributes {
       config?: ScaleControlConfig;
+      distanceUnitType?: DistanceUnitType;
       gisMap?: L.Map;
-      metric?: boolean;
     }
   }
 }
@@ -240,8 +242,8 @@ declare global {
   namespace JSXElements {
     export interface DrawBarPluginAttributes extends HTMLAttributes {
       config?: DrawBarConfig;
+      distanceUnitType?: DistanceUnitType;
       gisMap?: L.Map;
-      metric?: boolean;
     }
   }
 }
@@ -279,6 +281,38 @@ declare global {
 
 
 import {
+  MeasurePlugin as MeasurePlugin
+} from './components/gis-viewer/map-container/tool-bar/measure-plugin/measure-plugin';
+
+declare global {
+  interface HTMLMeasurePluginElement extends MeasurePlugin, HTMLStencilElement {
+  }
+  var HTMLMeasurePluginElement: {
+    prototype: HTMLMeasurePluginElement;
+    new (): HTMLMeasurePluginElement;
+  };
+  interface HTMLElementTagNameMap {
+    "measure-plugin": HTMLMeasurePluginElement;
+  }
+  interface ElementTagNameMap {
+    "measure-plugin": HTMLMeasurePluginElement;
+  }
+  namespace JSX {
+    interface IntrinsicElements {
+      "measure-plugin": JSXElements.MeasurePluginAttributes;
+    }
+  }
+  namespace JSXElements {
+    export interface MeasurePluginAttributes extends HTMLAttributes {
+      config?: MeasureConfig;
+      distanceUnitType?: DistanceUnitType;
+      gisMap?: L.Map;
+    }
+  }
+}
+
+
+import {
   ToolBar as ToolBar
 } from './components/gis-viewer/map-container/tool-bar/tool-bar';
 
@@ -303,8 +337,8 @@ declare global {
   namespace JSXElements {
     export interface ToolBarAttributes extends HTMLAttributes {
       config?: ToolbarConfig;
+      distanceUnitType?: DistanceUnitType;
       gisMap?: L.Map;
-      metric?: boolean;
     }
   }
 }

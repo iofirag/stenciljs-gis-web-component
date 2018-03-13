@@ -16,8 +16,8 @@ class MouseCoordinagePlugin {
     constructor() {
         this.compName = MOUSE_COORDINATE_PLUGIN_TAG;
     }
-    watchHandler(newValue, oldValue) {
-        console.log('The new value of activated is: ', newValue, oldValue);
+    watchCoordinateSystemType(newValue) {
+        // console.log('The new value of activated is: ', newValue, oldValue);
         this.changeCoordinateSystemHandler(newValue);
     }
     // componentWillLoad() {
@@ -43,9 +43,8 @@ class MouseCoordinagePlugin {
         this.gisMap.addControl(this.controlGps);
         this.gisMap.addControl(this.controlUtm);
         this.gisMap.addControl(this.controlUtmref);
-        // this.initMouseCoordinates(this.coordinateSystem);
         this.changeCoordinateSystemHandler(this.coordinateSystemType);
-        console.log(mousecoordinatesystems);
+        Utils.doNothing(mousecoordinatesystems);
     }
     componentDidUnload() {
         Utils.log_componentDidUnload(this.compName);
@@ -59,25 +58,7 @@ class MouseCoordinagePlugin {
         let control = new L$1.Control.mouseCoordinate(options);
         return control;
     }
-    // public initMouseCoordinates(mousecoordinatesystems: string) {
-    //     const gpsElement: HTMLElement = document.querySelector('.gps') as HTMLElement;
-    //     const utmElement: HTMLElement = document.querySelector('.utm') as HTMLElement;
-    //     const utmrefElement: HTMLElement = document.querySelector('.utmref') as HTMLElement;
-    //     if (mousecoordinatesystems === 'utm') {
-    //         gpsElement.style.display = 'none';
-    //         utmrefElement.style.display = 'none';
-    //     }
-    //     if (mousecoordinatesystems === 'utmref') {
-    //         gpsElement.style.display = 'none';
-    //         utmElement.style.display = 'none';
-    //     }
-    //     if (mousecoordinatesystems === 'gps') {
-    //         utmElement.style.display = 'none';
-    //         utmrefElement.style.display = 'none';
-    //     }
-    // }
     changeCoordinateSystemHandler(value) {
-        // debugger
         const gpsElement = document.querySelector('.gps');
         const utmElement = document.querySelector('.utm');
         const utmrefElement = document.querySelector('.utmref');
@@ -87,7 +68,7 @@ class MouseCoordinagePlugin {
         });
     }
     static get is() { return "mouse-coordinate-plugin"; }
-    static get properties() { return { "config": { "type": "Any", "attr": "config" }, "controlGps": { "state": true }, "controlUtm": { "state": true }, "controlUtmref": { "state": true }, "coordinateSystemType": { "type": "Any", "attr": "coordinate-system-type", "watchCallbacks": ["watchHandler"] }, "gisMap": { "type": "Any", "attr": "gis-map" } }; }
+    static get properties() { return { "config": { "type": "Any", "attr": "config" }, "controlGps": { "state": true }, "controlUtm": { "state": true }, "controlUtmref": { "state": true }, "coordinateSystemType": { "type": "Any", "attr": "coordinate-system-type", "watchCallbacks": ["watchCoordinateSystemType"] }, "gisMap": { "type": "Any", "attr": "gis-map" } }; }
     static get style() { return ".leaflet-control-mouseCoordinate{width:256px;box-shadow:4px 4px 4px 0 rgba(0,0,0,.36);background:none repeat scroll 0 0 #fff;color:#333;padding:6px 10px 6px 6px}.leaflet-control-mouseCoordinate table{width:100%}\n\n.gps-coordinates td:nth-child(2), .gps-coordinates td:nth-child(3) {\n  width: 93px !important;\n}\n\n.leaflet-control-mouseCoordinate {\n  min-height: initial !important;\n  width: initial !important;\n  background: none repeat scroll 0 0 rgba(255, 255, 255, 0.5) !important;\n  box-shadow: none !important;\n  padding: 0 !important;\n  margin-bottom: 5px !important;\n}\n\n.gpsPos {\n  font-size: 11px !important;\n  border: 2px solid #777777;\n  border-top: 0px;\n  line-height: 13px;\n}\n\n.gpsPos tr td:first-child {\n  padding-right: 10px;\n}\n\n.gpsPos tr td:last-child {\n  width: 148px;\n}\n\n.gpsPos tr td {\n  padding-top: 0px;\n  padding-bottom: 0px;\n}"; }
 }
 

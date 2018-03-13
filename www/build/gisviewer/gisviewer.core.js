@@ -1269,24 +1269,6 @@ var s=document.querySelector("script[data-namespace='gisviewer']");if(s){publicP
       }
     };
   }
-  function attributeChangedCallback(membersMeta, elm, attribName, oldVal, newVal, propName) {
-    // only react if the attribute values actually changed
-    if (oldVal !== newVal && membersMeta) {
-      // normalize the attribute name w/ lower case
-      attribName = toLowerCase(attribName);
-      // using the known component meta data
-      // look up to see if we have a property wired up to this attribute name
-            for (propName in membersMeta) {
-        if (membersMeta[propName].attribName === attribName) {
-          // cool we've got a prop using this attribute name the value will
-          // be a string, so let's convert it to the correct type the app wants
-          // below code is ugly yes, but great minification ;)
-          elm[propName] = parsePropertyValue(membersMeta[propName].propType, newVal);
-          break;
-        }
-      }
-    }
-  }
   function connectedCallback(plt, cmpMeta, elm) {
     false;
     plt.isDisconnectedMap.delete(elm);
@@ -1405,12 +1387,7 @@ var s=document.querySelector("script[data-namespace='gisviewer']");if(s){publicP
       // coolsville, our host element has just hit the DOM
       connectedCallback(plt, cmpMeta, this);
     };
-    true;
-    HostElementConstructor.attributeChangedCallback = function(attribName, oldVal, newVal) {
-      // the browser has just informed us that an attribute
-      // on the host element has changed
-      attributeChangedCallback(cmpMeta.membersMeta, this, attribName, oldVal, newVal);
-    };
+    false;
     HostElementConstructor.disconnectedCallback = function() {
       // the element has left the builing
       disconnectedCallback(plt, this);
@@ -1571,28 +1548,9 @@ var s=document.querySelector("script[data-namespace='gisviewer']");if(s){publicP
         globalDefined[cmpMeta.tagNameMeta] = true;
         // initialize the members on the host element prototype
                 initHostElement(plt, cmpMeta, HostElementConstructor.prototype, hydratedCssClass);
-        true;
-        {
-          // add which attributes should be observed
-          const observedAttributes = [];
-          // at this point the membersMeta only includes attributes which should
-          // be observed, it does not include all props yet, so it's safe to
-          // loop through all of the props (attrs) and observed them
-                    for (const propName in cmpMeta.membersMeta) {
-            // initialize the actual attribute name used vs. the prop name
-            // for example, "myProp" would be "my-prop" as an attribute
-            // and these can be configured to be all lower case or dash case (default)
-            cmpMeta.membersMeta[propName].attribName && observedAttributes.push(
-            // dynamically generate the attribute name from the prop name
-            // also add it to our array of attributes we need to observe
-            cmpMeta.membersMeta[propName].attribName);
-          }
-          // set the array of all the attributes to keep an eye on
-          // https://www.youtube.com/watch?v=RBs21CFBALI
-                    HostElementConstructor.observedAttributes = observedAttributes;
-        }
+        false;
         // define the custom element
-                win.customElements.define(cmpMeta.tagNameMeta, HostElementConstructor);
+        win.customElements.define(cmpMeta.tagNameMeta, HostElementConstructor);
       }
     }
     function loadBundle(cmpMeta, modeName, cb) {
