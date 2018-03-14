@@ -46,7 +46,7 @@
   "author": "Ionic Team",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ionic-team/stencil"
+    "url": "https://github.com/iofirag/stenciljs-gis-web-component"
   },
   "homepage": "https://github.com/ionic-team/stencil",
   "jest": {
