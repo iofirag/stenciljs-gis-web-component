@@ -1,0 +1,616 @@
+{
+  "components": [
+    {
+      "tag": "custom-drop-down-plugin",
+      "dependencies": [],
+      "componentClass": "CustomDropDownPlugin",
+      "componentPath": "components/gis-viewer/map-container/tool-bar/custom-drop-down-plugin/custom-drop-down-plugin.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "components/gis-viewer/map-container/tool-bar/drop-down-plugin/drop-down-plugin.scss"
+          ]
+        }
+      },
+      "props": [
+        {
+          "name": "customControlName",
+          "type": "String",
+          "attr": "custom-control-name"
+        },
+        {
+          "name": "dropDownData",
+          "attr": "drop-down-data"
+        },
+        {
+          "name": "dropDownTitle",
+          "type": "String",
+          "attr": "drop-down-title"
+        },
+        {
+          "name": "gisMap",
+          "attr": "gis-map"
+        }
+      ],
+      "states": [
+        {
+          "name": "control"
+        }
+      ],
+      "methods": [
+        {
+          "name": "getControl"
+        }
+      ]
+    },
+    {
+      "tag": "dev-component",
+      "dependencies": [
+        "gis-viewer"
+      ],
+      "componentClass": "DevComponent",
+      "componentPath": "components/dev-component/dev-component.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "components/dev-component/dev-component.scss"
+          ]
+        }
+      },
+      "states": [
+        {
+          "name": "gisViewerState"
+        }
+      ]
+    },
+    {
+      "tag": "draw-bar-plugin",
+      "dependencies": [],
+      "componentClass": "DrawBarPlugin",
+      "componentPath": "components/gis-viewer/map-container/tool-bar/draw-bar-plugin/draw-bar-plugin.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "../node_modules/leaflet-draw/dist/leaflet.draw.css",
+            "components/gis-viewer/map-container/tool-bar/draw-bar-plugin/draw-bar-plugin.scss"
+          ]
+        }
+      },
+      "props": [
+        {
+          "name": "config",
+          "attr": "config"
+        },
+        {
+          "name": "distanceUnitType",
+          "attr": "distance-unit-type"
+        },
+        {
+          "name": "gisMap",
+          "attr": "gis-map"
+        }
+      ],
+      "states": [
+        {
+          "name": "control"
+        },
+        {
+          "name": "drawnLayer"
+        }
+      ],
+      "methods": [
+        {
+          "name": "getControl"
+        }
+      ]
+    },
+    {
+      "tag": "drop-down-plugin",
+      "dependencies": [],
+      "componentClass": "DropDownPlugin",
+      "componentPath": "components/gis-viewer/map-container/tool-bar/drop-down-plugin/drop-down-plugin.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "components/gis-viewer/map-container/tool-bar/drop-down-plugin/drop-down-plugin.scss"
+          ]
+        }
+      },
+      "props": [
+        {
+          "name": "dropDownData",
+          "attr": "drop-down-data"
+        },
+        {
+          "name": "dropDownTitle",
+          "type": "String",
+          "attr": "drop-down-title"
+        },
+        {
+          "name": "gisMap",
+          "attr": "gis-map"
+        }
+      ],
+      "states": [
+        {
+          "name": "control"
+        }
+      ],
+      "methods": [
+        {
+          "name": "getControl"
+        }
+      ]
+    },
+    {
+      "tag": "full-screen-plugin",
+      "dependencies": [],
+      "componentClass": "FullScreenPlugin",
+      "componentPath": "components/gis-viewer/map-container/tool-bar/full-screen-plugin/full-screen-plugin.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "../node_modules/leaflet-fullscreen/dist/leaflet.fullscreen.css",
+            "components/gis-viewer/map-container/tool-bar/full-screen-plugin/full-screen-plugin.scss"
+          ]
+        }
+      },
+      "props": [
+        {
+          "name": "config",
+          "attr": "config"
+        },
+        {
+          "name": "gisMap",
+          "attr": "gis-map"
+        }
+      ],
+      "states": [
+        {
+          "name": "control"
+        }
+      ],
+      "methods": [
+        {
+          "name": "getControl"
+        }
+      ]
+    },
+    {
+      "tag": "gis-viewer",
+      "dependencies": [
+        "map-container"
+      ],
+      "componentClass": "GisViewer",
+      "componentPath": "components/gis-viewer/gis-viewer.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "../node_modules/leaflet/dist/leaflet.css",
+            "components/gis-viewer/gis-viewer.scss"
+          ]
+        }
+      },
+      "props": [
+        {
+          "name": "gisViewerProps",
+          "attr": "gis-viewer-props"
+        }
+      ],
+      "methods": [
+        {
+          "name": "changeCoordinateSystem"
+        },
+        {
+          "name": "changeDistanceUnits"
+        },
+        {
+          "name": "getVersion"
+        },
+        {
+          "name": "zoomToExtent"
+        }
+      ]
+    },
+    {
+      "tag": "layer-manager-plugin",
+      "dependencies": [],
+      "componentClass": "layerManagerPlugin",
+      "componentPath": "components/gis-viewer/map-container/tool-bar/layer-manager-plugin/layer-manager-plugin.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "../node_modules/leaflet.styledlayercontrol/css/MaterialIcons.css",
+            "../node_modules/leaflet.styledlayercontrol/css/styledLayerControl.css",
+            "../node_modules/material-design-lite/dist/material.min.css",
+            "components/gis-viewer/map-container/tool-bar/layer-manager-plugin/layer-manager-plugin.scss"
+          ]
+        }
+      },
+      "props": [
+        {
+          "name": "config",
+          "attr": "config"
+        },
+        {
+          "name": "gisMap",
+          "attr": "gis-map"
+        }
+      ],
+      "states": [
+        {
+          "name": "control"
+        },
+        {
+          "name": "htmlBtEl"
+        }
+      ],
+      "methods": [
+        {
+          "name": "getControl"
+        },
+        {
+          "name": "getHtmlBtEl"
+        }
+      ]
+    },
+    {
+      "tag": "map-container",
+      "dependencies": [
+        "mini-map-plugin",
+        "mouse-coordinate-plugin",
+        "scale-plugin",
+        "tool-bar"
+      ],
+      "componentClass": "MapContainer",
+      "componentPath": "components/gis-viewer/map-container/map-container.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "components/gis-viewer/map-container/map-container.scss"
+          ]
+        }
+      },
+      "props": [
+        {
+          "name": "gisViewerProps",
+          "attr": "gis-viewer-props"
+        }
+      ],
+      "states": [
+        {
+          "name": "coordinateSystemType"
+        },
+        {
+          "name": "distanceUnitType"
+        },
+        {
+          "name": "gisMap"
+        }
+      ],
+      "methods": [
+        {
+          "name": "changeCoordinateSystem"
+        },
+        {
+          "name": "changeDistanceUnits"
+        },
+        {
+          "name": "zoomToExtent"
+        }
+      ],
+      "hostElement": {
+        "name": "el"
+      }
+    },
+    {
+      "tag": "measure-plugin",
+      "dependencies": [],
+      "componentClass": "MeasurePlugin",
+      "componentPath": "components/gis-viewer/map-container/tool-bar/measure-plugin/measure-plugin.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "../node_modules/leaflet.polylinemeasure/Leaflet.PolylineMeasure.css",
+            "components/gis-viewer/map-container/tool-bar/measure-plugin/measure-plugin.scss"
+          ]
+        }
+      },
+      "props": [
+        {
+          "name": "config",
+          "attr": "config"
+        },
+        {
+          "name": "distanceUnitType",
+          "attr": "distance-unit-type",
+          "watch": [
+            "watchDistanceUnitType"
+          ]
+        },
+        {
+          "name": "gisMap",
+          "attr": "gis-map"
+        }
+      ],
+      "states": [
+        {
+          "name": "control"
+        }
+      ],
+      "methods": [
+        {
+          "name": "getControl"
+        }
+      ]
+    },
+    {
+      "tag": "mini-map-plugin",
+      "dependencies": [],
+      "componentClass": "MiniMapPlugin",
+      "componentPath": "components/gis-viewer/map-container/mini-map-plugin/mini-map-plugin.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "../node_modules/leaflet-minimap/dist/Control.MiniMap.min.css"
+          ]
+        }
+      },
+      "props": [
+        {
+          "name": "config",
+          "attr": "config"
+        },
+        {
+          "name": "gisMap",
+          "attr": "gis-map"
+        }
+      ],
+      "states": [
+        {
+          "name": "minimapControl"
+        }
+      ]
+    },
+    {
+      "tag": "mouse-coordinate-plugin",
+      "dependencies": [],
+      "componentClass": "MouseCoordinagePlugin",
+      "componentPath": "components/gis-viewer/map-container/mouse-coordinate-plugin/mouse-coordinate-plugin.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "../node_modules/leaflet.mousecoordinatesystems/dist/leaflet.mousecoordinatesystems.css",
+            "components/gis-viewer/map-container/mouse-coordinate-plugin/mouse-coordinate-plugin.scss"
+          ]
+        }
+      },
+      "props": [
+        {
+          "name": "config",
+          "attr": "config"
+        },
+        {
+          "name": "coordinateSystemType",
+          "attr": "coordinate-system-type",
+          "watch": [
+            "watchCoordinateSystemType"
+          ]
+        },
+        {
+          "name": "gisMap",
+          "attr": "gis-map"
+        }
+      ],
+      "states": [
+        {
+          "name": "controlGps"
+        },
+        {
+          "name": "controlUtm"
+        },
+        {
+          "name": "controlUtmref"
+        }
+      ]
+    },
+    {
+      "tag": "scale-plugin",
+      "dependencies": [],
+      "componentClass": "ScalePlugin",
+      "componentPath": "components/gis-viewer/map-container/scale-plugin/scale-plugin.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "components/gis-viewer/map-container/scale-plugin/scale-plugin.scss"
+          ]
+        }
+      },
+      "props": [
+        {
+          "name": "config",
+          "attr": "config"
+        },
+        {
+          "name": "distanceUnitType",
+          "attr": "distance-unit-type",
+          "watch": [
+            "watchDistanceUnitType"
+          ]
+        },
+        {
+          "name": "gisMap",
+          "attr": "gis-map"
+        }
+      ],
+      "states": [
+        {
+          "name": "control"
+        }
+      ],
+      "methods": [
+        {
+          "name": "getControl"
+        }
+      ]
+    },
+    {
+      "tag": "search-plugin",
+      "dependencies": [],
+      "componentClass": "SearchPlugin",
+      "componentPath": "components/gis-viewer/map-container/tool-bar/search-plugin/search-plugin.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "../node_modules/leaflet-search/dist/leaflet-search.min.css",
+            "components/gis-viewer/map-container/tool-bar/search-plugin/search-plugin.scss"
+          ]
+        }
+      },
+      "props": [
+        {
+          "name": "config",
+          "attr": "config"
+        },
+        {
+          "name": "gisMap",
+          "attr": "gis-map"
+        }
+      ],
+      "states": [
+        {
+          "name": "control"
+        }
+      ],
+      "methods": [
+        {
+          "name": "getControl"
+        }
+      ]
+    },
+    {
+      "tag": "tool-bar",
+      "dependencies": [
+        "custom-drop-down-plugin",
+        "draw-bar-plugin",
+        "drop-down-plugin",
+        "full-screen-plugin",
+        "layer-manager-plugin",
+        "measure-plugin",
+        "search-plugin",
+        "zoom-to-extent-plugin"
+      ],
+      "componentClass": "ToolBar",
+      "componentPath": "components/gis-viewer/map-container/tool-bar/tool-bar.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "components/gis-viewer/map-container/tool-bar/tool-bar.scss"
+          ]
+        }
+      },
+      "props": [
+        {
+          "name": "clusterHeatMode",
+          "attr": "cluster-heat-mode"
+        },
+        {
+          "name": "config",
+          "attr": "config"
+        },
+        {
+          "name": "distanceUnitType",
+          "attr": "distance-unit-type"
+        },
+        {
+          "name": "gisMap",
+          "attr": "gis-map"
+        },
+        {
+          "name": "isZoomControl",
+          "type": "Boolean",
+          "attr": "is-zoom-control"
+        },
+        {
+          "name": "mouseCoordinateConfig",
+          "attr": "mouse-coordinate-config"
+        }
+      ],
+      "states": [
+        {
+          "name": "element"
+        },
+        {
+          "name": "exportDropDownData"
+        },
+        {
+          "name": "isZoomControlState"
+        },
+        {
+          "name": "settingsDropDownData"
+        }
+      ],
+      "hostElement": {
+        "name": "el"
+      }
+    },
+    {
+      "tag": "zoom-to-extent-plugin",
+      "dependencies": [],
+      "componentClass": "ZoomToExtentPlugin",
+      "componentPath": "components/gis-viewer/map-container/tool-bar/zoom-to-extent-plugin/zoom-to-extent-plugin.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "components/gis-viewer/map-container/tool-bar/zoom-to-extent-plugin/zoom-to-extent-plugin.scss"
+          ]
+        }
+      },
+      "props": [
+        {
+          "name": "config",
+          "attr": "config"
+        },
+        {
+          "name": "gisMap",
+          "attr": "gis-map"
+        }
+      ],
+      "states": [
+        {
+          "name": "control"
+        }
+      ],
+      "methods": [
+        {
+          "name": "getControl"
+        },
+        {
+          "name": "zoomToExtent"
+        }
+      ],
+      "events": [
+        {
+          "event": "zoomToExtentDoneEm"
+        }
+      ]
+    }
+  ],
+  "collections": [],
+  "compiler": {
+    "name": "@stencil/core",
+    "version": "0.7.5",
+    "typescriptVersion": "2.7.2"
+  },
+  "bundles": [
+    {
+      "components": [
+        "dev-component",
+        "full-screen-plugin",
+        "gis-viewer",
+        "map-container",
+        "tool-bar"
+      ]
+    }
+  ]
+}

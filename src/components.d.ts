@@ -13,24 +13,29 @@ declare global {
   interface HTMLStencilElement extends HTMLElement {
     componentOnReady(): Promise<this>;
     componentOnReady(done: (ele?: this) => void): void;
+
+    forceUpdate(): void;
   }
 
   interface HTMLAttributes {}
 }
 
 import {
+  ClusterHeat,
   CoordinateSystemType,
   DistanceUnitType,
   DrawBarConfig,
   FullScreenConfig,
   GisViewerProps,
+  LayerManagerConfig,
   MeasureConfig,
   MiniMapConfig,
   MouseCoordinateConfig,
-  ScaleControlConfig,
+  ScaleConfig,
+  SearchConfig,
   ToolbarConfig,
   ZoomToExtentConfig,
-} from './models/apiModels';
+} from './models';
 
 import {
   DevComponent as DevComponent
@@ -56,6 +61,7 @@ declare global {
   }
   namespace JSXElements {
     export interface DevComponentAttributes extends HTMLAttributes {
+      
       
     }
   }
@@ -87,6 +93,7 @@ declare global {
   namespace JSXElements {
     export interface GisViewerAttributes extends HTMLAttributes {
       gisViewerProps?: GisViewerProps;
+      
     }
   }
 }
@@ -117,6 +124,7 @@ declare global {
   namespace JSXElements {
     export interface MapContainerAttributes extends HTMLAttributes {
       gisViewerProps?: GisViewerProps;
+      
     }
   }
 }
@@ -148,6 +156,7 @@ declare global {
     export interface MiniMapPluginAttributes extends HTMLAttributes {
       config?: MiniMapConfig;
       gisMap?: L.Map;
+      
     }
   }
 }
@@ -180,38 +189,74 @@ declare global {
       config?: MouseCoordinateConfig;
       coordinateSystemType?: CoordinateSystemType;
       gisMap?: L.Map;
+      
     }
   }
 }
 
 
 import {
-  ScaleControlPlugin as ScaleControlPlugin
-} from './components/gis-viewer/map-container/scale-control-plugin/scale-control-plugin';
+  ScalePlugin as ScalePlugin
+} from './components/gis-viewer/map-container/scale-plugin/scale-plugin';
 
 declare global {
-  interface HTMLScaleControlPluginElement extends ScaleControlPlugin, HTMLStencilElement {
+  interface HTMLScalePluginElement extends ScalePlugin, HTMLStencilElement {
   }
-  var HTMLScaleControlPluginElement: {
-    prototype: HTMLScaleControlPluginElement;
-    new (): HTMLScaleControlPluginElement;
+  var HTMLScalePluginElement: {
+    prototype: HTMLScalePluginElement;
+    new (): HTMLScalePluginElement;
   };
   interface HTMLElementTagNameMap {
-    "scale-control-plugin": HTMLScaleControlPluginElement;
+    "scale-plugin": HTMLScalePluginElement;
   }
   interface ElementTagNameMap {
-    "scale-control-plugin": HTMLScaleControlPluginElement;
+    "scale-plugin": HTMLScalePluginElement;
   }
   namespace JSX {
     interface IntrinsicElements {
-      "scale-control-plugin": JSXElements.ScaleControlPluginAttributes;
+      "scale-plugin": JSXElements.ScalePluginAttributes;
     }
   }
   namespace JSXElements {
-    export interface ScaleControlPluginAttributes extends HTMLAttributes {
-      config?: ScaleControlConfig;
+    export interface ScalePluginAttributes extends HTMLAttributes {
+      config?: ScaleConfig;
       distanceUnitType?: DistanceUnitType;
       gisMap?: L.Map;
+      
+    }
+  }
+}
+
+
+import {
+  CustomDropDownPlugin as CustomDropDownPlugin
+} from './components/gis-viewer/map-container/tool-bar/custom-drop-down-plugin/custom-drop-down-plugin';
+
+declare global {
+  interface HTMLCustomDropDownPluginElement extends CustomDropDownPlugin, HTMLStencilElement {
+  }
+  var HTMLCustomDropDownPluginElement: {
+    prototype: HTMLCustomDropDownPluginElement;
+    new (): HTMLCustomDropDownPluginElement;
+  };
+  interface HTMLElementTagNameMap {
+    "custom-drop-down-plugin": HTMLCustomDropDownPluginElement;
+  }
+  interface ElementTagNameMap {
+    "custom-drop-down-plugin": HTMLCustomDropDownPluginElement;
+  }
+  namespace JSX {
+    interface IntrinsicElements {
+      "custom-drop-down-plugin": JSXElements.CustomDropDownPluginAttributes;
+    }
+  }
+  namespace JSXElements {
+    export interface CustomDropDownPluginAttributes extends HTMLAttributes {
+      customControlName?: string;
+      dropDownData?: any[];
+      dropDownTitle?: string;
+      gisMap?: L.Map;
+      
     }
   }
 }
@@ -244,6 +289,40 @@ declare global {
       config?: DrawBarConfig;
       distanceUnitType?: DistanceUnitType;
       gisMap?: L.Map;
+      
+    }
+  }
+}
+
+
+import {
+  DropDownPlugin as DropDownPlugin
+} from './components/gis-viewer/map-container/tool-bar/drop-down-plugin/drop-down-plugin';
+
+declare global {
+  interface HTMLDropDownPluginElement extends DropDownPlugin, HTMLStencilElement {
+  }
+  var HTMLDropDownPluginElement: {
+    prototype: HTMLDropDownPluginElement;
+    new (): HTMLDropDownPluginElement;
+  };
+  interface HTMLElementTagNameMap {
+    "drop-down-plugin": HTMLDropDownPluginElement;
+  }
+  interface ElementTagNameMap {
+    "drop-down-plugin": HTMLDropDownPluginElement;
+  }
+  namespace JSX {
+    interface IntrinsicElements {
+      "drop-down-plugin": JSXElements.DropDownPluginAttributes;
+    }
+  }
+  namespace JSXElements {
+    export interface DropDownPluginAttributes extends HTMLAttributes {
+      dropDownData?: any[];
+      dropDownTitle?: string;
+      gisMap?: L.Map;
+      
     }
   }
 }
@@ -275,6 +354,39 @@ declare global {
     export interface FullScreenPluginAttributes extends HTMLAttributes {
       config?: FullScreenConfig;
       gisMap?: L.Map;
+      
+    }
+  }
+}
+
+
+import {
+  layerManagerPlugin as LayerManagerPlugin
+} from './components/gis-viewer/map-container/tool-bar/layer-manager-plugin/layer-manager-plugin';
+
+declare global {
+  interface HTMLLayerManagerPluginElement extends LayerManagerPlugin, HTMLStencilElement {
+  }
+  var HTMLLayerManagerPluginElement: {
+    prototype: HTMLLayerManagerPluginElement;
+    new (): HTMLLayerManagerPluginElement;
+  };
+  interface HTMLElementTagNameMap {
+    "layer-manager-plugin": HTMLLayerManagerPluginElement;
+  }
+  interface ElementTagNameMap {
+    "layer-manager-plugin": HTMLLayerManagerPluginElement;
+  }
+  namespace JSX {
+    interface IntrinsicElements {
+      "layer-manager-plugin": JSXElements.LayerManagerPluginAttributes;
+    }
+  }
+  namespace JSXElements {
+    export interface LayerManagerPluginAttributes extends HTMLAttributes {
+      config?: LayerManagerConfig;
+      gisMap?: L.Map;
+      
     }
   }
 }
@@ -307,6 +419,39 @@ declare global {
       config?: MeasureConfig;
       distanceUnitType?: DistanceUnitType;
       gisMap?: L.Map;
+      
+    }
+  }
+}
+
+
+import {
+  SearchPlugin as SearchPlugin
+} from './components/gis-viewer/map-container/tool-bar/search-plugin/search-plugin';
+
+declare global {
+  interface HTMLSearchPluginElement extends SearchPlugin, HTMLStencilElement {
+  }
+  var HTMLSearchPluginElement: {
+    prototype: HTMLSearchPluginElement;
+    new (): HTMLSearchPluginElement;
+  };
+  interface HTMLElementTagNameMap {
+    "search-plugin": HTMLSearchPluginElement;
+  }
+  interface ElementTagNameMap {
+    "search-plugin": HTMLSearchPluginElement;
+  }
+  namespace JSX {
+    interface IntrinsicElements {
+      "search-plugin": JSXElements.SearchPluginAttributes;
+    }
+  }
+  namespace JSXElements {
+    export interface SearchPluginAttributes extends HTMLAttributes {
+      config?: SearchConfig;
+      gisMap?: L.Map;
+      
     }
   }
 }
@@ -336,9 +481,13 @@ declare global {
   }
   namespace JSXElements {
     export interface ToolBarAttributes extends HTMLAttributes {
+      clusterHeatMode?: ClusterHeat;
       config?: ToolbarConfig;
       distanceUnitType?: DistanceUnitType;
       gisMap?: L.Map;
+      isZoomControl?: boolean;
+      mouseCoordinateConfig?: MouseCoordinateConfig;
+      
     }
   }
 }
@@ -370,6 +519,7 @@ declare global {
     export interface ZoomToExtentPluginAttributes extends HTMLAttributes {
       config?: ZoomToExtentConfig;
       gisMap?: L.Map;
+      onZoomToExtentDoneEm?: (event: CustomEvent<null>) => void;
     }
   }
 }
