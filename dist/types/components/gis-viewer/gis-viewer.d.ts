@@ -8,6 +8,7 @@ export declare class GisViewer {
     zoomToExtent(): void;
     changeDistanceUnits(): void;
     changeCoordinateSystem(): void;
+    componentWillLoad(): void;
     render(): JSX.Element;
     componentDidLoad(): void;
 }

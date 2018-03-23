@@ -279,13 +279,19 @@
       ],
       "states": [
         {
-          "name": "coordinateSystemType"
+          "name": "coordinateSystemTypeState"
         },
         {
-          "name": "distanceUnitType"
+          "name": "distanceUnitTypeState"
         },
         {
           "name": "gisMap"
+        },
+        {
+          "name": "title"
+        },
+        {
+          "name": "todos"
         }
       ],
       "methods": [
@@ -519,6 +525,10 @@
           "attr": "config"
         },
         {
+          "name": "coordinateSystemType",
+          "attr": "coordinate-system-type"
+        },
+        {
           "name": "distanceUnitType",
           "attr": "distance-unit-type"
         },
@@ -550,9 +560,22 @@
           "name": "settingsDropDownData"
         }
       ],
+      "listeners": [
+        {
+          "event": "coordsSystemTypeEm",
+          "method": "coordsSystemTypeEmHandler",
+          "passive": false,
+          "capture": false
+        }
+      ],
       "hostElement": {
         "name": "el"
-      }
+      },
+      "events": [
+        {
+          "event": "coordsChangeEm"
+        }
+      ]
     },
     {
       "tag": "zoom-to-extent-plugin",

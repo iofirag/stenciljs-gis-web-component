@@ -4,13 +4,15 @@ import L from 'leaflet';
 export declare class MapContainer {
     compName: string;
     gisViewerProps: GisViewerProps;
+    todos: any;
+    title: string;
     el: HTMLElement;
     gisMap: L.Map;
-    distanceUnitType: DistanceUnitType;
-    coordinateSystemType: CoordinateSystemType;
+    distanceUnitTypeState: DistanceUnitType;
+    coordinateSystemTypeState: CoordinateSystemType;
     zoomToExtent(): void;
     changeDistanceUnits(): void;
-    changeCoordinateSystem(): void;
+    changeCoordinateSystem(unit?: CoordinateSystemType): void;
     constructor();
     componentWillLoad(): void;
     render(): JSX.Element;

@@ -483,11 +483,12 @@ declare global {
     export interface ToolBarAttributes extends HTMLAttributes {
       clusterHeatMode?: ClusterHeat;
       config?: ToolbarConfig;
+      coordinateSystemType?: CoordinateSystemType;
       distanceUnitType?: DistanceUnitType;
       gisMap?: L.Map;
       isZoomControl?: boolean;
       mouseCoordinateConfig?: MouseCoordinateConfig;
-      
+      onCoordsChangeEm?: (event: CustomEvent) => void;
     }
   }
 }

@@ -1,3 +1,4 @@
+import { CoordinateSystemType } from "../models";
 export declare const ImportFileFormats: string;
 export declare const GIS_VIEWER_TAG: string;
 export declare const MAP_CONTAINER_TAG: string;
@@ -21,7 +22,7 @@ export declare enum FILE_TYPES {
     zip = "zip",
 }
 export declare const CoordinateType: {
-    [key: string]: string;
+    [key: string]: CoordinateSystemType;
 };
 export declare const LayersTypeLabel: {
     [key: string]: string;

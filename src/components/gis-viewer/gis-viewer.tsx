@@ -18,6 +18,8 @@ export class GisViewer {
   // @Element() el: HTMLElement;
   @Prop() gisViewerProps: GisViewerProps;
 
+
+
   @Method()
   getVersion() {
     // Include version number in compile
@@ -38,6 +40,9 @@ export class GisViewer {
     this.mapContainerEl.changeCoordinateSystem();
   }
 
+  componentWillLoad() {
+    // this.gisViewerProps
+  }
   render() {
     return <map-container id="map" gisViewerProps={this.gisViewerProps} />;
   }

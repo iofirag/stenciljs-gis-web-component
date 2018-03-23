@@ -3,10 +3,14 @@ import _ from 'lodash';
 import { DropDownItemType } from '../../../../models';
 import L from 'leaflet';
 import Utils from '../../../../utils/utilities';
+// import store from '../store';
 export class ToolBar {
     constructor() {
         this.compName = TOOL_BAR_TAG;
         this.toolbarFeaturesDecision = this.toolbarFeaturesDecision.bind(this);
+    }
+    coordsSystemTypeEmHandler(coordsUnit) {
+        console.log(`Toolbar - coordsUnit= ${coordsUnit}`);
     }
     componentWillLoad() {
         this.isZoomControlState = _.get(this, 'isZoomControl', true);
@@ -24,6 +28,14 @@ export class ToolBar {
                 className: 'icon-shp'
             }];
     }
+    changeMouseCoordinate(unit) {
+        // let mapContainerEl: HTMLMapContainerElement = this.gisMap.getContainer() as HTMLMapContainerElement
+        // console.log(this)
+        // mapContainerEl.changeCoordinateSystem(unit);
+        // store.coordinateSystemTypeState = 'gps';
+        debugger;
+        this.coordsChangeEm.emit(unit);
+    }
     render() {
         const coordinateSystemToolbarData = _.get(this, 'mouseCoordinateConfig.enable')
             ? {
@@ -32,21 +44,21 @@ export class ToolBar {
                     {
                         label: CoordinateType.MGRS,
                         iconClassName: 'icon-pin',
-                        onClick: null,
+                        onClick: this.changeMouseCoordinate.bind(this, CoordinateType.MGRS),
                         name: 'coordinates',
                         type: DropDownItemType.RADIO_BUTTON,
                         isSelected: true //!!_.get(context, 'props.mouseCoordinate.utmref'),
                     }, {
                         label: CoordinateType.UTM,
                         iconClassName: 'icon-pin',
-                        onClick: null,
+                        onClick: this.changeMouseCoordinate.bind(this, CoordinateType.UTM),
                         name: 'coordinates',
                         type: DropDownItemType.RADIO_BUTTON,
                         isSelected: true //!!_.get(context, 'props.mouseCoordinate.utm'),
                     }, {
                         label: CoordinateType.DECIMAL,
                         iconClassName: 'icon-pin',
-                        onClick: null,
+                        onClick: this.changeMouseCoordinate.bind(this, CoordinateType.DECIMAL),
                         name: 'coordinates',
                         type: DropDownItemType.RADIO_BUTTON,
                         isSelected: true //!!_.get(context, 'props.mouseCoordinate.gps'),
@@ -260,6 +272,7 @@ export class ToolBar {
         return container;
     }
     static get is() { return "tool-bar"; }
-    static get properties() { return { "clusterHeatMode": { "type": "Any", "attr": "cluster-heat-mode" }, "config": { "type": "Any", "attr": "config" }, "distanceUnitType": { "type": "Any", "attr": "distance-unit-type" }, "el": { "elementRef": true }, "element": { "state": true }, "exportDropDownData": { "state": true }, "gisMap": { "type": "Any", "attr": "gis-map" }, "isZoomControl": { "type": Boolean, "attr": "is-zoom-control" }, "isZoomControlState": { "state": true }, "mouseCoordinateConfig": { "type": "Any", "attr": "mouse-coordinate-config" }, "settingsDropDownData": { "state": true } }; }
+    static get properties() { return { "clusterHeatMode": { "type": "Any", "attr": "cluster-heat-mode" }, "config": { "type": "Any", "attr": "config" }, "coordinateSystemType": { "type": "Any", "attr": "coordinate-system-type" }, "distanceUnitType": { "type": "Any", "attr": "distance-unit-type" }, "el": { "elementRef": true }, "element": { "state": true }, "exportDropDownData": { "state": true }, "gisMap": { "type": "Any", "attr": "gis-map" }, "isZoomControl": { "type": Boolean, "attr": "is-zoom-control" }, "isZoomControlState": { "state": true }, "mouseCoordinateConfig": { "type": "Any", "attr": "mouse-coordinate-config" }, "settingsDropDownData": { "state": true } }; }
+    static get events() { return [{ "name": "coordsChangeEm", "method": "coordsChangeEm", "bubbles": true, "cancelable": true, "composed": true }]; }
     static get style() { return "/**style-placeholder:tool-bar:**/"; }
 }

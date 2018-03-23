@@ -1,3 +1,5 @@
+import { CoordinateSystemType } from "../models";
+
 // import { Coordinate } from "../models/apiModels";
 
 // export const PLUGIN_NAMES = {
@@ -36,7 +38,7 @@ export enum FILE_TYPES {
     csv = 'csv',
     zip = 'zip' // (shp file)
 }
-export const CoordinateType: { [key: string]: string } = {
+export const CoordinateType: { [key: string]: CoordinateSystemType } = {
     MGRS: 'utmref',
     UTM: 'utm',
     DECIMAL: 'gps',

@@ -21,6 +21,9 @@ export class GisViewer {
     changeCoordinateSystem() {
         this.mapContainerEl.changeCoordinateSystem();
     }
+    componentWillLoad() {
+        // this.gisViewerProps
+    }
     render() {
         return h("map-container", { id: "map", gisViewerProps: this.gisViewerProps });
     }

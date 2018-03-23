@@ -27,7 +27,8 @@
     "leaflet.mousecoordinatesystems": "^1.0.2",
     "leaflet.polylinemeasure": "git+https://github.com/iofirag/Leaflet.PolylineMeasure.git",
     "leaflet.styledlayercontrol": "git+https://github.com/iofirag/Leaflet.StyledLayerControl.git",
-    "lodash": "^4.17.5"
+    "lodash": "^4.17.5",
+    "mobx": "^4.1.0"
   },
   "devDependencies": {
     "@stencil/core": "^0.7.5",

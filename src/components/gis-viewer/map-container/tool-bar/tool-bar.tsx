@@ -1,9 +1,10 @@
-import { Component, Prop, State, Element} from '@stencil/core';
+import { Component, Prop, State, Element, Listen, Event, EventEmitter} from '@stencil/core';
 import { TOOL_BAR_TAG, DRAW_BAR_PLUGIN_TAG, ZOOM_TO_EXTENT_PLUGIN_TAG, SEARCH_PLUGIN_TAG, MEASURE_PLUGIN_TAG, LAYER_MANAGER_PLUGIN_TAG, FULL_SCREEN_PLUGIN_TAG, FILE_TYPES, DROP_DOWN_PLUGIN_TAG, CUSTOM_DROP_DOWN_PLUGIN_TAG, CoordinateType, LayersTypeLabel } from '../../../../utils/statics';
 import _ from 'lodash';
-import { ToolbarConfig, DistanceUnitType, DropDownItemType, MouseCoordinateConfig, ClusterHeat } from '../../../../models';
+import { ToolbarConfig, DistanceUnitType, DropDownItemType, MouseCoordinateConfig, ClusterHeat, CoordinateSystemType } from '../../../../models';
 import L from 'leaflet';
 import Utils from '../../../../utils/utilities';
+// import store from '../store';
 
 
 @Component({
@@ -20,12 +21,20 @@ export class ToolBar {
     @Prop() isZoomControl: boolean;
     @Prop() mouseCoordinateConfig: MouseCoordinateConfig;
     @Prop() clusterHeatMode: ClusterHeat;
+    @Prop() coordinateSystemType: CoordinateSystemType;
     
     @Element() el: HTMLElement;
     @State() isZoomControlState;
     @State() element: L.Control;
     @State() exportDropDownData: any[];
     @State() settingsDropDownData: any[];
+
+    @Event() coordsChangeEm: EventEmitter;
+
+    @Listen('coordsSystemTypeEm')
+    coordsSystemTypeEmHandler(coordsUnit: CoordinateSystemType) {
+        console.log(`Toolbar - coordsUnit= ${coordsUnit}`)
+    }
 
     constructor() {
         this.toolbarFeaturesDecision = this.toolbarFeaturesDecision.bind(this);
@@ -49,6 +58,14 @@ export class ToolBar {
         }];
     }
 
+    private changeMouseCoordinate(unit: CoordinateSystemType) {
+        // let mapContainerEl: HTMLMapContainerElement = this.gisMap.getContainer() as HTMLMapContainerElement
+        // console.log(this)
+        // mapContainerEl.changeCoordinateSystem(unit);
+        // store.coordinateSystemTypeState = 'gps';
+        debugger
+        this.coordsChangeEm.emit(unit);
+    }
     render() {
         const coordinateSystemToolbarData = _.get(this, 'mouseCoordinateConfig.enable')
             ? {
@@ -57,21 +74,21 @@ export class ToolBar {
                     {
                         label: CoordinateType.MGRS,
                         iconClassName: 'icon-pin',
-                        onClick: null,//MouseCoordintatePlugin.changeMouseCoordinates,
+                        onClick: this.changeMouseCoordinate.bind(this, CoordinateType.MGRS),//MouseCoordintatePlugin.changeMouseCoordinates,
                         name: 'coordinates',
                         type: DropDownItemType.RADIO_BUTTON,
                         isSelected: true //!!_.get(context, 'props.mouseCoordinate.utmref'),
                     }, {
                         label: CoordinateType.UTM,
                         iconClassName: 'icon-pin',
-                        onClick: null,//MouseCoordintatePlugin.changeMouseCoordinates,
+                        onClick: this.changeMouseCoordinate.bind(this, CoordinateType.UTM),//MouseCoordintatePlugin.changeMouseCoordinates,
                         name: 'coordinates',
                         type: DropDownItemType.RADIO_BUTTON,
                         isSelected: true //!!_.get(context, 'props.mouseCoordinate.utm'),
                     }, {
                         label: CoordinateType.DECIMAL,
                         iconClassName: 'icon-pin',
-                        onClick: null,//MouseCoordintatePlugin.changeMouseCoordinates,
+                        onClick: this.changeMouseCoordinate.bind(this, CoordinateType.DECIMAL),//MouseCoordintatePlugin.changeMouseCoordinates,
                         name: 'coordinates',
                         type: DropDownItemType.RADIO_BUTTON,
                         isSelected: true //!!_.get(context, 'props.mouseCoordinate.gps'),
