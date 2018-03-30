@@ -5,11 +5,11 @@ export declare class CustomDropDownPlugin {
     dropDownData: any[];
     customControlName: string;
     dropDownTitle?: string;
-    control: L.Control;
-    getControl(): L.Control;
+    control: L.Control.CustomDropDownPlugin;
+    getControl(): L.Control.CustomDropDownPlugin;
     componentWillLoad(): void;
     componentDidLoad(): void;
     componentDidUnload(): void;
-    private createCustomControl(dropDownData, customControlName, dropDownTitle);
+    private createCustomControl(dropDownData, customControlName, dropDownTitle?);
     private createDropDownItem(dropDownDataItem);
 }

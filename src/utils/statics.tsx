@@ -20,6 +20,7 @@ export const SEARCH_PLUGIN_TAG: string = 'search-plugin';
 export const LAYER_MANAGER_PLUGIN_TAG: string = 'layer-manager-plugin'
 export const DROP_DOWN_PLUGIN_TAG: string = 'drop-down-plugin';
 export const CUSTOM_DROP_DOWN_PLUGIN_TAG: string = 'custom-drop-down-plugin';
+export const CUSTOM_SETTINGS_TAG: string = 'custom-settings';
 
 export const MINI_MAP_PLUGIN_TAG: string         = 'mini-map-plugin';
 export const SCALE_PLUGIN_TAG: string            = 'scale-plugin';

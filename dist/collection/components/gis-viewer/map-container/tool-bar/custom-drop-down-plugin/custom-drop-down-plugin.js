@@ -3,28 +3,36 @@ import Utils from "../../../../../utils/utilities";
 import L from 'leaflet';
 import _ from "lodash";
 import { DropDownItemType } from "../../../../../models";
+// import store from "../../../../store/store";
+// import { reaction } from "mobx";
+// import store from "../../../../store/store";
 export class CustomDropDownPlugin {
     constructor() {
         this.compName = CUSTOM_DROP_DOWN_PLUGIN_TAG;
     }
-    // @Event() zoomToExtentDoneEm: EventEmitter<null>;
     getControl() {
         return this.control;
     }
+    // constructor() {
+    // }
     componentWillLoad() {
         Utils.log_componentWillLoad(this.compName);
     }
+    // componentWillUpdate() {
+    //     // debugger
+    //     // this.control.customUpdate();
+    // }
     componentDidLoad() {
         Utils.log_componentDidLoad(this.compName);
-        const customControllerName = CUSTOM_DROP_DOWN_PLUGIN_TAG + '_' + this.customControlName;
-        this.control = this.createCustomControl(this.dropDownData, customControllerName, this.dropDownTitle = '');
+        const customControllerName = this.customControlName;
+        this.control = this.createCustomControl(this.dropDownData, customControllerName, this.dropDownTitle);
         this.gisMap.addControl(this.control);
     }
     componentDidUnload() {
         Utils.log_componentDidUnload(this.compName);
         this.gisMap.removeControl(this.control);
     }
-    createCustomControl(dropDownData, customControlName, dropDownTitle) {
+    createCustomControl(dropDownData, customControlName, dropDownTitle = '') {
         try {
             const customControl = L.Control.extend({
                 options: {},
@@ -53,7 +61,7 @@ export class CustomDropDownPlugin {
                     container.appendChild(list);
                     return container;
                 },
-            });
+            }).bind(this);
             return new customControl();
         }
         catch (e) {
@@ -83,20 +91,12 @@ export class CustomDropDownPlugin {
                     item.style.pointerEvents = 'none';
                 });
                 // init selected item
-                if (dropDownDataItem.isSelected) {
-                    input.setAttribute('checked', dropDownDataItem.isSelected);
+                if (dropDownDataItem.value === dropDownDataItem.storeValue) {
+                    input.setAttribute('checked', 'true');
                 }
-                // add click event on the group item
-                gItem.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const allInputs = e.target.parentElement.querySelectorAll('.group-item-input');
-                    // remove all 'checked' attributes (this attribute is in charge of selecting the radio button)
-                    _.forEach(allInputs, (input) => {
-                        input.removeAttribute('checked');
-                    });
-                    // select check box
-                    e.target.childNodes[2].setAttribute('checked', 'true');
-                    dropDownDataItem.onClick(e.target.childNodes[2].value);
+                // Set on click function
+                gItem.addEventListener('click', () => {
+                    dropDownDataItem.changeAction.bind(dropDownDataItem.value.toLowerCase());
                 });
                 label.innerText = dropDownDataItem.label.replace(/-/g, ' ');
                 return gItem;

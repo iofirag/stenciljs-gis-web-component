@@ -21,9 +21,6 @@ declare global {
 }
 
 import {
-  ClusterHeat,
-  CoordinateSystemType,
-  DistanceUnitType,
   DrawBarConfig,
   FullScreenConfig,
   GisViewerProps,
@@ -187,7 +184,6 @@ declare global {
   namespace JSXElements {
     export interface MouseCoordinatePluginAttributes extends HTMLAttributes {
       config?: MouseCoordinateConfig;
-      coordinateSystemType?: CoordinateSystemType;
       gisMap?: L.Map;
       
     }
@@ -220,7 +216,6 @@ declare global {
   namespace JSXElements {
     export interface ScalePluginAttributes extends HTMLAttributes {
       config?: ScaleConfig;
-      distanceUnitType?: DistanceUnitType;
       gisMap?: L.Map;
       
     }
@@ -263,6 +258,37 @@ declare global {
 
 
 import {
+  CustomSettings as CustomSettings
+} from './components/gis-viewer/map-container/tool-bar/custom-settings/custom-settings';
+
+declare global {
+  interface HTMLCustomSettingsElement extends CustomSettings, HTMLStencilElement {
+  }
+  var HTMLCustomSettingsElement: {
+    prototype: HTMLCustomSettingsElement;
+    new (): HTMLCustomSettingsElement;
+  };
+  interface HTMLElementTagNameMap {
+    "custom-settings": HTMLCustomSettingsElement;
+  }
+  interface ElementTagNameMap {
+    "custom-settings": HTMLCustomSettingsElement;
+  }
+  namespace JSX {
+    interface IntrinsicElements {
+      "custom-settings": JSXElements.CustomSettingsAttributes;
+    }
+  }
+  namespace JSXElements {
+    export interface CustomSettingsAttributes extends HTMLAttributes {
+      gisMap?: L.Map;
+      
+    }
+  }
+}
+
+
+import {
   DrawBarPlugin as DrawBarPlugin
 } from './components/gis-viewer/map-container/tool-bar/draw-bar-plugin/draw-bar-plugin';
 
@@ -287,7 +313,6 @@ declare global {
   namespace JSXElements {
     export interface DrawBarPluginAttributes extends HTMLAttributes {
       config?: DrawBarConfig;
-      distanceUnitType?: DistanceUnitType;
       gisMap?: L.Map;
       
     }
@@ -417,7 +442,6 @@ declare global {
   namespace JSXElements {
     export interface MeasurePluginAttributes extends HTMLAttributes {
       config?: MeasureConfig;
-      distanceUnitType?: DistanceUnitType;
       gisMap?: L.Map;
       
     }
@@ -481,14 +505,10 @@ declare global {
   }
   namespace JSXElements {
     export interface ToolBarAttributes extends HTMLAttributes {
-      clusterHeatMode?: ClusterHeat;
       config?: ToolbarConfig;
-      coordinateSystemType?: CoordinateSystemType;
-      distanceUnitType?: DistanceUnitType;
       gisMap?: L.Map;
-      isZoomControl?: boolean;
       mouseCoordinateConfig?: MouseCoordinateConfig;
-      onCoordsChangeEm?: (event: CustomEvent) => void;
+      
     }
   }
 }

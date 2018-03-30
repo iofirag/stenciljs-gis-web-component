@@ -4,6 +4,9 @@ import { Component, Prop, State, Method } from "@stencil/core";
 import L from 'leaflet';
 import _ from "lodash";
 import { DropDownItemType } from "../../../../../models";
+// import store from "../../../../store/store";
+// import { reaction } from "mobx";
+// import store from "../../../../store/store";
 
 
 @Component({
@@ -15,37 +18,42 @@ import { DropDownItemType } from "../../../../../models";
 })
 export class CustomDropDownPlugin {
     compName: string = CUSTOM_DROP_DOWN_PLUGIN_TAG;
-
     @Prop() gisMap: L.Map;
     @Prop() dropDownData: any[];
     @Prop() customControlName: string;
     @Prop() dropDownTitle?: string;
 
-    @State() control: L.Control;
-    
-    // @Event() zoomToExtentDoneEm: EventEmitter<null>;
+    @State() control: L.Control.CustomDropDownPlugin;
+
 
     @Method()
-    getControl() {
+    getControl(): L.Control.CustomDropDownPlugin {
         return this.control;
     }
 
+    // constructor() {
+    // }
     componentWillLoad() {
         Utils.log_componentWillLoad(this.compName);
     }
+    // componentWillUpdate() {
+    //     // debugger
+    //     // this.control.customUpdate();
+    // }
 
     componentDidLoad() {
         Utils.log_componentDidLoad(this.compName);
-        const customControllerName = CUSTOM_DROP_DOWN_PLUGIN_TAG + '_' + this.customControlName;
-        this.control = this.createCustomControl(this.dropDownData, customControllerName, this.dropDownTitle='');
+        const customControllerName = /* CUSTOM_DROP_DOWN_PLUGIN_TAG + '_' +  */this.customControlName;
+        this.control = this.createCustomControl(this.dropDownData, customControllerName, this.dropDownTitle);
         this.gisMap.addControl(this.control);
     }
+
     componentDidUnload() {
         Utils.log_componentDidUnload(this.compName);
         this.gisMap.removeControl(this.control);
     }
 
-    private createCustomControl(dropDownData: any[], customControlName: string, dropDownTitle: string) {
+    private createCustomControl(dropDownData: any[], customControlName: string, dropDownTitle: string = ''): L.Control.CustomDropDownPlugin {
         try {
             const customControl = L.Control.extend({
                 options: {},
@@ -59,11 +67,9 @@ export class CustomDropDownPlugin {
                         e.stopPropagation();
                         Utils.toggleCustomDropDownMenu(list);
                     });
-
                     // add list items according to the state (see received dropDownData structure)
                     _.reduce(dropDownData, (list: HTMLElement, group: any/* , key: string */) => {
                         const li = L.DomUtil.create('li', 'menu-item custom-group');
-
                         // fill list item with the relevant markup according to the state
                         _.reduce(group.itemList, (li: HTMLElement, item: any/* , key: string */) => {
                             const customGroupItem = this.createDropDownItem(item);
@@ -83,7 +89,7 @@ export class CustomDropDownPlugin {
 
                     return container;
                 },
-            });
+            }).bind(this)
 
             return new customControl();
         } catch (e) {
@@ -117,24 +123,12 @@ export class CustomDropDownPlugin {
                 });
 
                 // init selected item
-                if (dropDownDataItem.isSelected) {
-                    input.setAttribute('checked', dropDownDataItem.isSelected);
+                if (dropDownDataItem.value === dropDownDataItem.storeValue ) {
+                    input.setAttribute('checked', 'true');
                 }
-
-
-                // add click event on the group item
-                gItem.addEventListener('click', (e: any) => {
-                    e.stopPropagation();
-                    const allInputs = e.target.parentElement.querySelectorAll('.group-item-input');
-
-                    // remove all 'checked' attributes (this attribute is in charge of selecting the radio button)
-                    _.forEach(allInputs, (input: HTMLElement) => {
-                        input.removeAttribute('checked');
-                    });
-
-                    // select check box
-                    e.target.childNodes[2].setAttribute('checked', 'true');
-                    dropDownDataItem.onClick(e.target.childNodes[2].value);
+                // Set on click function
+                gItem.addEventListener('click', () => {
+                    dropDownDataItem.changeAction.bind(dropDownDataItem.value.toLowerCase())
                 });
 
                 label.innerText = dropDownDataItem.label.replace(/-/g, ' ');

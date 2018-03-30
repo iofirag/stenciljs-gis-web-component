@@ -4,8 +4,8 @@ export declare class SearchPlugin {
     compName: string;
     config: SearchConfig;
     gisMap: L.Map;
-    control: L.Control;
-    getControl(): L.Control;
+    control: L.Control.Search;
+    getControl(): L.Control.Search;
     componentDidLoad(): void;
     private createPlugin(options);
     private fixCss();

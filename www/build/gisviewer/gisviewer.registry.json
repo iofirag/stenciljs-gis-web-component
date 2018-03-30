@@ -8,6 +8,9 @@
     "custom-drop-down-plugin": {
       "$": "custom-drop-down-plugin"
     },
+    "custom-settings": {
+      "$": "custom-drop-down-plugin"
+    },
     "dev-component": {
       "$": "dev-component"
     },

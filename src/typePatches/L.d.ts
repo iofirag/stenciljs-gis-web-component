@@ -35,12 +35,16 @@ declare module 'leaflet' {
         // interface Scale {
         //     constructor(options: any);
         // }
-        class Search {
+        class Search extends Control {
             constructor(options: any);
         }
 
-        class mouseCoordinate {
+        class mouseCoordinate extends Control {
             constructor(options: any);
+        }
+        class CustomDropDownPlugin extends Control {
+            constructor(options: any);
+            // customUpdate();
         }
         // interface PolylineMeasure extends Control {
         //     new(options?: PolylineMeasureOptions): any;
@@ -68,7 +72,7 @@ declare module 'leaflet' {
         //     endCircle?: any;
         // }
 
-        class StyledLayerControl {
+        class StyledLayerControl extends Control {
             constructor(baseLayers: any[], overlays: any[], map: any, options?: any);
         }
 
@@ -76,14 +80,14 @@ declare module 'leaflet' {
         //     constructor(layer: any, options: any);
         // }
 
-        class MiniMap {
+        class MiniMap extends Control {
             constructor(layer: any, options: any);
         }
 
-        class PolylineMeasure {
+        class PolylineMeasure extends Control {
             constructor(options: any);
         }
-        class LinearMeasurement {
+        class LinearMeasurement extends Control {
             constructor(options: any);
             static extend(arg0: any): any;
         }

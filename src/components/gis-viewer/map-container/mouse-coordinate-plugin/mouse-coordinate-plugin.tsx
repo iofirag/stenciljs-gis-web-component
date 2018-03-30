@@ -1,10 +1,13 @@
 import { MOUSE_COORDINATE_PLUGIN_TAG } from "../../../../utils/statics";
 import Utils from "../../../../utils/utilities";
-import { Component, Prop, State, Watch } from "@stencil/core";
+import { Component, Prop, State } from "@stencil/core";
 import L from "leaflet";
 import * as mousecoordinatesystems from 'leaflet.mousecoordinatesystems'
-import { MouseCoordinateConfig, MouseCoordinateOptions, CoordinateSystemType } from "../../../../models";
+import { MouseCoordinateConfig, MouseCoordinateOptions } from "../../../../models";
 import _ from "lodash";
+import store from "../../../store/store";
+import { reaction } from "mobx";
+// import { observable } from "mobx";
 
 @Component({
     tag: "mouse-coordinate-plugin",
@@ -18,21 +21,21 @@ export class MouseCoordinagePlugin {
     // @Element() mouseCoordinateEl: HTMLElement;
     @Prop() config: MouseCoordinateConfig;
     @Prop() gisMap: L.Map;
-    @Prop() coordinateSystemType: CoordinateSystemType;
 
     @State() controlGps: L.Control;
     @State() controlUtm: L.Control;
     @State() controlUtmref: L.Control;
-
-    @Watch('coordinateSystemType')
-    watchCoordinateSystemType(newValue: string) {
-        // console.log('The new value of activated is: ', newValue, oldValue);
-        this.changeCoordinateSystemHandler(newValue);
-    }
     
-    // componentWillLoad() {
-    //     Utils.log_componentWillLoad(this.compName);
-    // }
+    constructor() {
+        // debugger
+        reaction(
+            () => store.state.mapConfig.coordinateSystemType,
+            coordinateSystemType => this.changeCoordinateSystemHandler(coordinateSystemType)
+        );
+    }
+    componentWillLoad() {
+        Utils.log_componentWillLoad(this.compName);
+    }
 
     componentDidLoad() {
         Utils.log_componentDidLoad(this.compName);
@@ -59,7 +62,7 @@ export class MouseCoordinagePlugin {
         this.gisMap.addControl(this.controlUtm);
         this.gisMap.addControl(this.controlUtmref);
         
-        this.changeCoordinateSystemHandler(this.coordinateSystemType)
+        this.changeCoordinateSystemHandler(store.state.mapConfig.coordinateSystemType)
 
         Utils.doNothing(mousecoordinatesystems);
 

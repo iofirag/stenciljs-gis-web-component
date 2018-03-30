@@ -1,13 +1,12 @@
 import L from "leaflet";
-import { MeasureConfig, DistanceUnitType, MeasureOptions } from "../../../../../models";
+import { MeasureConfig, MeasureOptions } from "../../../../../models";
 export declare class MeasurePlugin {
     compName: string;
     config: MeasureConfig;
     gisMap: L.Map;
-    distanceUnitType: DistanceUnitType;
     control: L.Control;
-    watchDistanceUnitType(newValue: DistanceUnitType): void;
     getControl(): L.Control;
+    constructor();
     private fromGlobalUnitToPluginUnit(globalUnit);
     private fromGlobalUnitToButtonUnit(globalUnit);
     private changePluginUnits(globalUnit);

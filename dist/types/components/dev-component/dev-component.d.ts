@@ -9,5 +9,6 @@ export declare class DevComponent {
     testZoomToExtend(e: UIEvent): void;
     testChangeDistanceUnits(e: UIEvent): void;
     testChangeCoordinateSystem(e: UIEvent): void;
+    testChangeCoordinateSystemInProps(e: UIEvent): void;
     createDevState(): GisViewerProps;
 }

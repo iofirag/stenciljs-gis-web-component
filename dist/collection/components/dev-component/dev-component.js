@@ -1,4 +1,5 @@
 import { GIS_VIEWER_TAG } from '../../utils/statics';
+import store from '../store/store';
 export class DevComponent {
     //document.querySelector('gis-viewer').addEventListener('drawCreated', (e) => { console.log(e.detail) })
     // @Listen('mapReady') mapReadyEventHandler(e: CustomEvent) {
@@ -36,7 +37,8 @@ export class DevComponent {
                 h("div", { class: 'sideMenu' },
                     h("input", { type: 'button', value: 'Zoom To Extend', onClick: e => this.testZoomToExtend(e) }),
                     h("input", { type: 'button', value: 'Change Units distance', onClick: e => this.testChangeDistanceUnits(e) }),
-                    h("input", { type: 'button', value: 'Change Coordinate System', onClick: e => this.testChangeCoordinateSystem(e) })),
+                    h("input", { type: 'button', value: 'Change Coordinate System', onClick: e => this.testChangeCoordinateSystem(e) }),
+                    h("input", { type: 'button', value: 'Change Coordinate System in props', onClick: e => this.testChangeCoordinateSystemInProps(e) })),
                 h("div", { class: 'gisWrapper' },
                     h("gis-viewer", { gisViewerProps: this.gisViewerState }))));
     }
@@ -63,6 +65,16 @@ export class DevComponent {
     testChangeCoordinateSystem(e) {
         console.log('Testing changeCoordinateSystem command', e.type);
         this.gisViewerEl.changeCoordinateSystem();
+    }
+    testChangeCoordinateSystemInProps(e) {
+        console.log('Testing testChangeCoordinateSystemInProps command', e.type);
+        const coordinateSystemTypes = ['utm', 'utmref', 'gps'];
+        let index = coordinateSystemTypes.indexOf(store.state.mapConfig.coordinateSystemType);
+        index++;
+        if (index === coordinateSystemTypes.length)
+            index = 0;
+        this.gisViewerState.mapConfig.coordinateSystemType = coordinateSystemTypes[index];
+        this.gisViewerState = Object.assign({}, this.gisViewerState);
     }
     createDevState() {
         const protocol = 'http:';

@@ -1,14 +1,13 @@
 import L from 'leaflet';
-import { ScaleConfig, DistanceUnitType } from '../../../../models';
+import { ScaleConfig } from '../../../../models';
 export declare class ScalePlugin {
     compName: string;
     pluginSupportedUnits: string[];
     gisMap: L.Map;
     config: ScaleConfig;
-    distanceUnitType: DistanceUnitType;
     control: L.Control;
-    watchDistanceUnitType(newValue: DistanceUnitType): void;
     getControl(): L.Control;
+    constructor();
     private showScaleUnitsElementByType(globalDistanceUnitType);
     private setScaleUnitsElementVisibility(unit, globalDistanceUnitType);
     private fromGlobalUnitToElementUnit(globalUnit);

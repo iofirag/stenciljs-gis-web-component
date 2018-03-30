@@ -1,9 +1,11 @@
 import L from 'leaflet';
-import {Component, Prop, State, Watch, Method } from '@stencil/core';
+import {Component, Prop, State, Method } from '@stencil/core';
 import { SCALE_PLUGIN_TAG } from '../../../../utils/statics';
 import Utils from '../../../../utils/utilities';
 import { ScaleConfig, DistanceUnitType } from '../../../../models';
 import _ from 'lodash';
+import { reaction } from 'mobx';
+import store from '../../../store/store';
 
 @Component({
   tag: "scale-plugin",
@@ -15,21 +17,20 @@ export class ScalePlugin {
 
   @Prop() gisMap: L.Map;
   @Prop() config: ScaleConfig;
-  @Prop() distanceUnitType: DistanceUnitType;
 
   @State() control: L.Control;
-
-  @Watch('distanceUnitType')
-  watchDistanceUnitType(newValue: DistanceUnitType) {
-    // Visibility of elements
-    this.showScaleUnitsElementByType(newValue);
-  }
 
   @Method()
   getControl() {
     return this.control;
   }
 
+  constructor() {
+    reaction(
+      () => store.state.mapConfig.distanceUnitType,
+      distanceUnitType => this.showScaleUnitsElementByType(distanceUnitType)
+    );
+  }
   private showScaleUnitsElementByType(globalDistanceUnitType: DistanceUnitType) { 
     this.pluginSupportedUnits.forEach((unit:string) => {
       this.setScaleUnitsElementVisibility(unit, globalDistanceUnitType);
@@ -71,7 +72,7 @@ export class ScalePlugin {
     this.gisMap.addControl(this.control);
     
     this.initUnitElementsWithClasses();
-    this.showScaleUnitsElementByType(this.distanceUnitType);
+    this.showScaleUnitsElementByType(store.state.mapConfig.distanceUnitType);
   }
 
   private initUnitElementsWithClasses() {

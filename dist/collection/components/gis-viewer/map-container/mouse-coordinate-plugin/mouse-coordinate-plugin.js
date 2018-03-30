@@ -3,17 +3,18 @@ import Utils from "../../../../utils/utilities";
 import L from "leaflet";
 import * as mousecoordinatesystems from 'leaflet.mousecoordinatesystems';
 import _ from "lodash";
+import store from "../../../store/store";
+import { reaction } from "mobx";
+// import { observable } from "mobx";
 export class MouseCoordinagePlugin {
     constructor() {
         this.compName = MOUSE_COORDINATE_PLUGIN_TAG;
+        // debugger
+        reaction(() => store.state.mapConfig.coordinateSystemType, coordinateSystemType => this.changeCoordinateSystemHandler(coordinateSystemType));
     }
-    watchCoordinateSystemType(newValue) {
-        // console.log('The new value of activated is: ', newValue, oldValue);
-        this.changeCoordinateSystemHandler(newValue);
+    componentWillLoad() {
+        Utils.log_componentWillLoad(this.compName);
     }
-    // componentWillLoad() {
-    //     Utils.log_componentWillLoad(this.compName);
-    // }
     componentDidLoad() {
         Utils.log_componentDidLoad(this.compName);
         const mouseCoordinateGps = {
@@ -34,7 +35,7 @@ export class MouseCoordinagePlugin {
         this.gisMap.addControl(this.controlGps);
         this.gisMap.addControl(this.controlUtm);
         this.gisMap.addControl(this.controlUtmref);
-        this.changeCoordinateSystemHandler(this.coordinateSystemType);
+        this.changeCoordinateSystemHandler(store.state.mapConfig.coordinateSystemType);
         Utils.doNothing(mousecoordinatesystems);
     }
     componentDidUnload() {
@@ -59,6 +60,6 @@ export class MouseCoordinagePlugin {
         });
     }
     static get is() { return "mouse-coordinate-plugin"; }
-    static get properties() { return { "config": { "type": "Any", "attr": "config" }, "controlGps": { "state": true }, "controlUtm": { "state": true }, "controlUtmref": { "state": true }, "coordinateSystemType": { "type": "Any", "attr": "coordinate-system-type", "watchCallbacks": ["watchCoordinateSystemType"] }, "gisMap": { "type": "Any", "attr": "gis-map" } }; }
+    static get properties() { return { "config": { "type": "Any", "attr": "config" }, "controlGps": { "state": true }, "controlUtm": { "state": true }, "controlUtmref": { "state": true }, "gisMap": { "type": "Any", "attr": "gis-map" } }; }
     static get style() { return "/**style-placeholder:mouse-coordinate-plugin:**/"; }
 }

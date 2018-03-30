@@ -1,14 +1,14 @@
 import L from "leaflet";
-import { MouseCoordinateConfig, CoordinateSystemType } from "../../../../models";
+import { MouseCoordinateConfig } from "../../../../models";
 export declare class MouseCoordinagePlugin {
     compName: string;
     config: MouseCoordinateConfig;
     gisMap: L.Map;
-    coordinateSystemType: CoordinateSystemType;
     controlGps: L.Control;
     controlUtm: L.Control;
     controlUtmref: L.Control;
-    watchCoordinateSystemType(newValue: string): void;
+    constructor();
+    componentWillLoad(): void;
     componentDidLoad(): void;
     componentDidUnload(): void;
     private createPlugin(options);

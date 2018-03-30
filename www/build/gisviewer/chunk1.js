@@ -17,6 +17,7 @@ const SEARCH_PLUGIN_TAG = 'search-plugin';
 const LAYER_MANAGER_PLUGIN_TAG = 'layer-manager-plugin';
 const DROP_DOWN_PLUGIN_TAG = 'drop-down-plugin';
 const CUSTOM_DROP_DOWN_PLUGIN_TAG = 'custom-drop-down-plugin';
+const CUSTOM_SETTINGS_TAG = 'custom-settings';
 const MINI_MAP_PLUGIN_TAG = 'mini-map-plugin';
 const SCALE_PLUGIN_TAG = 'scale-plugin';
 const MOUSE_COORDINATE_PLUGIN_TAG = 'mouse-coordinate-plugin';
@@ -31017,4 +31018,4 @@ exports.map = createMap;
 });
 
 export default Utils;
-export { CUSTOM_DROP_DOWN_PLUGIN_TAG, leafletSrc as default$1, lodash as default$2, GIS_VIEWER_TAG, FULL_SCREEN_PLUGIN_TAG, MAP_CONTAINER_TAG, ZOOM_TO_EXTENT_PLUGIN_TAG, MAX_NORTH_EAST, MAX_SOUTH_WEST, TOOL_BAR_TAG, DRAW_BAR_PLUGIN_TAG, SEARCH_PLUGIN_TAG, MEASURE_PLUGIN_TAG, LAYER_MANAGER_PLUGIN_TAG, FILE_TYPES, DROP_DOWN_PLUGIN_TAG, CoordinateType, LayersTypeLabel, ImportFileFormats, leafletSrc as __moduleExports, commonjsGlobal, createCommonjsModule, MINI_MAP_PLUGIN_TAG, MOUSE_COORDINATE_PLUGIN_TAG, SCALE_PLUGIN_TAG };
+export { CUSTOM_DROP_DOWN_PLUGIN_TAG, leafletSrc as default$1, lodash as default$2, LayersTypeLabel, CoordinateType, CUSTOM_SETTINGS_TAG, GIS_VIEWER_TAG, FULL_SCREEN_PLUGIN_TAG, MAP_CONTAINER_TAG, ZOOM_TO_EXTENT_PLUGIN_TAG, MAX_NORTH_EAST, MAX_SOUTH_WEST, TOOL_BAR_TAG, DRAW_BAR_PLUGIN_TAG, SEARCH_PLUGIN_TAG, MEASURE_PLUGIN_TAG, LAYER_MANAGER_PLUGIN_TAG, FILE_TYPES, DROP_DOWN_PLUGIN_TAG, ImportFileFormats, leafletSrc as __moduleExports, commonjsGlobal, createCommonjsModule, MINI_MAP_PLUGIN_TAG, MOUSE_COORDINATE_PLUGIN_TAG, SCALE_PLUGIN_TAG };

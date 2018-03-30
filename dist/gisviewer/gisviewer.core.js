@@ -420,28 +420,7 @@ s=document.querySelector("script[data-namespace='gisviewer']");if(s){resourcesUr
       // add each of the event emitters which wire up instance methods
       // to fire off dom events from the host element
       initEventEmitters(plt, componentConstructor.events, instance);
-      true;
-      try {
-        // replay any event listeners on the instance that
-        // were queued up between the time the element was
-        // connected and before the instance was ready
-        queuedEvents = plt.queuedEvents.get(elm);
-        if (queuedEvents) {
-          // events may have already fired before the instance was even ready
-          // now that the instance is ready, let's replay all of the events that
-          // we queued up earlier that were originally meant for the instance
-          for (i = 0; i < queuedEvents.length; i += 2) {
-            // data was added in sets of two
-            // first item the eventMethodName
-            // second item is the event data
-            // take a look at initElementListener()
-            instance[queuedEvents[i]](queuedEvents[i + 1]);
-          }
-          plt.queuedEvents.delete(elm);
-        }
-      } catch (e) {
-        plt.onError(e, 2 /* QueueEventsError */ , elm);
-      }
+      false;
     } catch (e) {
       // something done went wrong trying to create a component instance
       // create a dumby instance so other stuff can load
@@ -802,18 +781,8 @@ s=document.querySelector("script[data-namespace='gisviewer']");if(s){resourcesUr
       instance = plt.instanceMap.get(elm);
       if (instance) {
         // get an array of method names of watch functions to call
-        watchMethods = values[WATCH_CB_PREFIX + memberName];
-        if (true, watchMethods) {
-          // this instance is watching for when this property changed
-          for (let i = 0; i < watchMethods.length; i++) {
-            try {
-              // fire off each of the watch methods that are watching this property
-              instance[watchMethods[i]].call(instance, newVal, oldVal, memberName);
-            } catch (e) {
-              console.error(e);
-            }
-          }
-        }
+        values[WATCH_CB_PREFIX + memberName];
+        false;
         !plt.activeRender && elm.$rendered && 
         // looks like this value actually changed, so we've got work to do!
         // but only if we've already created an instance, otherwise just chill out
@@ -1350,64 +1319,6 @@ s=document.querySelector("script[data-namespace='gisviewer']");if(s){resourcesUr
       }
     };
   }
-  function initElementListeners(plt, elm) {
-    // so the element was just connected, which means it's in the DOM
-    // however, the component instance hasn't been created yet
-    // but what if an event it should be listening to get emitted right now??
-    // let's add our listeners right now to our element, and if it happens
-    // to receive events between now and the instance being created let's
-    // queue up all of the event data and fire it off on the instance when it's ready
-    const cmpMeta = plt.getComponentMeta(elm);
-    cmpMeta.listenersMeta && 
-    // we've got listens
-    cmpMeta.listenersMeta.forEach(listenMeta => {
-      // go through each listener
-      listenMeta.eventDisabled || 
-      // only add ones that are not already disabled
-      plt.domApi.$addEventListener(elm, listenMeta.eventName, createListenerCallback(plt, elm, listenMeta.eventMethodName), listenMeta.eventCapture, listenMeta.eventPassive);
-    });
-  }
-  function createListenerCallback(plt, elm, eventMethodName, val) {
-    // create the function that gets called when the element receives
-    // an event which it should be listening for
-    return ev => {
-      // get the instance if it exists
-      val = plt.instanceMap.get(elm);
-      if (val) {
-        // instance is ready, let's call it's member method for this event
-        val[eventMethodName](ev);
-      } else {
-        // instance is not ready!!
-        // let's queue up this event data and replay it later
-        // when the instance is ready
-        val = plt.queuedEvents.get(elm) || [];
-        val.push(eventMethodName, ev);
-        plt.queuedEvents.set(elm, val);
-      }
-    };
-  }
-  function enableEventListener(plt, instance, eventName, shouldEnable, attachTo, passive) {
-    if (instance) {
-      // cool, we've got an instance, it's get the element it's on
-      const elm = plt.hostElementMap.get(instance);
-      const cmpMeta = plt.getComponentMeta(elm);
-      if (cmpMeta && cmpMeta.listenersMeta) {
-        // alrighty, so this cmp has listener meta
-        if (shouldEnable) {
-          // we want to enable this event
-          // find which listen meta we're talking about
-          const listenMeta = cmpMeta.listenersMeta.find(l => l.eventName === eventName);
-          listenMeta && 
-          // found the listen meta, so let's add the listener
-          plt.domApi.$addEventListener(elm, eventName, ev => instance[listenMeta.eventMethodName](ev), listenMeta.eventCapture, void 0 === passive ? listenMeta.eventPassive : !!passive, attachTo);
-        } else {
-          // we're disabling the event listener
-          // so let's just remove it entirely
-          plt.domApi.$removeEventListener(elm, eventName);
-        }
-      }
-    }
-  }
   function generateDevInspector(App, namespace, win, plt) {
     const devInspector = win.devInspector = win.devInspector || {};
     devInspector.apps = devInspector.apps || [];
@@ -1556,17 +1467,7 @@ s=document.querySelector("script[data-namespace='gisviewer']");if(s){resourcesUr
     }
   }
   function connectedCallback(plt, cmpMeta, elm) {
-    true;
-    // initialize our event listeners on the host element
-    // we do this now so that we can listening to events that may
-    // have fired even before the instance is ready
-    if (!plt.hasListenersMap.has(elm)) {
-      // it's possible we've already connected
-      // then disconnected
-      // and the same element is reconnected again
-      plt.hasListenersMap.set(elm, true);
-      initElementListeners(plt, elm);
-    }
+    false;
     plt.isDisconnectedMap.delete(elm);
     if (!plt.hasConnectedMap.has(elm)) {
       // first time we've connected
@@ -1768,8 +1669,7 @@ s=document.querySelector("script[data-namespace='gisviewer']");if(s){resourcesUr
     Context.location = win.location;
     Context.document = doc;
     Context.resourcesUrl = Context.publicPath = resourcesUrl;
-    true;
-    Context.enableListener = ((instance, eventName, enabled, attachTo, passive) => enableEventListener(plt, instance, eventName, enabled, attachTo, passive));
+    false;
     true;
     Context.emit = ((elm, eventName, data) => domApi.$dispatchEvent(elm, Context.eventNameFn ? Context.eventNameFn(eventName) : eventName, data));
     // add the h() fn to the app's global namespace

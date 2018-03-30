@@ -5,8 +5,7 @@ import Utils from '../../../utils/utilities';
 import { GisViewerProps, CoordinateSystemType, DistanceUnitType } from '../../../models';
 import _ from 'lodash';
 import L from 'leaflet';
-import { autorun, observable } from 'mobx';
-import store from './store'
+import store from '../../store/store';
 
 @Component({
   tag: "map-container",
@@ -19,13 +18,8 @@ export class MapContainer {
   compName: string = MAP_CONTAINER_TAG;
   @Prop() gisViewerProps: GisViewerProps;
 
-  @observable @State() todos: any
-  @observable @State() title: string
-  
   @Element() el: HTMLElement;
   @State() gisMap: L.Map;
-  @State() distanceUnitTypeState: DistanceUnitType;
-  @State() coordinateSystemTypeState: CoordinateSystemType;
 
   @Method()
   zoomToExtent() {
@@ -35,66 +29,48 @@ export class MapContainer {
   @Method()
   changeDistanceUnits() {
     const distanceUnitTypes: DistanceUnitType[] = ['km', 'mile', 'nauticalmiles'];
-    let index = distanceUnitTypes.indexOf(this.distanceUnitTypeState);
+    let index = distanceUnitTypes.indexOf(store.state.mapConfig.distanceUnitType);
     index++;
     if (index === distanceUnitTypes.length) index = 0;
-    this.distanceUnitTypeState = distanceUnitTypes[index];
+    store.state.mapConfig.distanceUnitType = distanceUnitTypes[index];
   }
   @Method()
   changeCoordinateSystem(unit?: CoordinateSystemType) {
     // User wants specific unit
     if (unit) {
-      this.coordinateSystemTypeState = unit;
+      store.state.mapConfig.coordinateSystemType = unit;
       return;
     }
     // Change to another coordinate in order
     const coordinateSystemTypes: CoordinateSystemType[] = ['utm','utmref','gps'];
-    let index = coordinateSystemTypes.indexOf(this.coordinateSystemTypeState);
+    let index = coordinateSystemTypes.indexOf(store.state.mapConfig.coordinateSystemType);
     index++;
     if (index === coordinateSystemTypes.length ) index = 0;
-    this.coordinateSystemTypeState = coordinateSystemTypes[index];
+    store.state.mapConfig.coordinateSystemType = coordinateSystemTypes[index];
   }
 
-  
-
-
   constructor() {
-    // _.assign(this.store, this.gisViewerProps);
-    // console.log(this.store);
-    this.distanceUnitTypeState = _.get(this, 'gisViewerProps.mapConfig.distanceUnitType', 'km');
-    this.coordinateSystemTypeState = _.get(this, 'gisViewerProps.mapConfig.coordinateSystemType', 'gps');
 
-    autorun(() => {
-      // console.log(store)
-      console.log(store.unfinishedTodoCount)
-      this.todos = store.todos.slice()
-    })
   }
   componentWillLoad() {
     Utils.log_componentWillLoad(this.compName);
     this.gisMap = this.createMap();
   }
 
-  // componentWillUpdate() {
-  // }
-
   render() {
     return (
       <div>
-        <tool-bar gisMap={this.gisMap} 
-          distanceUnitType={this.distanceUnitTypeState} 
-          config={this.gisViewerProps.toolbarConfig} 
-          coordinateSystemType={this.coordinateSystemTypeState}
-          isZoomControl={this.gisViewerProps.mapConfig.isZoomControl}
-          mouseCoordinateConfig={this.gisViewerProps.mapPluginsConfig.mouseCoordinateConfig}
-          clusterHeatMode={this.gisViewerProps.mapConfig.mode}
+        <tool-bar 
+          gisMap={this.gisMap} 
+          config={store.state.toolbarConfig} 
+          mouseCoordinateConfig={store.state.mapPluginsConfig.mouseCoordinateConfig}
+          // isZoomControl={store.state.mapConfig.isZoomControl}
         />
 
         {_.get(this, "gisViewerProps.mapPluginsConfig.scaleConfig.enable") ? (
           <scale-plugin
             gisMap={this.gisMap}
-            config={this.gisViewerProps.mapPluginsConfig.scaleConfig}
-            distanceUnitType={this.distanceUnitTypeState}
+            config={store.state.mapPluginsConfig.scaleConfig}
           />
           ) : ('')
         }
@@ -102,7 +78,7 @@ export class MapContainer {
         {_.get(this, "gisViewerProps.mapPluginsConfig.miniMapConfig.enable") ? (
           <mini-map-plugin
             gisMap={this.gisMap}
-            config={this.gisViewerProps.mapPluginsConfig.miniMapConfig}
+            config={store.state.mapPluginsConfig.miniMapConfig}
           />
           ) : ('')
         }
@@ -110,8 +86,7 @@ export class MapContainer {
         {_.get(this, "gisViewerProps.mapPluginsConfig.mouseCoordinateConfig.enable") ? (
           <mouse-coordinate-plugin
             gisMap={this.gisMap}
-            config={this.gisViewerProps.mapPluginsConfig.mouseCoordinateConfig}
-            coordinateSystemType={this.coordinateSystemTypeState}
+            config={store.state.mapPluginsConfig.mouseCoordinateConfig}
           />
           ) : ('')
         }

@@ -1,11 +1,16 @@
 import { GIS_VIEWER_TAG } from '../../utils/statics';
 import Utils from '../../utils/utilities';
+import store from '../store/store';
 // import * as pkgjson from '../../../package.json';
 // import {version} from '../../../../../stencil.config'
 export class GisViewer {
     constructor() {
         this.compName = GIS_VIEWER_TAG;
     }
+    // @Watch('gisViewerProps')
+    // aaa () {
+    //   debugger
+    // }
     getVersion() {
         // Include version number in compile
         // var pjson = require('../../../package.json');
@@ -22,10 +27,13 @@ export class GisViewer {
         this.mapContainerEl.changeCoordinateSystem();
     }
     componentWillLoad() {
-        // this.gisViewerProps
+        store.initState(this.gisViewerProps);
+    }
+    componentWillUpdate() {
+        store.updateState(this.gisViewerProps);
     }
     render() {
-        return h("map-container", { id: "map", gisViewerProps: this.gisViewerProps });
+        return h("map-container", { id: 'map', gisViewerProps: store.state });
     }
     componentDidLoad() {
         Utils.log_componentDidLoad(this.compName);

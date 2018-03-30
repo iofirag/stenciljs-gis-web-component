@@ -9,6 +9,7 @@ export declare class GisViewer {
     changeDistanceUnits(): void;
     changeCoordinateSystem(): void;
     componentWillLoad(): void;
+    componentWillUpdate(): void;
     render(): JSX.Element;
     componentDidLoad(): void;
 }

@@ -44,6 +44,35 @@
       ]
     },
     {
+      "tag": "custom-settings",
+      "dependencies": [
+        "custom-drop-down-plugin"
+      ],
+      "componentClass": "CustomSettings",
+      "componentPath": "components/gis-viewer/map-container/tool-bar/custom-settings/custom-settings.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "components/gis-viewer/map-container/tool-bar/custom-settings/custom-settings.scss"
+          ]
+        }
+      },
+      "props": [
+        {
+          "name": "gisMap",
+          "attr": "gis-map"
+        }
+      ],
+      "methods": [
+        {
+          "name": "getElement"
+        }
+      ],
+      "hostElement": {
+        "name": "el"
+      }
+    },
+    {
       "tag": "dev-component",
       "dependencies": [
         "gis-viewer"
@@ -80,10 +109,6 @@
         {
           "name": "config",
           "attr": "config"
-        },
-        {
-          "name": "distanceUnitType",
-          "attr": "distance-unit-type"
         },
         {
           "name": "gisMap",
@@ -279,19 +304,7 @@
       ],
       "states": [
         {
-          "name": "coordinateSystemTypeState"
-        },
-        {
-          "name": "distanceUnitTypeState"
-        },
-        {
           "name": "gisMap"
-        },
-        {
-          "name": "title"
-        },
-        {
-          "name": "todos"
         }
       ],
       "methods": [
@@ -326,13 +339,6 @@
         {
           "name": "config",
           "attr": "config"
-        },
-        {
-          "name": "distanceUnitType",
-          "attr": "distance-unit-type",
-          "watch": [
-            "watchDistanceUnitType"
-          ]
         },
         {
           "name": "gisMap",
@@ -397,13 +403,6 @@
           "attr": "config"
         },
         {
-          "name": "coordinateSystemType",
-          "attr": "coordinate-system-type",
-          "watch": [
-            "watchCoordinateSystemType"
-          ]
-        },
-        {
           "name": "gisMap",
           "attr": "gis-map"
         }
@@ -436,13 +435,6 @@
         {
           "name": "config",
           "attr": "config"
-        },
-        {
-          "name": "distanceUnitType",
-          "attr": "distance-unit-type",
-          "watch": [
-            "watchDistanceUnitType"
-          ]
         },
         {
           "name": "gisMap",
@@ -497,7 +489,7 @@
     {
       "tag": "tool-bar",
       "dependencies": [
-        "custom-drop-down-plugin",
+        "custom-settings",
         "draw-bar-plugin",
         "drop-down-plugin",
         "full-screen-plugin",
@@ -517,29 +509,12 @@
       },
       "props": [
         {
-          "name": "clusterHeatMode",
-          "attr": "cluster-heat-mode"
-        },
-        {
           "name": "config",
           "attr": "config"
         },
         {
-          "name": "coordinateSystemType",
-          "attr": "coordinate-system-type"
-        },
-        {
-          "name": "distanceUnitType",
-          "attr": "distance-unit-type"
-        },
-        {
           "name": "gisMap",
           "attr": "gis-map"
-        },
-        {
-          "name": "isZoomControl",
-          "type": "Boolean",
-          "attr": "is-zoom-control"
         },
         {
           "name": "mouseCoordinateConfig",
@@ -554,28 +529,12 @@
           "name": "exportDropDownData"
         },
         {
-          "name": "isZoomControlState"
-        },
-        {
           "name": "settingsDropDownData"
-        }
-      ],
-      "listeners": [
-        {
-          "event": "coordsSystemTypeEm",
-          "method": "coordsSystemTypeEmHandler",
-          "passive": false,
-          "capture": false
         }
       ],
       "hostElement": {
         "name": "el"
-      },
-      "events": [
-        {
-          "event": "coordsChangeEm"
-        }
-      ]
+      }
     },
     {
       "tag": "zoom-to-extent-plugin",

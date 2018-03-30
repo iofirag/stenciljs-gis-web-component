@@ -2,14 +2,13 @@ import L from 'leaflet';
 import { SCALE_PLUGIN_TAG } from '../../../../utils/statics';
 import Utils from '../../../../utils/utilities';
 import _ from 'lodash';
+import { reaction } from 'mobx';
+import store from '../../../store/store';
 export class ScalePlugin {
     constructor() {
         this.compName = SCALE_PLUGIN_TAG;
         this.pluginSupportedUnits = ['km', 'mi'];
-    }
-    watchDistanceUnitType(newValue) {
-        // Visibility of elements
-        this.showScaleUnitsElementByType(newValue);
+        reaction(() => store.state.mapConfig.distanceUnitType, distanceUnitType => this.showScaleUnitsElementByType(distanceUnitType));
     }
     getControl() {
         return this.control;
@@ -54,7 +53,7 @@ export class ScalePlugin {
         this.control = L.control.scale(options);
         this.gisMap.addControl(this.control);
         this.initUnitElementsWithClasses();
-        this.showScaleUnitsElementByType(this.distanceUnitType);
+        this.showScaleUnitsElementByType(store.state.mapConfig.distanceUnitType);
     }
     initUnitElementsWithClasses() {
         // Initialization for element's class
@@ -73,6 +72,6 @@ export class ScalePlugin {
         this.gisMap.removeControl(this.control);
     }
     static get is() { return "scale-plugin"; }
-    static get properties() { return { "config": { "type": "Any", "attr": "config" }, "control": { "state": true }, "distanceUnitType": { "type": "Any", "attr": "distance-unit-type", "watchCallbacks": ["watchDistanceUnitType"] }, "getControl": { "method": true }, "gisMap": { "type": "Any", "attr": "gis-map" } }; }
+    static get properties() { return { "config": { "type": "Any", "attr": "config" }, "control": { "state": true }, "getControl": { "method": true }, "gisMap": { "type": "Any", "attr": "gis-map" } }; }
     static get style() { return "/**style-placeholder:scale-plugin:**/"; }
 }

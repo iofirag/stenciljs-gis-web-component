@@ -28,7 +28,8 @@
     "leaflet.polylinemeasure": "git+https://github.com/iofirag/Leaflet.PolylineMeasure.git",
     "leaflet.styledlayercontrol": "git+https://github.com/iofirag/Leaflet.StyledLayerControl.git",
     "lodash": "^4.17.5",
-    "mobx": "^4.1.0"
+    "mobx": "^4.1.0",
+    "redux": "^3.7.2"
   },
   "devDependencies": {
     "@stencil/core": "^0.7.5",

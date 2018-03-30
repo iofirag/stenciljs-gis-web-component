@@ -63,12 +63,18 @@ export class layerManagerPlugin {
         // // Every layer add/remove
         // this.gisMap.on("layeradd", this.onLayerAdd);
         // this.gisMap.on("layerremove", this.onLayerRemove);
+        this.fixCss();
     }
     componentDidUnload() {
         console.log(`componentDidUnload - ${this.compName}`);
         this.gisMap.removeControl(this.control as L.Control);
     }
 
+    private fixCss() {
+        // Fix css
+        let formEl: HTMLElement = this.gisMap.getContainer().querySelector('.leaflet-control-layers-scrollbar');
+        formEl ? formEl.classList.remove('leaflet-control-layers-scrollbar') : null
+    }
     private createToolbarButton(tagElement: string, className: string, title?: string, innerHTML?: any) {
         const button = L.DomUtil.create(tagElement, `custom-toolbar-button ${className}`);
 

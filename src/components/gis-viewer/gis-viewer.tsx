@@ -2,6 +2,7 @@ import { Component, Prop, Method } from '@stencil/core';
 import { GIS_VIEWER_TAG } from '../../utils/statics';
 import Utils from '../../utils/utilities';
 import { GisViewerProps } from '../../models';
+import store from '../store/store';
 // import * as pkgjson from '../../../package.json';
 // import {version} from '../../../../../stencil.config'
 
@@ -18,6 +19,10 @@ export class GisViewer {
   // @Element() el: HTMLElement;
   @Prop() gisViewerProps: GisViewerProps;
 
+  // @Watch('gisViewerProps')
+  // aaa () {
+  //   debugger
+  // }
 
 
   @Method()
@@ -40,11 +45,15 @@ export class GisViewer {
     this.mapContainerEl.changeCoordinateSystem();
   }
 
+
   componentWillLoad() {
-    // this.gisViewerProps
+    store.initState(this.gisViewerProps);
+  }
+  componentWillUpdate() {
+    store.updateState(this.gisViewerProps)
   }
   render() {
-    return <map-container id="map" gisViewerProps={this.gisViewerProps} />;
+    return <map-container id='map' gisViewerProps={store.state} />;
   }
 
   componentDidLoad() {

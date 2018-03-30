@@ -333,6 +333,10 @@ $clusterBoxShadow: rgba(80, 80, 80, 0.7);
   }
 }
 
+.leaflet-left, .leaflet-right, .leaflet-top, .leaflet-bottom {
+  z-index: 99999;
+}
+
 @keyframes pulse-me-cluster {
   0% {
     box-shadow: 0px 0px 0px 0px rgba(0, 166, 218, 0);

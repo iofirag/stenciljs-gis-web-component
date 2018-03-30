@@ -11,6 +11,7 @@ export declare const SEARCH_PLUGIN_TAG: string;
 export declare const LAYER_MANAGER_PLUGIN_TAG: string;
 export declare const DROP_DOWN_PLUGIN_TAG: string;
 export declare const CUSTOM_DROP_DOWN_PLUGIN_TAG: string;
+export declare const CUSTOM_SETTINGS_TAG: string;
 export declare const MINI_MAP_PLUGIN_TAG: string;
 export declare const SCALE_PLUGIN_TAG: string;
 export declare const MOUSE_COORDINATE_PLUGIN_TAG: string;

@@ -1,10 +1,12 @@
 import { Component, Prop, State, Method } from "@stencil/core";
-import { DrawBarConfig, DistanceUnitType } from "../../../../../models";
+import { DrawBarConfig } from "../../../../../models";
 import * as leafletDraw from 'leaflet-draw';
 import L from "leaflet";
 import { DRAW_BAR_PLUGIN_TAG } from "../../../../../utils/statics";
 import Utils from "../../../../../utils/utilities";
 import _ from "lodash";
+import store from "../../../../store/store";
+import { reaction } from "mobx";
 
 @Component({
     tag: 'draw-bar-plugin',
@@ -17,7 +19,6 @@ export class DrawBarPlugin {
     compName: string = DRAW_BAR_PLUGIN_TAG;
     @Prop() config: DrawBarConfig
     @Prop() gisMap: L.Map
-    @Prop() distanceUnitType: DistanceUnitType
 
     @State() control: L.Control;
     @State() drawnLayer: L.FeatureGroup;
@@ -25,6 +26,13 @@ export class DrawBarPlugin {
     @Method()
     getControl() {
         return this.control;
+    }
+
+    constructor() {
+        reaction(
+            () => store.state.mapConfig.distanceUnitType,
+            distanceUnitType => console.log(`${this.compName} ${distanceUnitType}`)
+        );
     }
     
     componentDidLoad() {

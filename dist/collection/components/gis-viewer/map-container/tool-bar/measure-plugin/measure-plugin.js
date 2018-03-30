@@ -2,13 +2,12 @@ import L from "leaflet";
 import * as measure from 'leaflet.polylinemeasure';
 import { MEASURE_PLUGIN_TAG } from "../../../../../utils/statics";
 import Utils from "../../../../../utils/utilities";
+import store from "../../../../store/store";
+import { reaction } from "mobx";
 export class MeasurePlugin {
     constructor() {
         this.compName = MEASURE_PLUGIN_TAG;
-    }
-    watchDistanceUnitType(newValue) {
-        console.log(newValue);
-        this.changePluginUnits(newValue);
+        reaction(() => store.state.mapConfig.distanceUnitType, distanceUnitType => this.changePluginUnits(distanceUnitType));
     }
     getControl() {
         return this.control;
@@ -60,12 +59,12 @@ export class MeasurePlugin {
     }
     createPlugin(options) {
         Utils.doNothing(options);
-        const clonedOptions = Object.assign({ showUnitControl: true }, { unit: this.fromGlobalUnitToPluginUnit(this.distanceUnitType) }, options);
+        const clonedOptions = Object.assign({ showUnitControl: true }, { unit: this.fromGlobalUnitToPluginUnit(store.state.mapConfig.distanceUnitType) }, options);
         options.position = 'bottomleft';
         let control = new L.Control.PolylineMeasure(clonedOptions);
         return control;
     }
     static get is() { return "measure-plugin"; }
-    static get properties() { return { "config": { "type": "Any", "attr": "config" }, "control": { "state": true }, "distanceUnitType": { "type": "Any", "attr": "distance-unit-type", "watchCallbacks": ["watchDistanceUnitType"] }, "getControl": { "method": true }, "gisMap": { "type": "Any", "attr": "gis-map" } }; }
+    static get properties() { return { "config": { "type": "Any", "attr": "config" }, "control": { "state": true }, "getControl": { "method": true }, "gisMap": { "type": "Any", "attr": "gis-map" } }; }
     static get style() { return "/**style-placeholder:measure-plugin:**/"; }
 }

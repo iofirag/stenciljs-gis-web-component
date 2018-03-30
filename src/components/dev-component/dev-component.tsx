@@ -16,8 +16,10 @@ import {
   ToolbarConfig,
   FullScreenConfig,
   MapConfig,
+  CoordinateSystemType,
 } from '../../models';
 import { GIS_VIEWER_TAG } from '../../utils/statics';
+import store from '../store/store';
 
 @Component({
   tag: 'dev-component',
@@ -66,6 +68,7 @@ export class DevComponent {
           <input type='button' value='Zoom To Extend' onClick={e => this.testZoomToExtend(e)} />
           <input type='button' value='Change Units distance' onClick={e => this.testChangeDistanceUnits(e)} />
           <input type='button' value='Change Coordinate System' onClick={e => this.testChangeCoordinateSystem(e)} />
+          <input type='button' value='Change Coordinate System in props' onClick={e => this.testChangeCoordinateSystemInProps(e)} />
           {/* <input type='button' value='' onClick={() => {}} /> */}
 
           {/* <RaisedButton label='Export draw' primary={true} onClick={this.testExportDraw} />
@@ -111,10 +114,26 @@ export class DevComponent {
     console.log('Testing ChangeDistanceUnits command', e.type);    
     this.gisViewerEl.changeDistanceUnits();
   }
+
+
+
   testChangeCoordinateSystem(e: UIEvent) {
     console.log('Testing changeCoordinateSystem command', e.type);
     this.gisViewerEl.changeCoordinateSystem();
   }
+  testChangeCoordinateSystemInProps(e: UIEvent) {
+    console.log('Testing testChangeCoordinateSystemInProps command', e.type);
+    const coordinateSystemTypes: CoordinateSystemType[] = ['utm', 'utmref', 'gps'];
+    let index = coordinateSystemTypes.indexOf(store.state.mapConfig.coordinateSystemType);
+    index++;
+    if (index === coordinateSystemTypes.length) index = 0;
+    this.gisViewerState.mapConfig.coordinateSystemType = coordinateSystemTypes[index];
+
+    this.gisViewerState = { ...this.gisViewerState };
+  }
+
+
+  
 
   createDevState(): GisViewerProps {
     const protocol = 'http:';

@@ -3,6 +3,7 @@ const { h } = window.gisviewer;
 
 import Utils, { commonjsGlobal, createCommonjsModule, default$1 as L$1, MEASURE_PLUGIN_TAG } from './chunk1.js';
 import require$$0 from './chunk3.js';
+import store, { reaction } from './chunk2.js';
 
 var Leaflet_PolylineMeasure = createCommonjsModule(function (module) {
 (function (factory) {
@@ -484,7 +485,6 @@ var Leaflet_PolylineMeasure = createCommonjsModule(function (module) {
          */
         _getDistance: function (distance) {
             var dist = distance;
-            var unit;
             if (self.options.unit === 'nauticalmiles') {
                 unit = "nm";
                 if (dist >= 1852000) {
@@ -537,18 +537,18 @@ var Leaflet_PolylineMeasure = createCommonjsModule(function (module) {
         _polylineArc: function (_from, _to) {
             
             function _GCinterpolate (f) {
-                var A = Math.sin((1 - f) * d) / Math.sin(d);
-                var B = Math.sin(f * d) / Math.sin(d);
-                var x = A * Math.cos(fromLat) * Math.cos(fromLng) + B * Math.cos(toLat) * Math.cos(toLng);
-                var y = A * Math.cos(fromLat) * Math.sin(fromLng) + B * Math.cos(toLat) * Math.sin(toLng);
-                var z = A * Math.sin(fromLat) + B * Math.sin(toLat);
+                A = Math.sin((1 - f) * d) / Math.sin(d);
+                B = Math.sin(f * d) / Math.sin(d);
+                x = A * Math.cos(fromLat) * Math.cos(fromLng) + B * Math.cos(toLat) * Math.cos(toLng);
+                y = A * Math.cos(fromLat) * Math.sin(fromLng) + B * Math.cos(toLat) * Math.sin(toLng);
+                z = A * Math.sin(fromLat) + B * Math.sin(toLat);
                 // atan2 better than atan-function cause results are from -pi to +pi
                 // => results of latInterpol, lngInterpol always within range -180° ... +180°  => conversion into values < -180° or > + 180° has to be done afterwards
-                var latInterpol = 180 / Math.PI * Math.atan2(z, Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)));
-                var lngInterpol = 180 / Math.PI * Math.atan2(y, x);
+                latInterpol = 180 / Math.PI * Math.atan2(z, Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)));
+                lngInterpol = 180 / Math.PI * Math.atan2(y, x);
                 // don't split polyline if it crosses dateline ( -180° or +180°).  Without the polyline would look like: +179° ==> +180° ==> -180° ==> -179°...
                 // algo: if difference lngInterpol-from.lng is > 180° there's been an unwanted split from +180 to -180 cause an arc can never span >180°
-                var diff = lngInterpol-fromLng*180/Math.PI;
+                diff = lngInterpol-fromLng*180/Math.PI;
                 function trunc(n) { return Math[n > 0 ? "floor" : "ceil"](n); }   // alternatively we could use the new Math.trunc method, but Internet Explorer doesn't know it
                 if (diff < 0) {
                     lngInterpol = lngInterpol  - trunc ((diff - 180)/ 360) * 360; 
@@ -559,7 +559,7 @@ var Leaflet_PolylineMeasure = createCommonjsModule(function (module) {
             }
              
             function _GCarc (npoints) {
-                var arrArcCoords = [];
+                arrArcCoords = [];
                 var delta = 1.0 / (npoints-1 );
                 // first point of Arc should NOT be returned
                 for (var i = 0; i < npoints; i++) {
@@ -578,12 +578,11 @@ var Leaflet_PolylineMeasure = createCommonjsModule(function (module) {
             fromLng=fromLng * Math.PI / 180;
             toLat=toLat * Math.PI / 180;
             toLng=toLng * Math.PI / 180;
-            var d = 2.0 * Math.asin(Math.sqrt(Math.pow (Math.sin((fromLat - toLat) / 2.0), 2) + Math.cos(fromLat) *  Math.cos(toLat) *  Math.pow(Math.sin((fromLng - toLng) / 2.0), 2)));
-            var arrLatLngs;
+            d = 2.0 * Math.asin(Math.sqrt(Math.pow (Math.sin((fromLat - toLat) / 2.0), 2) + Math.cos(fromLat) *  Math.cos(toLat) *  Math.pow(Math.sin((fromLng - toLng) / 2.0), 2)));
             if (d === 0) {
                 arrLatLngs = [[fromLat, fromLng]];
             } else {
-                var arcpoints = 100;   // 100 points = 99 line segments. lower value to make arc less accurate or increase value to make it more accurate.
+                arcpoints = 100;   // 100 points = 99 line segments. lower value to make arc less accurate or increase value to make it more accurate.
                 arrLatLngs = _GCarc(arcpoints);
             }
             return arrLatLngs;
@@ -598,7 +597,7 @@ var Leaflet_PolylineMeasure = createCommonjsModule(function (module) {
          */
         _updateTooltip: function (currentTooltip, prevTooltip, total, difference, lastPointCoords, currentCoords) {
             // Explanation of formula: http://www.movable-type.co.uk/scripts/latlong.html
-            var calcAngle = function (p1, p2, direction) {
+            calcAngle = function (p1, p2, direction) {
                 var lat1 = p1.lat / 180 * Math.PI;
                 var lat2 = p2.lat / 180 * Math.PI;
                 var lng1 = p1.lng / 180 * Math.PI;
@@ -642,15 +641,14 @@ var Leaflet_PolylineMeasure = createCommonjsModule(function (module) {
             var center = [P48[0] + diffLat4849/2, P48[1] + diffLng4849/2];  // center of Great-circle distance, NOT of the arc on a Mercator map! reason: a) to complicated b) map not always Mercator c) good optical feature to see where real center of distance is not the "virtual" warped arc center due to Mercator projection
                 // angle just an aprroximation, which could be somewhat off if Line runs near high latitudes. Use of *geographical coords* for line segment [48] to [49] is best method. Use of *Pixel coords* for just one arc segement [48] to [49] could create for short lines unexact rotation angles, and the use Use of Pixel coords between endpoints [0] to [98] results in even more rotation difference for high latitudes as with geogrpaphical coords-method 
             var cssAngle = -Math.atan2(diffLat4849, diffLng4849)*57.29578;   // convert radiant to degree as needed for use as CSS value; cssAngle is opposite to mathematical angle.                 
-            var iconArrow = L.divIcon ({ 
+            iconArrow = L.divIcon ({ 
                 className: "",  // to avoid getting a default class with paddings and borders assigned by Leaflet
                 iconSize: [16, 16],
                 iconAnchor: [8, 8],
                     // html : "<img src='iconArrow.png' style='background:green; height:100%; vertical-align:top; transform:rotate("+ cssAngle +"deg)'>"  <<=== alternative method by the use of an image instead of a Unicode symbol.
                 html : "<div style = 'font-size: 16px; line-height: 16px; vertical-align:top; transform: rotate("+ cssAngle +"deg)'>&#x27a4;</div>"   // best results if iconSize = font-size = line-height and iconAnchor font-size/2 .both values needed to position symbol in center of L.divIcon for all font-sizes. 
-            });
-            var arrow = L.marker (center, {icon: iconArrow}).addTo(self._layerPaint);
-            return arrow;
+                });
+                arrow = L.marker (center, {icon: iconArrow}).addTo(self._layerPaint);
         },
 
         
@@ -747,9 +745,9 @@ var Leaflet_PolylineMeasure = createCommonjsModule(function (module) {
                         }
                         this.path.setLatLngs (this.path.getLatLngs().concat(arc));
                         // following lines needed especially for Mobile Browsers where we just use mouseclicks. No mousemoves, no tempLine.
-                        var arrow = self._drawArrow (arc);
+                        self._drawArrow (arc);
                         self._arrArrowsCurrentline.push (arrow);
-                        var distanceSegment = lastPointCoords.distanceTo(currentCoords);
+                        distanceSegment = lastPointCoords.distanceTo (currentCoords);
                         this.distance += distanceSegment;
                         var currentTooltip = self._currentLine.tooltips.last();
                         var prevTooltip = self._currentLine.tooltips.slice(-1,-2)[0];
@@ -789,7 +787,7 @@ var Leaflet_PolylineMeasure = createCommonjsModule(function (module) {
                 }
             };
             
-            let tooltipStart = L.marker(clickCoords, {
+            tooltipStart = L.marker(clickCoords, {
                     icon: icon,
                     interactive: false
                 });
@@ -960,10 +958,7 @@ var measure = Object.freeze({
 class MeasurePlugin {
     constructor() {
         this.compName = MEASURE_PLUGIN_TAG;
-    }
-    watchDistanceUnitType(newValue) {
-        console.log(newValue);
-        this.changePluginUnits(newValue);
+        reaction(() => store.state.mapConfig.distanceUnitType, distanceUnitType => this.changePluginUnits(distanceUnitType));
     }
     getControl() {
         return this.control;
@@ -1015,14 +1010,14 @@ class MeasurePlugin {
     }
     createPlugin(options) {
         Utils.doNothing(options);
-        const clonedOptions = Object.assign({ showUnitControl: true }, { unit: this.fromGlobalUnitToPluginUnit(this.distanceUnitType) }, options);
+        const clonedOptions = Object.assign({ showUnitControl: true }, { unit: this.fromGlobalUnitToPluginUnit(store.state.mapConfig.distanceUnitType) }, options);
         options.position = 'bottomleft';
         let control = new L$1.Control.PolylineMeasure(clonedOptions);
         return control;
     }
     static get is() { return "measure-plugin"; }
-    static get properties() { return { "config": { "type": "Any", "attr": "config" }, "control": { "state": true }, "distanceUnitType": { "type": "Any", "attr": "distance-unit-type", "watchCallbacks": ["watchDistanceUnitType"] }, "getControl": { "method": true }, "gisMap": { "type": "Any", "attr": "gis-map" } }; }
-    static get style() { return ".leaflet-control {\n	cursor: pointer;\n}\n\n.polyline-measure-unicode-icon {\n	font-size: 19px;\n	font-weight: bold;\n}\n\na.polyline-measure-clearControl:active {\n	background-color: #f88;\n}\n\n.polyline-measure-tooltip {\n	font: 10px Arial, Helvetica, sans-serif;\n    line-height: 10px;\n	background-color: rgba(255, 255, 170, 0.7);\n    border-radius: 3px;\n	box-shadow: 1px 1px 4px #888;\n	margin: 0;\n	padding: 2px;\n	width: auto !important;\n	height: auto !important;\n	white-space: nowrap;\n    text-align: right;\n}\n\n.polyline-measure-tooltip-end {\n	background-color: rgba(255, 255, 40, 0.7);\n}\n\n.polyline-measure-tooltip-total {\n	color: #006;\n    font-weight: bold;\n}\n\n.polyline-measure-tooltip-difference {\n	color: #060;\n	font-style: italic;\n}\n\n.polyline-measure-popupTooltip {\n	font: 11px Arial, Helvetica, sans-serif;\n    line-height: 11px;\n}\n\n\n#unitControlId {\n  display: none; }\n"; }
+    static get properties() { return { "config": { "type": "Any", "attr": "config" }, "control": { "state": true }, "getControl": { "method": true }, "gisMap": { "type": "Any", "attr": "gis-map" } }; }
+    static get style() { return ".polyline-measure-tooltip {\n	font: 10px Arial, Helvetica, sans-serif;\n    line-height: 10px;\n	background-color: rgba(255, 255, 170, 0.7);\n    border-radius: 3px;\n	box-shadow: 1px 1px 4px #888;\n	margin: 0;\n	padding: 2px;\n	width: auto !important;\n	height: auto !important;\n	white-space: nowrap;\n    text-align: right;\n}\n\n.polyline-measure-tooltip-end {\n	background-color: rgba(255, 255, 70, 0.7);\n}\n\n.polyline-measure-tooltip-total {\n	color: #006;\n    font-weight: bold;\n}\n\n.polyline-measure-tooltip-difference {\n	color: #060;\n	font-style: italic;\n}\n\n.polyline-measure-unicode-icon {\n	font-size: 19px;\n	font-weight: bold;\n}\n.leaflet-control {\n	cursor: pointer;\n}\n\na.polyline-measure-clearControl:active {\n	background-color: #f88;\n}\n\n#unitControlId {\n  display: none; }\n"; }
 }
 
 export { MeasurePlugin };

@@ -1,9 +1,11 @@
-import { Component, Prop, State, Watch, Method } from "@stencil/core";
+import { Component, Prop, State, Method } from "@stencil/core";
 import L from "leaflet";
 import * as measure from 'leaflet.polylinemeasure';
 import { MEASURE_PLUGIN_TAG } from "../../../../../utils/statics";
 import Utils from "../../../../../utils/utilities";
 import { MeasureConfig, DistanceUnitType, MeasureOptions } from "../../../../../models";
+import store from "../../../../store/store";
+import { reaction } from "mobx";
 
 
 @Component({
@@ -17,21 +19,20 @@ export class MeasurePlugin {
     compName: string = MEASURE_PLUGIN_TAG
     @Prop() config: MeasureConfig
     @Prop() gisMap: L.Map
-    @Prop() distanceUnitType: DistanceUnitType
 
     @State() control: L.Control;
-
-    @Watch('distanceUnitType')
-    watchDistanceUnitType(newValue: DistanceUnitType) {
-        console.log(newValue);
-        this.changePluginUnits(newValue);
-    }
 
     @Method()
     getControl() {
         return this.control;
     }
     
+    constructor() {
+        reaction(
+            () => store.state.mapConfig.distanceUnitType,
+            distanceUnitType => this.changePluginUnits(distanceUnitType)
+        );
+    }
     private fromGlobalUnitToPluginUnit(globalUnit: DistanceUnitType): string {
         switch (globalUnit.toLowerCase()) {
             case 'km':
@@ -85,7 +86,7 @@ export class MeasurePlugin {
         Utils.doNothing(options);
         const clonedOptions: PolylineMeasureOptions_Dev = Object.assign(
             { showUnitControl: true },
-            { unit: this.fromGlobalUnitToPluginUnit(this.distanceUnitType) },
+            { unit: this.fromGlobalUnitToPluginUnit(store.state.mapConfig.distanceUnitType) },
             options
         );
         options.position = 'bottomleft';

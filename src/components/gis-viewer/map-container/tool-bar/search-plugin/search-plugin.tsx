@@ -18,7 +18,7 @@ export class SearchPlugin {
     @Prop() config: SearchConfig
     @Prop() gisMap: L.Map
 
-    @State() control: L.Control;
+    @State() control: L.Control.Search;
     
     @Method()
     getControl() {
@@ -40,7 +40,7 @@ export class SearchPlugin {
 //         console.log(`componentDidUnload - ${this.compName}`);
 //         this.gisMap.removeControl(this.control);
 //     }
-    private createPlugin(options: SearchOptions): L.Control {
+    private createPlugin(options: SearchOptions): L.Control.Search {
         Utils.doNothing(options);
 
         const searchController: any = new L.Control.Search({

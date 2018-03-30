@@ -14,6 +14,7 @@ export const SEARCH_PLUGIN_TAG = 'search-plugin';
 export const LAYER_MANAGER_PLUGIN_TAG = 'layer-manager-plugin';
 export const DROP_DOWN_PLUGIN_TAG = 'drop-down-plugin';
 export const CUSTOM_DROP_DOWN_PLUGIN_TAG = 'custom-drop-down-plugin';
+export const CUSTOM_SETTINGS_TAG = 'custom-settings';
 export const MINI_MAP_PLUGIN_TAG = 'mini-map-plugin';
 export const SCALE_PLUGIN_TAG = 'scale-plugin';
 export const MOUSE_COORDINATE_PLUGIN_TAG = 'mouse-coordinate-plugin';

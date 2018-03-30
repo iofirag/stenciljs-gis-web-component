@@ -1,19 +1,15 @@
-import { TOOL_BAR_TAG, DRAW_BAR_PLUGIN_TAG, ZOOM_TO_EXTENT_PLUGIN_TAG, SEARCH_PLUGIN_TAG, MEASURE_PLUGIN_TAG, LAYER_MANAGER_PLUGIN_TAG, FULL_SCREEN_PLUGIN_TAG, FILE_TYPES, DROP_DOWN_PLUGIN_TAG, CUSTOM_DROP_DOWN_PLUGIN_TAG, CoordinateType, LayersTypeLabel } from '../../../../utils/statics';
+import { TOOL_BAR_TAG, DRAW_BAR_PLUGIN_TAG, ZOOM_TO_EXTENT_PLUGIN_TAG, SEARCH_PLUGIN_TAG, MEASURE_PLUGIN_TAG, LAYER_MANAGER_PLUGIN_TAG, FULL_SCREEN_PLUGIN_TAG, FILE_TYPES, DROP_DOWN_PLUGIN_TAG, CUSTOM_DROP_DOWN_PLUGIN_TAG, CUSTOM_SETTINGS_TAG } from '../../../../utils/statics';
 import _ from 'lodash';
-import { DropDownItemType } from '../../../../models';
 import L from 'leaflet';
 import Utils from '../../../../utils/utilities';
-// import store from '../store';
+import store from "../../../store/store";
+// import { reaction } from 'mobx';
 export class ToolBar {
     constructor() {
         this.compName = TOOL_BAR_TAG;
         this.toolbarFeaturesDecision = this.toolbarFeaturesDecision.bind(this);
     }
-    coordsSystemTypeEmHandler(coordsUnit) {
-        console.log(`Toolbar - coordsUnit= ${coordsUnit}`);
-    }
     componentWillLoad() {
-        this.isZoomControlState = _.get(this, 'isZoomControl', true);
         this.exportDropDownData = [{
                 label: 'Export KML',
                 onClick: Utils.exportBlobFactory.bind(this, FILE_TYPES.kml, {}, null, 'onSaveKmlBlob'),
@@ -28,89 +24,17 @@ export class ToolBar {
                 className: 'icon-shp'
             }];
     }
-    changeMouseCoordinate(unit) {
-        // let mapContainerEl: HTMLMapContainerElement = this.gisMap.getContainer() as HTMLMapContainerElement
-        // console.log(this)
-        // mapContainerEl.changeCoordinateSystem(unit);
-        // store.coordinateSystemTypeState = 'gps';
-        debugger;
-        this.coordsChangeEm.emit(unit);
-    }
     render() {
-        const coordinateSystemToolbarData = _.get(this, 'mouseCoordinateConfig.enable')
-            ? {
-                title: 'Coordinate system',
-                itemList: [
-                    {
-                        label: CoordinateType.MGRS,
-                        iconClassName: 'icon-pin',
-                        onClick: this.changeMouseCoordinate.bind(this, CoordinateType.MGRS),
-                        name: 'coordinates',
-                        type: DropDownItemType.RADIO_BUTTON,
-                        isSelected: true //!!_.get(context, 'props.mouseCoordinate.utmref'),
-                    }, {
-                        label: CoordinateType.UTM,
-                        iconClassName: 'icon-pin',
-                        onClick: this.changeMouseCoordinate.bind(this, CoordinateType.UTM),
-                        name: 'coordinates',
-                        type: DropDownItemType.RADIO_BUTTON,
-                        isSelected: true //!!_.get(context, 'props.mouseCoordinate.utm'),
-                    }, {
-                        label: CoordinateType.DECIMAL,
-                        iconClassName: 'icon-pin',
-                        onClick: this.changeMouseCoordinate.bind(this, CoordinateType.DECIMAL),
-                        name: 'coordinates',
-                        type: DropDownItemType.RADIO_BUTTON,
-                        isSelected: true //!!_.get(context, 'props.mouseCoordinate.gps'),
-                    }
-                ],
-            }
-            : null;
-        const toolbarLayerSettingsConfig = _.get(this, 'config.toolbarPluginsConfig.layerManagerConfig.enable')
-            ? {
-                title: 'Layers',
-                itemList: [
-                    {
-                        label: LayersTypeLabel.HEAT,
-                        iconClassName: 'icon-heatmap',
-                        onClick: null,
-                        name: 'layers',
-                        type: DropDownItemType.RADIO_BUTTON,
-                        isSelected: this.clusterHeatMode === 'heat',
-                    }, {
-                        label: LayersTypeLabel.CLUSTER,
-                        iconClassName: 'icon-cluster',
-                        onClick: null,
-                        name: 'layers',
-                        type: DropDownItemType.RADIO_BUTTON,
-                        isSelected: this.clusterHeatMode === 'cluster',
-                    },
-                ],
-            }
-            : null;
-        const vectorsData = {
-            title: 'Vectors Data',
-            itemList: [
-                {
-                    label: 'Cell Data Towers',
-                    // iconClassName: 'icon-cluster',
-                    onClick: null,
-                    name: 'Cell Data Towers',
-                    type: DropDownItemType.CHECK_BOX,
-                    isSelected: this.clusterHeatMode === 'cluster',
-                },
-            ]
-        };
-        const dropDownData = [coordinateSystemToolbarData, toolbarLayerSettingsConfig, vectorsData];
-        const settingsDropDownData = _.filter(dropDownData, (item) => item !== null);
         return (h("div", null,
             h("layer-manager-plugin", { gisMap: this.gisMap, config: this.config.toolbarPluginsConfig.layerManagerConfig }),
-            _.get(this, 'config.isSettings') ? (h("custom-drop-down-plugin", { gisMap: this.gisMap, dropDownData: settingsDropDownData, customControlName: 'Export Map', dropDownTitle: 'Settings' })) : (''),
+            _.get(this, 'config.isSettings') ? (
+            // <custom-drop-down-plugin gisMap={this.gisMap} dropDownData={null} customControlName={'settings'} dropDownTitle={'Settings'} />
+            h("custom-settings", { gisMap: this.gisMap })) : (''),
             _.get(this, 'config.isExport') ? (h("drop-down-plugin", { gisMap: this.gisMap, dropDownData: this.exportDropDownData, dropDownTitle: 'Export Map' })) : (''),
-            _.get(this, 'config.toolbarPluginsConfig.drawBarConfig.enable') ? (h("draw-bar-plugin", { gisMap: this.gisMap, config: this.config.toolbarPluginsConfig.drawBarConfig, distanceUnitType: this.distanceUnitType })) : (''),
+            _.get(this, 'config.toolbarPluginsConfig.drawBarConfig.enable') ? (h("draw-bar-plugin", { gisMap: this.gisMap, config: this.config.toolbarPluginsConfig.drawBarConfig })) : (''),
             _.get(this, "config.toolbarPluginsConfig.zoomToExtentConfig.enable") ? (h("zoom-to-extent-plugin", { gisMap: this.gisMap, config: this.config.toolbarPluginsConfig.zoomToExtentConfig })) : (''),
             _.get(this, "config.toolbarPluginsConfig.fullScreenConfig.enable") ? (h("full-screen-plugin", { gisMap: this.gisMap, config: this.config.toolbarPluginsConfig.fullScreenConfig })) : (''),
-            _.get(this, "config.toolbarPluginsConfig.measureConfig.enable") ? (h("measure-plugin", { gisMap: this.gisMap, config: this.config.toolbarPluginsConfig.measureConfig, distanceUnitType: this.distanceUnitType })) : (''),
+            _.get(this, "config.toolbarPluginsConfig.measureConfig.enable") ? (h("measure-plugin", { gisMap: this.gisMap, config: this.config.toolbarPluginsConfig.measureConfig })) : (''),
             _.get(this, "config.toolbarPluginsConfig.searchConfig.enable") ? (h("search-plugin", { gisMap: this.gisMap, config: this.config.toolbarPluginsConfig.searchConfig })) : ('')));
     }
     componentDidLoad() {
@@ -144,31 +68,11 @@ export class ToolBar {
         const controllerActionsGroup = L.DomUtil.create('div', 'custom-toolbar-group');
         const controllerImportExportGroup = L.DomUtil.create('div', 'custom-toolbar-group');
         const container = L.DomUtil.create('div', 'custom-toolbar leaflet-draw-toolbar leaflet-bar');
-        // Draw
-        // let drawBar: HTMLElement;
-        // let editDrawBar: HTMLElement;
-        // const settingsControllerName = FeaturesNames.CUSTOM_DROP_DOWN_COMP + '_' + CustomControlName.SETTINGS;
-        // me.features
-        // let drawBarPluginEl: HTMLDrawBarPluginElement = document.querySelector(`${DRAW_BAR_PLUGIN_TAG}`);
-        // if (drawBarPluginEl) {
-        // //     const drawBarLeafletElement: any = this.features[FeaturesNames.DRAWBAR_COMP].element;
-        // //     this.addFeatureToMap(drawBarLeafletElement);
-        //     let drawBar: HTMLElement = drawBarPluginEl.getControl().getContainer().childNodes[0] as HTMLElement;
-        // //     // setting id for future styling purposes
-        //     drawBar.id = "draw-shapes-section";
-        //     // let editDrawBar: HTMLElement = drawBarPluginEl.drawControl.getContainer().childNodes[1] as HTMLElement;
-        // }
         // if (this.context.props.zoomControl && this.context.props.zoomControl.enable) {
-        if (this.isZoomControlState) {
+        if (store.state.mapConfig.isZoomControl) {
             const zoomController = this.gisMap.getContainer().querySelector('.leaflet-control-zoom');
             controllerMapGroup.appendChild(zoomController);
         }
-        // if (this.features[settingsControllerName]) {
-        //     const settingsElement: any = this.features[settingsControllerName].element;
-        //     this.addFeatureToMap(settingsElement);
-        //     // Stop double click on plugin
-        //     Utils.stopDoubleClickOnPlugin(settingsElement._container);
-        // }
         const controllerGroupMap = {
             [LAYER_MANAGER_PLUGIN_TAG]: [controllerMapGroup],
             [DRAW_BAR_PLUGIN_TAG]: [controllerDrawGroup, controllerActionsGroup],
@@ -177,7 +81,7 @@ export class ToolBar {
             [ZOOM_TO_EXTENT_PLUGIN_TAG]: [controllerMapGroup],
             [FULL_SCREEN_PLUGIN_TAG]: [controllerMapGroup],
             [DROP_DOWN_PLUGIN_TAG]: [controllerImportExportGroup],
-            [CUSTOM_DROP_DOWN_PLUGIN_TAG]: [controllerSettingsGroup],
+            [CUSTOM_SETTINGS_TAG]: [controllerSettingsGroup],
         };
         let toolbarPlugins = this.el.children[0];
         _.forEach(toolbarPlugins.children, (plugin) => {
@@ -185,13 +89,18 @@ export class ToolBar {
             let container;
             let controlList;
             switch (plugin.tagName.toLowerCase()) {
-                case CUSTOM_DROP_DOWN_PLUGIN_TAG:
-                    container = plugin.getControl().getContainer();
-                    Utils.stopDoubleClickOnPlugin(container);
-                    controlList = controllerGroupMap[CUSTOM_DROP_DOWN_PLUGIN_TAG];
-                    controlList.forEach(cg => {
-                        cg.appendChild(container);
-                    });
+                case CUSTOM_SETTINGS_TAG:
+                    // container = (plugin) //.getContainer();
+                    let settingsTag = plugin;
+                    let customDropDownPluginEl = settingsTag.querySelector(`${CUSTOM_DROP_DOWN_PLUGIN_TAG}`);
+                    if (customDropDownPluginEl) {
+                        container = customDropDownPluginEl.getControl().getContainer();
+                        Utils.stopDoubleClickOnPlugin(container);
+                        controlList = controllerGroupMap[CUSTOM_SETTINGS_TAG];
+                        controlList.forEach(cg => {
+                            cg.appendChild(container);
+                        });
+                    }
                     break;
                 case LAYER_MANAGER_PLUGIN_TAG:
                     htmlElement = plugin.getHtmlBtEl();
@@ -272,7 +181,6 @@ export class ToolBar {
         return container;
     }
     static get is() { return "tool-bar"; }
-    static get properties() { return { "clusterHeatMode": { "type": "Any", "attr": "cluster-heat-mode" }, "config": { "type": "Any", "attr": "config" }, "coordinateSystemType": { "type": "Any", "attr": "coordinate-system-type" }, "distanceUnitType": { "type": "Any", "attr": "distance-unit-type" }, "el": { "elementRef": true }, "element": { "state": true }, "exportDropDownData": { "state": true }, "gisMap": { "type": "Any", "attr": "gis-map" }, "isZoomControl": { "type": Boolean, "attr": "is-zoom-control" }, "isZoomControlState": { "state": true }, "mouseCoordinateConfig": { "type": "Any", "attr": "mouse-coordinate-config" }, "settingsDropDownData": { "state": true } }; }
-    static get events() { return [{ "name": "coordsChangeEm", "method": "coordsChangeEm", "bubbles": true, "cancelable": true, "composed": true }]; }
+    static get properties() { return { "config": { "type": "Any", "attr": "config" }, "el": { "elementRef": true }, "element": { "state": true }, "exportDropDownData": { "state": true }, "gisMap": { "type": "Any", "attr": "gis-map" }, "mouseCoordinateConfig": { "type": "Any", "attr": "mouse-coordinate-config" }, "settingsDropDownData": { "state": true } }; }
     static get style() { return "/**style-placeholder:tool-bar:**/"; }
 }

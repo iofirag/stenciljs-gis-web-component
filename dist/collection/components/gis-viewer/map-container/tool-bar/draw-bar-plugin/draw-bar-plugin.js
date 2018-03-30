@@ -3,9 +3,12 @@ import L from "leaflet";
 import { DRAW_BAR_PLUGIN_TAG } from "../../../../../utils/statics";
 import Utils from "../../../../../utils/utilities";
 import _ from "lodash";
+import store from "../../../../store/store";
+import { reaction } from "mobx";
 export class DrawBarPlugin {
     constructor() {
         this.compName = DRAW_BAR_PLUGIN_TAG;
+        reaction(() => store.state.mapConfig.distanceUnitType, distanceUnitType => console.log(`${this.compName} ${distanceUnitType}`));
     }
     getControl() {
         return this.control;
@@ -34,6 +37,6 @@ export class DrawBarPlugin {
         this.gisMap.removeControl(this.control);
     }
     static get is() { return "draw-bar-plugin"; }
-    static get properties() { return { "config": { "type": "Any", "attr": "config" }, "control": { "state": true }, "distanceUnitType": { "type": "Any", "attr": "distance-unit-type" }, "drawnLayer": { "state": true }, "getControl": { "method": true }, "gisMap": { "type": "Any", "attr": "gis-map" } }; }
+    static get properties() { return { "config": { "type": "Any", "attr": "config" }, "control": { "state": true }, "drawnLayer": { "state": true }, "getControl": { "method": true }, "gisMap": { "type": "Any", "attr": "gis-map" } }; }
     static get style() { return "/**style-placeholder:draw-bar-plugin:**/"; }
 }
