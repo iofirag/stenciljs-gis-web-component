@@ -1,4 +1,3 @@
-// import * as leaflet from "leaflet";
 import { MAP_CONTAINER_TAG, ZOOM_TO_EXTENT_PLUGIN_TAG, MAX_NORTH_EAST, MAX_SOUTH_WEST } from '../../../utils/statics';
 import Utils from '../../../utils/utilities';
 import _ from 'lodash';
@@ -8,6 +7,8 @@ export class MapContainer {
     constructor() {
         this.compName = MAP_CONTAINER_TAG;
     }
+    // styleLayerManagerControl: L.Control.StyledLayerControl;
+    // layerManagerEl: HTMLLayerManagerPluginElement;
     zoomToExtent() {
         const zoomToExtentEl = this.el.querySelector(ZOOM_TO_EXTENT_PLUGIN_TAG);
         zoomToExtentEl.zoomToExtent();
@@ -36,25 +37,25 @@ export class MapContainer {
     }
     componentWillLoad() {
         Utils.log_componentWillLoad(this.compName);
+        store.mapLayers.baseMaps = Utils.initStoreWithMapTiles(this.gisViewerProps.tileLayers);
+        store.mapLayers.initialLayers = Utils.initiateLayers(this.gisViewerProps.shapeLayers);
         this.gisMap = this.createMap();
     }
     render() {
         return (h("div", null,
-            h("tool-bar", { gisMap: this.gisMap, config: store.state.toolbarConfig, mouseCoordinateConfig: store.state.mapPluginsConfig.mouseCoordinateConfig }),
+            h("tool-bar", { gisMap: this.gisMap, config: store.state.toolbarConfig }),
             _.get(this, "gisViewerProps.mapPluginsConfig.scaleConfig.enable") ? (h("scale-plugin", { gisMap: this.gisMap, config: store.state.mapPluginsConfig.scaleConfig })) : (''),
             _.get(this, "gisViewerProps.mapPluginsConfig.miniMapConfig.enable") ? (h("mini-map-plugin", { gisMap: this.gisMap, config: store.state.mapPluginsConfig.miniMapConfig })) : (''),
             _.get(this, "gisViewerProps.mapPluginsConfig.mouseCoordinateConfig.enable") ? (h("mouse-coordinate-plugin", { gisMap: this.gisMap, config: store.state.mapPluginsConfig.mouseCoordinateConfig })) : ('')));
     }
     componentDidLoad() {
         Utils.log_componentDidLoad(this.compName);
-        // const osmUrl = "http://{s}.tile.osm.org/{z}/{x}/{y}.png";
-        // L.tileLayer(osmUrl, {}).addTo(this.gisMap);
     }
     createMap() {
         // Map options
         const extendedOptions = {}; // this.tileLayersComp.setTileLayers(this.context.mapState.baseMaps, tileProps);
         // Zoom control
-        extendedOptions.zoomControl = _.get(this, 'gisViewerProps.mapConfig.isZoomControl', true);
+        extendedOptions.zoomControl = _.get(store, 'state.mapConfig.isZoomControl', true);
         // MAX Bounds
         const northEast = L.latLng(MAX_NORTH_EAST.lat, MAX_NORTH_EAST.lng);
         const southWest = L.latLng(MAX_SOUTH_WEST.lat, MAX_SOUTH_WEST.lng);

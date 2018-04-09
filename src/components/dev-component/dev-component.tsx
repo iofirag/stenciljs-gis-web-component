@@ -16,10 +16,8 @@ import {
   ToolbarConfig,
   FullScreenConfig,
   MapConfig,
-  CoordinateSystemType,
 } from '../../models';
 import { GIS_VIEWER_TAG } from '../../utils/statics';
-import store from '../store/store';
 
 @Component({
   tag: 'dev-component',
@@ -68,7 +66,7 @@ export class DevComponent {
           <input type='button' value='Zoom To Extend' onClick={e => this.testZoomToExtend(e)} />
           <input type='button' value='Change Units distance' onClick={e => this.testChangeDistanceUnits(e)} />
           <input type='button' value='Change Coordinate System' onClick={e => this.testChangeCoordinateSystem(e)} />
-          <input type='button' value='Change Coordinate System in props' onClick={e => this.testChangeCoordinateSystemInProps(e)} />
+          <input type='button' value='Add shape in props' onClick={e => this.testAddShapeInProps(e)} />
           {/* <input type='button' value='' onClick={() => {}} /> */}
 
           {/* <RaisedButton label='Export draw' primary={true} onClick={this.testExportDraw} />
@@ -121,14 +119,16 @@ export class DevComponent {
     console.log('Testing changeCoordinateSystem command', e.type);
     this.gisViewerEl.changeCoordinateSystem();
   }
-  testChangeCoordinateSystemInProps(e: UIEvent) {
+  testAddShapeInProps(e: UIEvent) {
     console.log('Testing testChangeCoordinateSystemInProps command', e.type);
-    const coordinateSystemTypes: CoordinateSystemType[] = ['utm', 'utmref', 'gps'];
-    let index = coordinateSystemTypes.indexOf(store.state.mapConfig.coordinateSystemType);
-    index++;
-    if (index === coordinateSystemTypes.length) index = 0;
-    this.gisViewerState.mapConfig.coordinateSystemType = coordinateSystemTypes[index];
-
+    this.gisViewerState.shapeLayers[0].shapes.push({
+      shapeWkt: 'POLYGON((-14.765625 17.052584352706003,-12.83203125 15.703433338617463,-15.99609375 15.534142999890243,-14.765625 17.052584352706003))',
+      id: 'polygon99999999',
+      data: {
+        name: '232 (known as polygon1)',
+        id: 'polygon999999'
+      }
+    })
     this.gisViewerState = { ...this.gisViewerState };
   }
 
@@ -136,7 +136,6 @@ export class DevComponent {
   
 
   createDevState(): GisViewerProps {
-    const protocol = 'http:';
 
     const mapConfig: MapConfig = {
       isZoomToExtentOnNewData: true,
@@ -155,60 +154,82 @@ export class DevComponent {
       coordinateSystemType: 'gps',
     };
 
+    // const protocol = 'http:';
     const tileLayers: TileLayerDefinition[] = [
-      {
-        name: 'Online Map',
-        tilesURI: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png', // protocol + '//osm/osm_tiles/{z}/{x}/{y}.png', // 'http://{s}.tile.osm.org/{z}/{x}/{y}.png', // 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', // 'http://10.164.39.38/pandonia/{z}/{x}/{y}.png',
-        // zoom: 1,
-        // center: {
-        // 	lat:0,
-        // 	lng: 0
-        // },
-        minZoom: 1,
-        maxZoom: 18,
-        attributionControl: false
-        // zoomControl: false
-      },
-      {
-        name: 'Verint Map',
-        tilesURI: protocol + '//osm/osm_tiles/{z}/{x}/{y}.png', // 'http://{s}.tile.osm.org/{z}/{x}/{y}.png', // 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', // 'http://10.164.39.38/pandonia/{z}/{x}/{y}.png',
-        // zoom: 1,
-        // center: {
-        // 	lat: 32.076304,
-        // 	lng: 35.013960
-        // },
-        minZoom: 1,
-        maxZoom: 20,
-        attributionControl: false
-        // zoomControl: false
-      }
+      // {
+      //   name: 'Verint Map',
+      //   tilesURI: protocol + '//osm/osm_tiles/{z}/{x}/{y}.png', // 'http://{s}.tile.osm.org/{z}/{x}/{y}.png', // 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', // 'http://10.164.39.38/pandonia/{z}/{x}/{y}.png',
+      //   minZoom: 1,
+      //   maxZoom: 20,
+      //   attributionControl: false
+      // }, 
+      // {
+      //   name: 'Rail Ways',
+      //   tilesURI: 'http://www.openptmap.org/tiles/{z}/{x}/{y}.png',
+      //   minZoom: 1,
+      //   maxZoom: 20,
+      //   attributionControl: false
+      // }
     ];
 
     const shapeLayers: ShapeLayerDefinition[] = [
       {
         layerName: 'Test data 1',
-        // isDisplay: false,
+        isDisplay: true,
         shapes: [
           {
-            shapeWkt:
-              'POLYGON((-14.765625 17.052584352706003,-12.83203125 15.703433338617463,-15.99609375 15.534142999890243,-14.765625 17.052584352706003))',
+            shapeWkt: 'POINT(35 32)',
+            id: 'point0',
             data: {
-              name: '232 (known as polygon1)',
-              id: 'polygon1'
+              name: '232 (known as point0)',
+              id: 'point00'
             }
           },
           {
             shapeWkt: 'POLYGON((0 0 0,0 5 0,5 5 0,5 0 0,0 0 0))',
+            id: 'polygon1',
             data: {
               name: '232 (known as polygon1)',
-              id: 'polygon1'
+              id: 'polygon11',
+              count: 10
             }
           },
           {
             shapeWkt: 'LINESTRING(1 1 1,5 5 5,7 7 5)',
+            id: 'polygon2',
             data: {
               name: '232 (known as polygon1)',
-              id: 'polygon1'
+              id: 'polygon22'
+            }
+          }
+        ]
+      }, {
+        layerName: 'Test data 2',
+        isDisplay: false,
+        shapes: [
+          {
+            shapeWkt: 'POINT(32 35)',
+            id: 'point0',
+            data: {
+              name: '232 (known as point0)',
+              id: 'point00'
+            }
+          },
+          {
+            shapeWkt: 'POLYGON((0 0 0,0 5 0,5 5 0,5 0 0,0 0 0))',
+            id: 'polygon1',
+            data: {
+              name: '232 (known as polygon1)',
+              id: 'polygon11',
+              count: 20
+            }
+          },
+          {
+            shapeWkt: 'LINESTRING(1 1 1,5 5 5,7 7 5)',
+            id: 'polygon2',
+            data: {
+              name: '232 (known as polygon1)',
+              id: 'polygon22'
             }
           }
         ]
@@ -230,7 +251,7 @@ export class DevComponent {
     const searchConfig: SearchConfig = {
       enable: true,
       searchOptions: {
-        searchOnLayer: true,
+        // searchOnLayer: true,
         queryServerUrl: 'http://nominatim.openstreetmap.org/search?format=json&q={s}' // protocol + '//osm/nominatim?format=json&limit=3&type=administrative&q={s}' // 'http://10.164.39.38/nominatim/search.php?format=json&q={s}' // 'http://nominatim.openstreetmap.org/search?format=json&q={s}' // 'http://nominatim.openstreetmap.org/search?format=json&q={s}'
       }
     };

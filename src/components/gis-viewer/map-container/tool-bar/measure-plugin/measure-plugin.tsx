@@ -33,6 +33,35 @@ export class MeasurePlugin {
             distanceUnitType => this.changePluginUnits(distanceUnitType)
         );
     }
+    
+
+    componentWillLoad() {
+        Utils.log_componentWillLoad(this.compName);
+        this.control = this.createPlugin(this.config.measureOptions);
+    }
+    
+    componentDidLoad() {
+        Utils.log_componentDidLoad(this.compName);
+        Utils.doNothing(measure);        
+        this.gisMap.addControl(this.control);
+    }
+
+    componentDidUnload() {
+        console.log(`componentDidUnload - ${this.compName}`);
+        this.gisMap.removeControl(this.control);
+    }
+
+    
+    private createPlugin(options: MeasureOptions): L.Control {
+        const clonedOptions: PolylineMeasureOptions_Dev = Object.assign(
+            { showUnitControl: true },
+            { unit: this.fromGlobalUnitToPluginUnit(store.state.mapConfig.distanceUnitType) },
+            options
+        );
+        options.position = 'bottomleft';
+        let control: L.Control = new L.Control.PolylineMeasure(clonedOptions);
+        return control;
+    }
     private fromGlobalUnitToPluginUnit(globalUnit: DistanceUnitType): string {
         switch (globalUnit.toLowerCase()) {
             case 'km':
@@ -60,38 +89,12 @@ export class MeasurePlugin {
     private changePluginUnits(globalUnit: DistanceUnitType) {
         const unitControlIdElement: HTMLElement = this.gisMap.getContainer().querySelector('#unitControlId');
         if (!unitControlIdElement) return;
-        
+
         let pluginUnitOptions: string = this.fromGlobalUnitToButtonUnit(globalUnit);
 
         while (unitControlIdElement.innerText !== pluginUnitOptions) {
             unitControlIdElement.click();
         }
-    }
-    
-    componentDidLoad() {
-        Utils.log_componentDidLoad(this.compName);
-        if (!this.gisMap) return;
-
-        Utils.doNothing(measure);
-        
-        this.control = this.createPlugin(this.config.measureOptions);
-        this.gisMap.addControl(this.control);
-    }
-
-    componentDidUnload() {
-        console.log(`componentDidUnload - ${this.compName}`);
-        this.gisMap.removeControl(this.control);
-    }
-    private createPlugin(options: MeasureOptions): L.Control {
-        Utils.doNothing(options);
-        const clonedOptions: PolylineMeasureOptions_Dev = Object.assign(
-            { showUnitControl: true },
-            { unit: this.fromGlobalUnitToPluginUnit(store.state.mapConfig.distanceUnitType) },
-            options
-        );
-        options.position = 'bottomleft';
-        let control: L.Control = new L.Control.PolylineMeasure(clonedOptions);
-        return control;
     }
 }
 

@@ -12,6 +12,8 @@
 
 .ac-container {
   overflow-y: hidden; }
+  .ac-container form {
+    height: initial !important; }
   .ac-container article {
     margin-top: 0px; }
   .ac-container .menu-item-checkbox, .ac-container .menu-item-radio {

@@ -1,11 +1,14 @@
 import { Component, Prop, State, Method } from "@stencil/core";
 import * as styledLayerControl from 'leaflet.styledlayercontrol';
 // import * as materialDesign from 'material-design-lite'
-import { LAYER_MANAGER_PLUGIN_TAG, ImportFileFormats, FILE_TYPES } from "../../../../../utils/statics";
+import { LAYER_MANAGER_PLUGIN_TAG, ImportFileFormats, FILE_TYPES, LayerNames } from "../../../../../utils/statics";
 import Utils from "../../../../../utils/utilities";
 import L from "leaflet";
-import { LayerManagerConfig } from "../../../../../models";
+import { LayerManagerConfig, ShapeLayerContainer_Dev, ClusterHeat, SelectionMode } from "../../../../../models";
 import _ from "lodash";
+import store from "../../../../store/store";
+import { reaction } from "mobx";
+import { FeatureGroup } from "leaflet";
 
 
 @Component({
@@ -23,7 +26,7 @@ export class layerManagerPlugin {
     @Prop() gisMap: L.Map;
 
     @State() htmlBtEl: HTMLElement;
-    @State() control: L.Control;
+    @State() control: L.Control.StyledLayerControl;
 
     @Method()
     getControl(): L.Control {
@@ -34,23 +37,97 @@ export class layerManagerPlugin {
         return this.htmlBtEl;
     }
 
+    @Method()
+    addingDrawableLayerToLayerController(drawableLayer: FeatureGroup) {
+        store.mapLayers.drawableLayers.push(drawableLayer);
+        this.control.addOverlay(drawableLayer, 'Shapes', { groupName: LayerNames.DRAWABLE_LAYER });
+        // Turn on this layer
+        this.control.selectLayer(drawableLayer);
+    }
+    
+
+    constructor() {
+        reaction(
+            () => store.mapLayers.baseMaps,
+            baseLayer => {
+                console.log(baseLayer)
+            }
+        )
+        reaction(
+            () => store.state.mapConfig.mode,
+            (mode: ClusterHeat) => {
+                // Select or unselect layers regarding to map mode changes
+                _.forEach(store.mapLayers.initialLayers, (shapeLayerContainer: ShapeLayerContainer_Dev) => {
+                    let layerToSelect: any;
+                    let layerToUnSelect: any;
+                    switch (mode) {
+                        case 'cluster':
+                            layerToSelect = shapeLayerContainer.leafletClusterLayer;
+                            layerToUnSelect = shapeLayerContainer.leafletHeatLayer;
+                            break;
+                        case 'heat':
+                            layerToSelect = shapeLayerContainer.leafletHeatLayer;
+                            layerToUnSelect = shapeLayerContainer.leafletClusterLayer;
+                            break;
+                    }
+                    if (shapeLayerContainer.isDisplay) {
+                        if (layerToSelect) this.turnOnOffLayer('selectLayer', layerToSelect);
+                        if (layerToUnSelect) this.turnOnOffLayer('unSelectLayer', layerToUnSelect);
+                    }
+                });
+            }
+        )
+        
+    }
+    componentWillLoad() {
+        this.control = this.createPlugin();
+        if (this.config.enable) {
+            this.htmlBtEl = this.createToolbarButton('div', 'layer-controller', 'Layer Controller') as HTMLElement;
+            // Init click event on button element
+            this.htmlBtEl.addEventListener('click', (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                this.toggleClassNamefromElement(this.control.getContainer(), 'show');
+                this.toggleClassNamefromElement(this.htmlBtEl, 'clicked');
+                Utils.closeAllCustomDropDownMenus();
+            });
+        } else {
+            let styleLayerControlEl: HTMLElement = this.gisMap.getContainer().querySelector('.leaflet-control-layers.leaflet-control-layers-expanded.leaflet-control')
+            styleLayerControlEl.style.display = 'none';
+        }
+
+        // Create layers
+        // this.initiateLayers();
+    }
+
     componentDidLoad() {
         Utils.log_componentDidLoad(this.compName);
-        if (!this.gisMap) return;
-
         Utils.doNothing([this.config, styledLayerControl, /* materialDesign */, this.onChangeImport]);
 
-        this.control = this.createPlugin();
         this.gisMap.addControl(this.control);
 
-        this.htmlBtEl = this.createToolbarButton("div", "layer-controller", "Layer Controller") as HTMLElement;
-        this.htmlBtEl.addEventListener("click", () => {
-            this.toggleClassNamefromElement(this.control.getContainer(), "show");
-            this.toggleClassNamefromElement(this.htmlBtEl, "clicked");
-        });
+        
+
 
         // Stop double click on plugin
-        _.forEach([this.htmlBtEl, this.control.getContainer()], (item: HTMLElement) => Utils.stopDoubleClickOnPlugin(item));
+        let elementList: HTMLElement[] = [];
+        if (this.control) elementList.push(this.control.getContainer());
+        if (this.htmlBtEl) elementList.push(this.htmlBtEl);
+        _.forEach(elementList, (item: HTMLElement) => Utils.stopDoubleClickOnPlugin(item));
+
+
+        
+        // Set first base map as working tile, set min zoom, max zoom
+        const tileName: string = Object.keys(store.mapLayers.baseMaps)[0];
+        this.control.selectLayer(store.mapLayers.baseMaps[tileName]); // turn on layer
+        this.gisMap.setMinZoom(store.mapLayers.baseMaps[tileName].options.minZoom); // set min zoom
+        this.gisMap.setMaxZoom(store.mapLayers.baseMaps[tileName].options.maxZoom); // set MAX zoom
+        
+        // Init Layers
+        _.forEach(store.mapLayers.initialLayers, (shapeLayerContainer: ShapeLayerContainer_Dev) => {
+            this.addingNewLayerToLayerManager(shapeLayerContainer, LayerNames.INITIAL_LAYERS);
+        })
+
 
         /* Add map events */
         // Base layers change event
@@ -67,9 +144,40 @@ export class layerManagerPlugin {
     }
     componentDidUnload() {
         console.log(`componentDidUnload - ${this.compName}`);
-        this.gisMap.removeControl(this.control as L.Control);
+        this.gisMap.removeControl(this.control);
     }
 
+    // Add layer to layer manager
+    // @Method()
+    private addingNewLayerToLayerManager(shapeLayerContainer: ShapeLayerContainer_Dev, groupName?: string): void {
+        // BASE_MAPS
+        // INITIAL_LAYERS
+        // store.mapLayers.initialLayers.push(shapeLayerContainer);
+        const { isDisplay, leafletHeatLayer, layerDefinition, leafletClusterLayer } = shapeLayerContainer;
+        const mode: ClusterHeat = store.state.mapConfig.mode;
+        const showLayerStateHeat: SelectionMode = (isDisplay && mode === 'heat') ? 'selectLayer' : 'unSelectLayer';
+        const showLayerStateCluster: SelectionMode = (isDisplay && mode === 'cluster') ? 'selectLayer' : 'unSelectLayer';
+        this.addLayerToLayerController(showLayerStateHeat, leafletHeatLayer, layerDefinition, groupName, 'Heat');
+        this.addLayerToLayerController(showLayerStateCluster, leafletClusterLayer, layerDefinition, groupName, 'Cluster')
+    }
+    private addLayerToLayerController(showLayerState: SelectionMode, layer: any, layerDefinition: any, groupName: string, mode: string) {
+
+        if (!layer) { return; }
+        // Add layer to layer manager
+        this.control.addOverlay(layer, `${layerDefinition.layerName} (${mode})`, { groupName }, mode.toLowerCase());
+        // select or unselect Layer
+        this.control[showLayerState](layer);
+    }
+    private turnOnOffLayer(showLayerState: SelectionMode, layer: any) {
+        // select or unselect Layer
+        this.control[showLayerState](layer);
+    }
+
+
+
+
+
+    
     private fixCss() {
         // Fix css
         let formEl: HTMLElement = this.gisMap.getContainer().querySelector('.leaflet-control-layers-scrollbar');
@@ -93,57 +201,81 @@ export class layerManagerPlugin {
         return button;
     }
     private toggleClassNamefromElement(elm: HTMLElement, className: string) {
-        const AddOrRemove =
-            elm.className.indexOf(className) > -1 ? "remove" : "add";
+        const AddOrRemove = elm.className.indexOf(className) > -1 ? "remove" : "add";
         elm.classList[AddOrRemove](className);
     }
-    private createPlugin(): L.Control {
+    private changeDisplayAfterOneOverlayChanged(layerGroupName: string, layerName: string, isChecked: boolean): void {
+        // const { FILE_TYPES.kml.toUpperCase() + '_Layers', CSV_LAYERS, SHP_LAYERS } = LayerNames;
+        const LayersTypes: string[] = []
+        Object.values(FILE_TYPES).forEach((type: string) => {
+            LayersTypes.push(type.toUpperCase() + ' Layers');
+        });
+
+        // Find layer in initial layers
+        if (layerGroupName.includes(LayerNames.INITIAL_LAYERS)) {
+            store.mapLayers.initialLayers.forEach((dataLayer: ShapeLayerContainer_Dev) => {
+                if (layerName.includes(dataLayer.layerDefinition.layerName)) {
+                    dataLayer.isDisplay = isChecked;
+                }
+            });
+        } else if (LayersTypes.includes(layerGroupName)) {
+            // Find layer in imported layers
+            _.map(store.mapLayers.importedLayers, (fileTypeLayerList: ShapeLayerContainer_Dev[], key: string) => {
+                _.map(fileTypeLayerList, (dataLayer: ShapeLayerContainer_Dev) => {
+                    // Remove import indetifier key from name
+                    const index: number = dataLayer.layerDefinition.layerName.toLowerCase().lastIndexOf(`(${key})`);
+                    const layerNameWithoutExt: string = dataLayer.layerDefinition.layerName.substring(0, index);
+
+                    if (layerName.includes(layerNameWithoutExt)) {
+                        dataLayer.isDisplay = isChecked;
+                    }
+                });
+            });
+        }
+    }
+    private createPlugin(): L.Control.StyledLayerControl {
         const layerControllerOptionsDev: any = {
             position: "topleft",
             collapsed: false,
             container_maxHeight: "500px",
             callbacks: {
-                // onChangeCheckbox: (event: any, obj: any) => {
-                // if (obj.group.name !== LayerNames.DRAWABLE_LAYER) {
-                //     this.changeDisplayAfterOneOverlayChanged(obj.group.name, obj.name, event.target.checked);
-                // }
-                // }
+                onChangeCheckbox: (event: any, obj: any) => {
+                    if (obj.group.name !== LayerNames.DRAWABLE_LAYER) {
+                        this.changeDisplayAfterOneOverlayChanged(obj.group.name, obj.name, event.target.checked);
+                    }
+                }
             }
         };
 
-        var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-        var osmLayer = new L.TileLayer(osmUrl);
-        const baseMaps: any[] = [
-            {
-                groupName: "Base Maps",
-                layers: { 'osm': osmLayer }
-            }
-        ];
+        // const baseMaps: any[] = [
+        //     {
+        //         groupName: "Base Maps",
+        //         layers: store.mapLayers.baseMaps
+        //     }
+        // ];
 
 
-        const featureGroup: L.FeatureGroup = new L.FeatureGroup();
-        const marker1: L.Marker = new L.Marker(new L.LatLng(32, 35))
-        const marker2: L.Marker = new L.Marker([30, 25])
-        featureGroup.addLayer(marker1);
-        featureGroup.addLayer(marker2);
+        // const featureGroup: L.FeatureGroup = new L.FeatureGroup();
+        // const marker1: L.Marker = new L.Marker(new L.LatLng(32, 35))
+        // const marker2: L.Marker = new L.Marker([30, 25])
+        // featureGroup.addLayer(marker1);
+        // featureGroup.addLayer(marker2);
 
-        var roadsUrl = 'http://www.openptmap.org/tiles/{z}/{x}/{y}.png';
-        var roadsLayer = new L.TileLayer(roadsUrl);
+        // var roadsUrl = 'http://www.openptmap.org/tiles/{z}/{x}/{y}.png';
+        // var roadsLayer = new L.TileLayer(roadsUrl);
         const mix: any[] = [
             {
-                groupName: "Rasterd Data",
-                layers: { 'Roads': roadsLayer } // this.context.mapState.baseMaps
+                groupName: "Maps",
+                layers: store.mapLayers.baseMaps // this.context.mapState.baseMaps
             },
-            {
-                groupName: "Initiate Layers",
-                layers: {
-                    'Results': featureGroup
-                }
-            },
+            // {
+            //     groupName: "Rasterd Data",
+            //     layers: { 'Roads': roadsLayer } // this.context.mapState.baseMaps
+            // }
         ];
 
         let styledLayerConroller: any = new L.Control.StyledLayerControl(
-            baseMaps,
+            null, // baseMaps,
             mix,
             layerControllerOptionsDev
         );
@@ -182,7 +314,6 @@ export class layerManagerPlugin {
                     `;
                     Utils.appendHtmlWithContext(div, container, this);
                 }
-
                 return div;
             },
 
@@ -219,7 +350,6 @@ export class layerManagerPlugin {
                 styledLayerConroller.changeGroup(group_Name, select);
             }
         });
-
         return new control();
     }
 

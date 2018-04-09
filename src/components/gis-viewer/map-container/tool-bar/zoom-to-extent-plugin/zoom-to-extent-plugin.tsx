@@ -33,11 +33,11 @@ export class ZoomToExtentPlugin {
 
     componentWillLoad() {
         Utils.log_componentWillLoad(this.compName);
+        this.control = this.createControl();
     }
 
     componentDidLoad() {
         Utils.log_componentDidLoad(this.compName);
-        this.control = this.createControl();
         this.gisMap.addControl(this.control);
     }
 

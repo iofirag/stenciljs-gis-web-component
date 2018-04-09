@@ -1,19 +1,19 @@
 import { GIS_VIEWER_TAG } from '../../utils/statics';
 import Utils from '../../utils/utilities';
 import store from '../store/store';
-// import * as pkgjson from '../../../package.json';
+// import '../../../package';
 // import {version} from '../../../../../stencil.config'
 export class GisViewer {
     constructor() {
         this.compName = GIS_VIEWER_TAG;
     }
-    // @Watch('gisViewerProps')
-    // aaa () {
-    //   debugger
-    // }
     getVersion() {
         // Include version number in compile
-        // var pjson = require('../../../package.json');
+        fetch('package.json').then((res) => {
+            const toJsonPromise = res.json();
+            toJsonPromise.then(pkgjson => console.log(`GIS v${pkgjson.version}`));
+        });
+        // var pkgjson = require('../../../package.json');
         // console.log(`GIS v${pkgjson.version}`);
         // console.log(version)
     }
@@ -28,9 +28,14 @@ export class GisViewer {
     }
     componentWillLoad() {
         store.initState(this.gisViewerProps);
+        // Set first base map as working tile
+        // store.mapLayers.baseMaps = Utils.initStoreWithMapTiles(this.gisViewerProps.tileLayers);
     }
     componentWillUpdate() {
         store.updateState(this.gisViewerProps);
+        console.log(`${this.compName} updateState`);
+        // Set first base map as working tile
+        // store.mapLayers.baseMaps = Utils.initStoreWithMapTiles(this.gisViewerProps.tileLayers);
     }
     render() {
         return h("map-container", { id: 'map', gisViewerProps: store.state });

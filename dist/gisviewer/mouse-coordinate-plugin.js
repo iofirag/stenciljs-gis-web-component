@@ -1,8 +1,7 @@
 /*! Built with http://stenciljs.com */
 const { h } = window.gisviewer;
 
-import Utils, { MOUSE_COORDINATE_PLUGIN_TAG, default$1 as L$1, default$2 as _ } from './chunk1.js';
-import store, { reaction } from './chunk2.js';
+import Utils, { MOUSE_COORDINATE_PLUGIN_TAG, default$1 as L$1, default$2 as _, default$3 as store, reaction } from './chunk1.js';
 
 /*! leaflet.mousecoordinatesystems 2018-03-12 Copyright by   */
 
@@ -16,14 +15,10 @@ var mousecoordinatesystems = Object.freeze({
 class MouseCoordinagePlugin {
     constructor() {
         this.compName = MOUSE_COORDINATE_PLUGIN_TAG;
-        // debugger
         reaction(() => store.state.mapConfig.coordinateSystemType, coordinateSystemType => this.changeCoordinateSystemHandler(coordinateSystemType));
     }
     componentWillLoad() {
         Utils.log_componentWillLoad(this.compName);
-    }
-    componentDidLoad() {
-        Utils.log_componentDidLoad(this.compName);
         const mouseCoordinateGps = {
             gpsLong: false,
         };
@@ -39,6 +34,9 @@ class MouseCoordinagePlugin {
         this.controlGps = this.createPlugin(mouseCoordinateGps);
         this.controlUtm = this.createPlugin(mouseCoordinateUtm);
         this.controlUtmref = this.createPlugin(mouseCoordinateUtmref);
+    }
+    componentDidLoad() {
+        Utils.log_componentDidLoad(this.compName);
         this.gisMap.addControl(this.controlGps);
         this.gisMap.addControl(this.controlUtm);
         this.gisMap.addControl(this.controlUtmref);
@@ -68,7 +66,7 @@ class MouseCoordinagePlugin {
     }
     static get is() { return "mouse-coordinate-plugin"; }
     static get properties() { return { "config": { "type": "Any", "attr": "config" }, "controlGps": { "state": true }, "controlUtm": { "state": true }, "controlUtmref": { "state": true }, "gisMap": { "type": "Any", "attr": "gis-map" } }; }
-    static get style() { return ".leaflet-control-mouseCoordinate{width:256px;box-shadow:4px 4px 4px 0 rgba(0,0,0,.36);background:none repeat scroll 0 0 #fff;color:#333;padding:6px 10px 6px 6px}.leaflet-control-mouseCoordinate table{width:100%}\n\n.gps-coordinates td:nth-child(2), .gps-coordinates td:nth-child(3) {\n  width: 93px !important; }\n\n.leaflet-control-mouseCoordinate {\n  min-height: initial !important;\n  width: initial !important;\n  background: none repeat scroll 0 0 rgba(255, 255, 255, 0.5) !important;\n  box-shadow: none !important;\n  padding: 0 !important;\n  margin-bottom: 5px !important; }\n\n.gpsPos {\n  font-size: 11px !important;\n  border: 2px solid #777777;\n  border-top: 0px;\n  line-height: 13px; }\n  .gpsPos tr td:first-child {\n    padding-right: 10px; }\n  .gpsPos tr td:last-child {\n    width: 148px; }\n  .gpsPos tr td {\n    padding-top: 0px;\n    padding-bottom: 0px; }\n"; }
+    static get style() { return ".leaflet-control-mouseCoordinate{width:256px;box-shadow:4px 4px 4px 0 rgba(0,0,0,.36);background:none repeat scroll 0 0 #fff;color:#333;padding:6px 10px 6px 6px}.leaflet-control-mouseCoordinate table{width:100%}\n\n.gps-coordinates td:nth-child(2), .gps-coordinates td:nth-child(3) {\n  width: 93px !important; }\n\n.leaflet-control-mouseCoordinate {\n  min-height: initial !important;\n  width: initial !important;\n  background: none repeat scroll 0 0 rgba(255, 255, 255, 0.5) !important;\n  box-shadow: none !important;\n  padding: 0 !important;\n  margin-bottom: 5px !important; }\n\n.gpsPos {\n  font-size: 11px !important;\n  border: 2px solid #777777;\n  border-top: 0px;\n  line-height: 13px; }\n  .gpsPos tr td:first-child {\n    padding-right: 10px; }\n  .gpsPos tr td:last-child {\n    width: 148px; }\n  .gpsPos tr td {\n    padding-top: 0px;\n    padding-bottom: 0px; }"; }
 }
 
 export { MouseCoordinagePlugin as MouseCoordinatePlugin };

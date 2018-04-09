@@ -18,6 +18,7 @@ const LAYER_MANAGER_PLUGIN_TAG = 'layer-manager-plugin';
 const DROP_DOWN_PLUGIN_TAG = 'drop-down-plugin';
 const CUSTOM_DROP_DOWN_PLUGIN_TAG = 'custom-drop-down-plugin';
 const CUSTOM_SETTINGS_TAG = 'custom-settings';
+const CUSTOM_EXPORT_TAG = 'custom-export';
 const MINI_MAP_PLUGIN_TAG = 'mini-map-plugin';
 const SCALE_PLUGIN_TAG = 'scale-plugin';
 const MOUSE_COORDINATE_PLUGIN_TAG = 'mouse-coordinate-plugin';
@@ -44,6 +45,21 @@ const LayersTypeLabel = {
     HEAT: 'heat',
     CLUSTER: 'cluster',
 };
+const MIN_OPACITY = 0.1;
+const DEFAULT_OSM_TILE = {
+    name: 'Online map',
+    address: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png'
+};
+const LayerNames = {
+    BASE_MAPS: 'Base Maps',
+    DRAWABLE_LAYER: 'Drawable Layer',
+    INITIAL_LAYERS: 'Initial Layers',
+    [FILE_TYPES.kml.toUpperCase() + '_Layers']: FILE_TYPES.kml.toUpperCase() + ' Layers',
+    [FILE_TYPES.csv.toUpperCase() + '_Layers']: FILE_TYPES.csv.toUpperCase() + ' Layers',
+    [FILE_TYPES.zip.toUpperCase() + '_Layers']: FILE_TYPES.zip.toUpperCase() + ' Layers',
+};
+const MIN_ZOOM = 2;
+const MAX_ZOOM = 20;
 
 var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
@@ -17143,78 +17159,6 @@ var lodash = createCommonjsModule(function (module, exports) {
 }.call(commonjsGlobal));
 });
 
-class Utils {
-    static log_componentWillLoad(compName) {
-        console.log(`componentWillLoad ${compName}`);
-    }
-    static log_componentDidLoad(compName) {
-        console.log(`componentDidLoad ${compName}`);
-    }
-    static log_componentDidUnload(compName) {
-        console.log(`componentDidUnload ${compName}`);
-    }
-    static doNothing(imports) {
-    }
-    static stopDoubleClickOnPlugin(htmlElement) {
-        // Disable double-click
-        htmlElement.addEventListener("dblclick", (eventData) => {
-            eventData.stopPropagation();
-        });
-    }
-    static fitLayerControllerPosition(LayerControllerMode = '') {
-        const layerControllerButton = document.querySelector('.custom-toolbar-button.layer-controller');
-        const layerControllerPlugin = document.querySelector('.custom-layer-controller');
-        if (!(layerControllerButton && layerControllerPlugin)) {
-            return;
-        }
-        layerControllerPlugin.style.left = layerControllerButton.offsetLeft + 'px';
-        // layerControllerPlugin.className = layerControllerPlugin.className+ ' ' + isShowLayerController;
-        const customLayerController = document.querySelector('.custom-layer-controller');
-        customLayerController.className = layerControllerPlugin.className + ' ' + LayerControllerMode;
-        const styledLayerControllerElement = document.querySelector('.leaflet-control-layers-expanded');
-        styledLayerControllerElement.parentNode.removeChild(styledLayerControllerElement);
-        customLayerController.appendChild(styledLayerControllerElement);
-        // Empty class list for this Form element
-        // styledLayerControllerElement.firstElementChild.firstElementChild.classList = '';
-    }
-    static exportBlobFactory(fileType, selectedLeafletObjects, mapState, callback) {
-        this.doNothing([fileType, selectedLeafletObjects, mapState, callback]);
-        // const relevantExportedLayers: L.Layer[] = Utils.getRelevantExportedLayers(selectedLeafletObjects, mapState, map);
-        // const geoJsonList: L.GeoJSON[] = Utils.shapeListToGeoJson(relevantExportedLayers);
-        // return Utils.getBlobByType(fileType, geoJsonList, callback);
-        return null;
-    }
-    static toggleCustomDropDownMenu(elm) {
-        const toogleState = elm.style.display;
-        Utils.closeAllCustomDropDownMenus();
-        elm.style.display = (toogleState === 'block') ? 'none' : 'block';
-        if (elm.style.display === 'block') {
-            document.querySelector('.custom-toolbar-button.layer-controller').classList.remove('clicked');
-            document.querySelector('.custom-layer-controller').classList.remove('show');
-        }
-    }
-    static closeAllCustomDropDownMenus() {
-        const allDropDownMenus = document.querySelectorAll('.menu');
-        lodash.forEach(allDropDownMenus, (menu) => {
-            menu.style.display = 'none';
-        });
-    }
-}
-Utils.appendHtmlWithContext = function (elm, dom, context) {
-    elm.innerHTML = dom;
-    const elements = elm.querySelectorAll("[attachEvent]");
-    lodash.forEach(elements, (element) => {
-        element.getAttribute("attachEvent").split(";").forEach(function (event) {
-            const eventNameAndHandler = event.split(":");
-            const eventName = eventNameAndHandler[0];
-            const eventHandler = eventNameAndHandler[1];
-            if (eventName && eventHandler) {
-                element.addEventListener(eventName, context[eventHandler].bind(context));
-            }
-        });
-    });
-};
-
 var leafletSrc = createCommonjsModule(function (module, exports) {
 /* @preserve
  * Leaflet 1.3.1, a JS library for interactive maps. http://leafletjs.com
@@ -31017,5 +30961,8054 @@ exports.map = createMap;
 
 });
 
+/*
+ (c) 2014, Vladimir Agafonkin
+ simpleheat, a tiny JavaScript library for drawing heatmaps with Canvas
+ https://github.com/mourner/simpleheat
+*/
+!function(){function t(i){return this instanceof t?(this._canvas=i="string"==typeof i?document.getElementById(i):i, this._ctx=i.getContext("2d"), this._width=i.width, this._height=i.height, this._max=1, void this.clear()):new t(i)}t.prototype={defaultRadius:25,defaultGradient:{.4:"blue",.6:"cyan",.7:"lime",.8:"yellow",1:"red"},data:function(t,i){return this._data=t, this},max:function(t){return this._max=t, this},add:function(t){return this._data.push(t), this},clear:function(){return this._data=[], this},radius:function(t,i){i=i||15;var a=this._circle=document.createElement("canvas"),s=a.getContext("2d"),e=this._r=t+i;return a.width=a.height=2*e, s.shadowOffsetX=s.shadowOffsetY=200, s.shadowBlur=i, s.shadowColor="black", s.beginPath(), s.arc(e-200,e-200,t,0,2*Math.PI,!0), s.closePath(), s.fill(), this},gradient:function(t){var i=document.createElement("canvas"),a=i.getContext("2d"),s=a.createLinearGradient(0,0,0,256);i.width=1, i.height=256;for(var e in t)s.addColorStop(e,t[e]);return a.fillStyle=s, a.fillRect(0,0,1,256), this._grad=a.getImageData(0,0,1,256).data, this},draw:function(t){this._circle||this.radius(this.defaultRadius), this._grad||this.gradient(this.defaultGradient);var i=this._ctx;i.clearRect(0,0,this._width,this._height);for(var a,s=0,e=this._data.length;e>s;s++)a=this._data[s], i.globalAlpha=Math.max(a[2]/this._max,t||.05), i.drawImage(this._circle,a[0]-this._r,a[1]-this._r);var n=i.getImageData(0,0,this._width,this._height);return this._colorize(n.data,this._grad), i.putImageData(n,0,0), this},_colorize:function(t,i){for(var a,s=3,e=t.length;e>s;s+=4)a=4*t[s], a&&(t[s-3]=i[a], t[s-2]=i[a+1], t[s-1]=i[a+2]);}}, window.simpleheat=t;}(), L.HeatLayer=(L.Layer?L.Layer:L.Class).extend({initialize:function(t,i){this._latlngs=t, L.setOptions(this,i);},setLatLngs:function(t){return this._latlngs=t, this.redraw()},addLatLng:function(t){return this._latlngs.push(t), this.redraw()},setOptions:function(t){return L.setOptions(this,t), this._heat&&this._updateOptions(), this.redraw()},redraw:function(){return!this._heat||this._frame||this._map._animating||(this._frame=L.Util.requestAnimFrame(this._redraw,this)), this},onAdd:function(t){this._map=t, this._canvas||this._initCanvas(), t._panes.overlayPane.appendChild(this._canvas), t.on("moveend",this._reset,this), t.options.zoomAnimation&&L.Browser.any3d&&t.on("zoomanim",this._animateZoom,this), this._reset();},onRemove:function(t){t.getPanes().overlayPane.removeChild(this._canvas), t.off("moveend",this._reset,this), t.options.zoomAnimation&&t.off("zoomanim",this._animateZoom,this);},addTo:function(t){return t.addLayer(this), this},_initCanvas:function(){var t=this._canvas=L.DomUtil.create("canvas","leaflet-heatmap-layer leaflet-layer"),i=L.DomUtil.testProp(["transformOrigin","WebkitTransformOrigin","msTransformOrigin"]);t.style[i]="50% 50%";var a=this._map.getSize();t.width=a.x, t.height=a.y;var s=this._map.options.zoomAnimation&&L.Browser.any3d;L.DomUtil.addClass(t,"leaflet-zoom-"+(s?"animated":"hide")), this._heat=simpleheat(t), this._updateOptions();},_updateOptions:function(){this._heat.radius(this.options.radius||this._heat.defaultRadius,this.options.blur), this.options.gradient&&this._heat.gradient(this.options.gradient), this.options.max&&this._heat.max(this.options.max);},_reset:function(){var t=this._map.containerPointToLayerPoint([0,0]);L.DomUtil.setPosition(this._canvas,t);var i=this._map.getSize();this._heat._width!==i.x&&(this._canvas.width=this._heat._width=i.x), this._heat._height!==i.y&&(this._canvas.height=this._heat._height=i.y), this._redraw();},_redraw:function(){var t,i,a,s,e,n,h,o,r,d=[],_=this._heat._r,l=this._map.getSize(),m=new L.Bounds(L.point([-_,-_]),l.add([_,_])),c=void 0===this.options.max?1:this.options.max,u=void 0===this.options.maxZoom?this._map.getMaxZoom():this.options.maxZoom,f=1/Math.pow(2,Math.max(0,Math.min(u-this._map.getZoom(),12))),g=_/2,p=[],v=this._map._getMapPanePos(),w=v.x%g,y=v.y%g;for(t=0, i=this._latlngs.length;i>t;t++)if(a=this._map.latLngToContainerPoint(this._latlngs[t]), m.contains(a)){e=Math.floor((a.x-w)/g)+2, n=Math.floor((a.y-y)/g)+2;var x=void 0!==this._latlngs[t].alt?this._latlngs[t].alt:void 0!==this._latlngs[t][2]?+this._latlngs[t][2]:1;r=x*f, p[n]=p[n]||[], s=p[n][e], s?(s[0]=(s[0]*s[2]+a.x*r)/(s[2]+r), s[1]=(s[1]*s[2]+a.y*r)/(s[2]+r), s[2]+=r):p[n][e]=[a.x,a.y,r];}for(t=0, i=p.length;i>t;t++)if(p[t])for(h=0, o=p[t].length;o>h;h++)s=p[t][h], s&&d.push([Math.round(s[0]),Math.round(s[1]),Math.min(s[2],c)]);this._heat.data(d).draw(this.options.minOpacity), this._frame=null;},_animateZoom:function(t){var i=this._map.getZoomScale(t.zoom),a=this._map._getCenterOffset(t.center)._multiplyBy(-i).subtract(this._map._getMapPanePos());L.DomUtil.setTransform?L.DomUtil.setTransform(this._canvas,a,i):this._canvas.style[L.DomUtil.TRANSFORM]=L.DomUtil.getTranslateString(a)+" scale("+i+")";}}), L.heatLayer=function(t,i){return new L.HeatLayer(t,i)};
+
+var leaflet_markerclusterSrc = createCommonjsModule(function (module, exports) {
+/*
+ * Leaflet.markercluster 1.3.0+master.5b36e91,
+ * Provides Beautiful Animated Marker Clustering functionality for Leaflet, a JS library for interactive maps.
+ * https://github.com/Leaflet/Leaflet.markercluster
+ * (c) 2012-2017, Dave Leaver, smartrak
+ */
+(function (global, factory) {
+	factory(exports);
+}(commonjsGlobal, (function (exports) {
+/*
+ * L.MarkerClusterGroup extends L.FeatureGroup by clustering the markers contained within
+ */
+
+var MarkerClusterGroup = L.MarkerClusterGroup = L.FeatureGroup.extend({
+
+	options: {
+		maxClusterRadius: 80, //A cluster will cover at most this many pixels from its center
+		iconCreateFunction: null,
+		clusterPane: L.Marker.prototype.options.pane,
+
+		spiderfyOnMaxZoom: true,
+		showCoverageOnHover: true,
+		zoomToBoundsOnClick: true,
+		singleMarkerMode: false,
+
+		disableClusteringAtZoom: null,
+
+		// Setting this to false prevents the removal of any clusters outside of the viewpoint, which
+		// is the default behaviour for performance reasons.
+		removeOutsideVisibleBounds: true,
+
+		// Set to false to disable all animations (zoom and spiderfy).
+		// If false, option animateAddingMarkers below has no effect.
+		// If L.DomUtil.TRANSITION is falsy, this option has no effect.
+		animate: true,
+
+		//Whether to animate adding markers after adding the MarkerClusterGroup to the map
+		// If you are adding individual markers set to true, if adding bulk markers leave false for massive performance gains.
+		animateAddingMarkers: false,
+
+		//Increase to increase the distance away that spiderfied markers appear from the center
+		spiderfyDistanceMultiplier: 1,
+
+		// Make it possible to specify a polyline options on a spider leg
+		spiderLegPolylineOptions: { weight: 1.5, color: '#222', opacity: 0.5 },
+
+		// When bulk adding layers, adds markers in chunks. Means addLayers may not add all the layers in the call, others will be loaded during setTimeouts
+		chunkedLoading: false,
+		chunkInterval: 200, // process markers for a maximum of ~ n milliseconds (then trigger the chunkProgress callback)
+		chunkDelay: 50, // at the end of each interval, give n milliseconds back to system/browser
+		chunkProgress: null, // progress callback: function(processed, total, elapsed) (e.g. for a progress indicator)
+
+		//Options to pass to the L.Polygon constructor
+		polygonOptions: {}
+	},
+
+	initialize: function (options) {
+		L.Util.setOptions(this, options);
+		if (!this.options.iconCreateFunction) {
+			this.options.iconCreateFunction = this._defaultIconCreateFunction;
+		}
+
+		this._featureGroup = L.featureGroup();
+		this._featureGroup.addEventParent(this);
+
+		this._nonPointGroup = L.featureGroup();
+		this._nonPointGroup.addEventParent(this);
+
+		this._inZoomAnimation = 0;
+		this._needsClustering = [];
+		this._needsRemoving = []; //Markers removed while we aren't on the map need to be kept track of
+		//The bounds of the currently shown area (from _getExpandedVisibleBounds) Updated on zoom/move
+		this._currentShownBounds = null;
+
+		this._queue = [];
+
+		this._childMarkerEventHandlers = {
+			'dragstart': this._childMarkerDragStart,
+			'move': this._childMarkerMoved,
+			'dragend': this._childMarkerDragEnd,
+		};
+
+		// Hook the appropriate animation methods.
+		var animate = L.DomUtil.TRANSITION && this.options.animate;
+		L.extend(this, animate ? this._withAnimation : this._noAnimation);
+		// Remember which MarkerCluster class to instantiate (animated or not).
+		this._markerCluster = animate ? L.MarkerCluster : L.MarkerClusterNonAnimated;
+	},
+
+	addLayer: function (layer) {
+
+		if (layer instanceof L.LayerGroup) {
+			return this.addLayers([layer]);
+		}
+
+		//Don't cluster non point data
+		if (!layer.getLatLng) {
+			this._nonPointGroup.addLayer(layer);
+			this.fire('layeradd', { layer: layer });
+			return this;
+		}
+
+		if (!this._map) {
+			this._needsClustering.push(layer);
+			this.fire('layeradd', { layer: layer });
+			return this;
+		}
+
+		if (this.hasLayer(layer)) {
+			return this;
+		}
+
+
+		//If we have already clustered we'll need to add this one to a cluster
+
+		if (this._unspiderfy) {
+			this._unspiderfy();
+		}
+
+		this._addLayer(layer, this._maxZoom);
+		this.fire('layeradd', { layer: layer });
+
+		// Refresh bounds and weighted positions.
+		this._topClusterLevel._recalculateBounds();
+
+		this._refreshClustersIcons();
+
+		//Work out what is visible
+		var visibleLayer = layer,
+		    currentZoom = this._zoom;
+		if (layer.__parent) {
+			while (visibleLayer.__parent._zoom >= currentZoom) {
+				visibleLayer = visibleLayer.__parent;
+			}
+		}
+
+		if (this._currentShownBounds.contains(visibleLayer.getLatLng())) {
+			if (this.options.animateAddingMarkers) {
+				this._animationAddLayer(layer, visibleLayer);
+			} else {
+				this._animationAddLayerNonAnimated(layer, visibleLayer);
+			}
+		}
+		return this;
+	},
+
+	removeLayer: function (layer) {
+
+		if (layer instanceof L.LayerGroup) {
+			return this.removeLayers([layer]);
+		}
+
+		//Non point layers
+		if (!layer.getLatLng) {
+			this._nonPointGroup.removeLayer(layer);
+			this.fire('layerremove', { layer: layer });
+			return this;
+		}
+
+		if (!this._map) {
+			if (!this._arraySplice(this._needsClustering, layer) && this.hasLayer(layer)) {
+				this._needsRemoving.push({ layer: layer, latlng: layer._latlng });
+			}
+			this.fire('layerremove', { layer: layer });
+			return this;
+		}
+
+		if (!layer.__parent) {
+			return this;
+		}
+
+		if (this._unspiderfy) {
+			this._unspiderfy();
+			this._unspiderfyLayer(layer);
+		}
+
+		//Remove the marker from clusters
+		this._removeLayer(layer, true);
+		this.fire('layerremove', { layer: layer });
+
+		// Refresh bounds and weighted positions.
+		this._topClusterLevel._recalculateBounds();
+
+		this._refreshClustersIcons();
+
+		layer.off(this._childMarkerEventHandlers, this);
+
+		if (this._featureGroup.hasLayer(layer)) {
+			this._featureGroup.removeLayer(layer);
+			if (layer.clusterShow) {
+				layer.clusterShow();
+			}
+		}
+
+		return this;
+	},
+
+	//Takes an array of markers and adds them in bulk
+	addLayers: function (layersArray, skipLayerAddEvent) {
+		if (!L.Util.isArray(layersArray)) {
+			return this.addLayer(layersArray);
+		}
+
+		var fg = this._featureGroup,
+		    npg = this._nonPointGroup,
+		    chunked = this.options.chunkedLoading,
+		    chunkInterval = this.options.chunkInterval,
+		    chunkProgress = this.options.chunkProgress,
+		    l = layersArray.length,
+		    offset = 0,
+		    originalArray = true,
+		    m;
+
+		if (this._map) {
+			var started = (new Date()).getTime();
+			var process = L.bind(function () {
+				var start = (new Date()).getTime();
+				for (; offset < l; offset++) {
+					if (chunked && offset % 200 === 0) {
+						// every couple hundred markers, instrument the time elapsed since processing started:
+						var elapsed = (new Date()).getTime() - start;
+						if (elapsed > chunkInterval) {
+							break; // been working too hard, time to take a break :-)
+						}
+					}
+
+					m = layersArray[offset];
+
+					// Group of layers, append children to layersArray and skip.
+					// Side effects:
+					// - Total increases, so chunkProgress ratio jumps backward.
+					// - Groups are not included in this group, only their non-group child layers (hasLayer).
+					// Changing array length while looping does not affect performance in current browsers:
+					// http://jsperf.com/for-loop-changing-length/6
+					if (m instanceof L.LayerGroup) {
+						if (originalArray) {
+							layersArray = layersArray.slice();
+							originalArray = false;
+						}
+						this._extractNonGroupLayers(m, layersArray);
+						l = layersArray.length;
+						continue;
+					}
+
+					//Not point data, can't be clustered
+					if (!m.getLatLng) {
+						npg.addLayer(m);
+						if (!skipLayerAddEvent) {
+							this.fire('layeradd', { layer: m });
+						}
+						continue;
+					}
+
+					if (this.hasLayer(m)) {
+						continue;
+					}
+
+					this._addLayer(m, this._maxZoom);
+					if (!skipLayerAddEvent) {
+						this.fire('layeradd', { layer: m });
+					}
+
+					//If we just made a cluster of size 2 then we need to remove the other marker from the map (if it is) or we never will
+					if (m.__parent) {
+						if (m.__parent.getChildCount() === 2) {
+							var markers = m.__parent.getAllChildMarkers(),
+							    otherMarker = markers[0] === m ? markers[1] : markers[0];
+							fg.removeLayer(otherMarker);
+						}
+					}
+				}
+
+				if (chunkProgress) {
+					// report progress and time elapsed:
+					chunkProgress(offset, l, (new Date()).getTime() - started);
+				}
+
+				// Completed processing all markers.
+				if (offset === l) {
+
+					// Refresh bounds and weighted positions.
+					this._topClusterLevel._recalculateBounds();
+
+					this._refreshClustersIcons();
+
+					this._topClusterLevel._recursivelyAddChildrenToMap(null, this._zoom, this._currentShownBounds);
+				} else {
+					setTimeout(process, this.options.chunkDelay);
+				}
+			}, this);
+
+			process();
+		} else {
+			var needsClustering = this._needsClustering;
+
+			for (; offset < l; offset++) {
+				m = layersArray[offset];
+
+				// Group of layers, append children to layersArray and skip.
+				if (m instanceof L.LayerGroup) {
+					if (originalArray) {
+						layersArray = layersArray.slice();
+						originalArray = false;
+					}
+					this._extractNonGroupLayers(m, layersArray);
+					l = layersArray.length;
+					continue;
+				}
+
+				//Not point data, can't be clustered
+				if (!m.getLatLng) {
+					npg.addLayer(m);
+					continue;
+				}
+
+				if (this.hasLayer(m)) {
+					continue;
+				}
+
+				needsClustering.push(m);
+			}
+		}
+		return this;
+	},
+
+	//Takes an array of markers and removes them in bulk
+	removeLayers: function (layersArray) {
+		var i, m,
+		    l = layersArray.length,
+		    fg = this._featureGroup,
+		    npg = this._nonPointGroup,
+		    originalArray = true;
+
+		if (!this._map) {
+			for (i = 0; i < l; i++) {
+				m = layersArray[i];
+
+				// Group of layers, append children to layersArray and skip.
+				if (m instanceof L.LayerGroup) {
+					if (originalArray) {
+						layersArray = layersArray.slice();
+						originalArray = false;
+					}
+					this._extractNonGroupLayers(m, layersArray);
+					l = layersArray.length;
+					continue;
+				}
+
+				this._arraySplice(this._needsClustering, m);
+				npg.removeLayer(m);
+				if (this.hasLayer(m)) {
+					this._needsRemoving.push({ layer: m, latlng: m._latlng });
+				}
+				this.fire('layerremove', { layer: m });
+			}
+			return this;
+		}
+
+		if (this._unspiderfy) {
+			this._unspiderfy();
+
+			// Work on a copy of the array, so that next loop is not affected.
+			var layersArray2 = layersArray.slice(),
+			    l2 = l;
+			for (i = 0; i < l2; i++) {
+				m = layersArray2[i];
+
+				// Group of layers, append children to layersArray and skip.
+				if (m instanceof L.LayerGroup) {
+					this._extractNonGroupLayers(m, layersArray2);
+					l2 = layersArray2.length;
+					continue;
+				}
+
+				this._unspiderfyLayer(m);
+			}
+		}
+
+		for (i = 0; i < l; i++) {
+			m = layersArray[i];
+
+			// Group of layers, append children to layersArray and skip.
+			if (m instanceof L.LayerGroup) {
+				if (originalArray) {
+					layersArray = layersArray.slice();
+					originalArray = false;
+				}
+				this._extractNonGroupLayers(m, layersArray);
+				l = layersArray.length;
+				continue;
+			}
+
+			if (!m.__parent) {
+				npg.removeLayer(m);
+				this.fire('layerremove', { layer: m });
+				continue;
+			}
+
+			this._removeLayer(m, true, true);
+			this.fire('layerremove', { layer: m });
+
+			if (fg.hasLayer(m)) {
+				fg.removeLayer(m);
+				if (m.clusterShow) {
+					m.clusterShow();
+				}
+			}
+		}
+
+		// Refresh bounds and weighted positions.
+		this._topClusterLevel._recalculateBounds();
+
+		this._refreshClustersIcons();
+
+		//Fix up the clusters and markers on the map
+		this._topClusterLevel._recursivelyAddChildrenToMap(null, this._zoom, this._currentShownBounds);
+
+		return this;
+	},
+
+	//Removes all layers from the MarkerClusterGroup
+	clearLayers: function () {
+		//Need our own special implementation as the LayerGroup one doesn't work for us
+
+		//If we aren't on the map (yet), blow away the markers we know of
+		if (!this._map) {
+			this._needsClustering = [];
+			delete this._gridClusters;
+			delete this._gridUnclustered;
+		}
+
+		if (this._noanimationUnspiderfy) {
+			this._noanimationUnspiderfy();
+		}
+
+		//Remove all the visible layers
+		this._featureGroup.clearLayers();
+		this._nonPointGroup.clearLayers();
+
+		this.eachLayer(function (marker) {
+			marker.off(this._childMarkerEventHandlers, this);
+			delete marker.__parent;
+		}, this);
+
+		if (this._map) {
+			//Reset _topClusterLevel and the DistanceGrids
+			this._generateInitialClusters();
+		}
+
+		return this;
+	},
+
+	//Override FeatureGroup.getBounds as it doesn't work
+	getBounds: function () {
+		var bounds = new L.LatLngBounds();
+
+		if (this._topClusterLevel) {
+			bounds.extend(this._topClusterLevel._bounds);
+		}
+
+		for (var i = this._needsClustering.length - 1; i >= 0; i--) {
+			bounds.extend(this._needsClustering[i].getLatLng());
+		}
+
+		bounds.extend(this._nonPointGroup.getBounds());
+
+		return bounds;
+	},
+
+	//Overrides LayerGroup.eachLayer
+	eachLayer: function (method, context) {
+		var markers = this._needsClustering.slice(),
+			needsRemoving = this._needsRemoving,
+			thisNeedsRemoving, i, j;
+
+		if (this._topClusterLevel) {
+			this._topClusterLevel.getAllChildMarkers(markers);
+		}
+
+		for (i = markers.length - 1; i >= 0; i--) {
+			thisNeedsRemoving = true;
+
+			for (j = needsRemoving.length - 1; j >= 0; j--) {
+				if (needsRemoving[j].layer === markers[i]) {
+					thisNeedsRemoving = false;
+					break;
+				}
+			}
+
+			if (thisNeedsRemoving) {
+				method.call(context, markers[i]);
+			}
+		}
+
+		this._nonPointGroup.eachLayer(method, context);
+	},
+
+	//Overrides LayerGroup.getLayers
+	getLayers: function () {
+		var layers = [];
+		this.eachLayer(function (l) {
+			layers.push(l);
+		});
+		return layers;
+	},
+
+	//Overrides LayerGroup.getLayer, WARNING: Really bad performance
+	getLayer: function (id) {
+		var result = null;
+
+		id = parseInt(id, 10);
+
+		this.eachLayer(function (l) {
+			if (L.stamp(l) === id) {
+				result = l;
+			}
+		});
+
+		return result;
+	},
+
+	//Returns true if the given layer is in this MarkerClusterGroup
+	hasLayer: function (layer) {
+		if (!layer) {
+			return false;
+		}
+
+		var i, anArray = this._needsClustering;
+
+		for (i = anArray.length - 1; i >= 0; i--) {
+			if (anArray[i] === layer) {
+				return true;
+			}
+		}
+
+		anArray = this._needsRemoving;
+		for (i = anArray.length - 1; i >= 0; i--) {
+			if (anArray[i].layer === layer) {
+				return false;
+			}
+		}
+
+		return !!(layer.__parent && layer.__parent._group === this) || this._nonPointGroup.hasLayer(layer);
+	},
+
+	//Zoom down to show the given layer (spiderfying if necessary) then calls the callback
+	zoomToShowLayer: function (layer, callback) {
+
+		if (typeof callback !== 'function') {
+			callback = function () {};
+		}
+
+		var showMarker = function () {
+			if ((layer._icon || layer.__parent._icon) && !this._inZoomAnimation) {
+				this._map.off('moveend', showMarker, this);
+				this.off('animationend', showMarker, this);
+
+				if (layer._icon) {
+					callback();
+				} else if (layer.__parent._icon) {
+					this.once('spiderfied', callback, this);
+					layer.__parent.spiderfy();
+				}
+			}
+		};
+
+		if (layer._icon && this._map.getBounds().contains(layer.getLatLng())) {
+			//Layer is visible ond on screen, immediate return
+			callback();
+		} else if (layer.__parent._zoom < Math.round(this._map._zoom)) {
+			//Layer should be visible at this zoom level. It must not be on screen so just pan over to it
+			this._map.on('moveend', showMarker, this);
+			this._map.panTo(layer.getLatLng());
+		} else {
+			this._map.on('moveend', showMarker, this);
+			this.on('animationend', showMarker, this);
+			layer.__parent.zoomToBounds();
+		}
+	},
+
+	//Overrides FeatureGroup.onAdd
+	onAdd: function (map) {
+		this._map = map;
+		var i, l, layer;
+
+		if (!isFinite(this._map.getMaxZoom())) {
+			throw "Map has no maxZoom specified";
+		}
+
+		this._featureGroup.addTo(map);
+		this._nonPointGroup.addTo(map);
+
+		if (!this._gridClusters) {
+			this._generateInitialClusters();
+		}
+
+		this._maxLat = map.options.crs.projection.MAX_LATITUDE;
+
+		//Restore all the positions as they are in the MCG before removing them
+		for (i = 0, l = this._needsRemoving.length; i < l; i++) {
+			layer = this._needsRemoving[i];
+			layer.newlatlng = layer.layer._latlng;
+			layer.layer._latlng = layer.latlng;
+		}
+		//Remove them, then restore their new positions
+		for (i = 0, l = this._needsRemoving.length; i < l; i++) {
+			layer = this._needsRemoving[i];
+			this._removeLayer(layer.layer, true);
+			layer.layer._latlng = layer.newlatlng;
+		}
+		this._needsRemoving = [];
+
+		//Remember the current zoom level and bounds
+		this._zoom = Math.round(this._map._zoom);
+		this._currentShownBounds = this._getExpandedVisibleBounds();
+
+		this._map.on('zoomend', this._zoomEnd, this);
+		this._map.on('moveend', this._moveEnd, this);
+
+		if (this._spiderfierOnAdd) { //TODO FIXME: Not sure how to have spiderfier add something on here nicely
+			this._spiderfierOnAdd();
+		}
+
+		this._bindEvents();
+
+		//Actually add our markers to the map:
+		l = this._needsClustering;
+		this._needsClustering = [];
+		this.addLayers(l, true);
+	},
+
+	//Overrides FeatureGroup.onRemove
+	onRemove: function (map) {
+		map.off('zoomend', this._zoomEnd, this);
+		map.off('moveend', this._moveEnd, this);
+
+		this._unbindEvents();
+
+		//In case we are in a cluster animation
+		this._map._mapPane.className = this._map._mapPane.className.replace(' leaflet-cluster-anim', '');
+
+		if (this._spiderfierOnRemove) { //TODO FIXME: Not sure how to have spiderfier add something on here nicely
+			this._spiderfierOnRemove();
+		}
+
+		delete this._maxLat;
+
+		//Clean up all the layers we added to the map
+		this._hideCoverage();
+		this._featureGroup.remove();
+		this._nonPointGroup.remove();
+
+		this._featureGroup.clearLayers();
+
+		this._map = null;
+	},
+
+	getVisibleParent: function (marker) {
+		var vMarker = marker;
+		while (vMarker && !vMarker._icon) {
+			vMarker = vMarker.__parent;
+		}
+		return vMarker || null;
+	},
+
+	//Remove the given object from the given array
+	_arraySplice: function (anArray, obj) {
+		for (var i = anArray.length - 1; i >= 0; i--) {
+			if (anArray[i] === obj) {
+				anArray.splice(i, 1);
+				return true;
+			}
+		}
+	},
+
+	/**
+	 * Removes a marker from all _gridUnclustered zoom levels, starting at the supplied zoom.
+	 * @param marker to be removed from _gridUnclustered.
+	 * @param z integer bottom start zoom level (included)
+	 * @private
+	 */
+	_removeFromGridUnclustered: function (marker, z) {
+		var map = this._map,
+		    gridUnclustered = this._gridUnclustered,
+			minZoom = Math.floor(this._map.getMinZoom());
+
+		for (; z >= minZoom; z--) {
+			if (!gridUnclustered[z].removeObject(marker, map.project(marker.getLatLng(), z))) {
+				break;
+			}
+		}
+	},
+
+	_childMarkerDragStart: function (e) {
+		e.target.__dragStart = e.target._latlng;
+	},
+
+	_childMarkerMoved: function (e) {
+		if (!this._ignoreMove && !e.target.__dragStart) {
+			var isPopupOpen = e.target._popup && e.target._popup.isOpen();
+
+			this._moveChild(e.target, e.oldLatLng, e.latlng);
+
+			if (isPopupOpen) {
+				e.target.openPopup();
+			}
+		}
+	},
+
+	_moveChild: function (layer, from, to) {
+		layer._latlng = from;
+		this.removeLayer(layer);
+
+		layer._latlng = to;
+		this.addLayer(layer);
+	},
+
+	_childMarkerDragEnd: function (e) {
+		if (e.target.__dragStart) {
+			this._moveChild(e.target, e.target.__dragStart, e.target._latlng);
+		}
+		delete e.target.__dragStart;
+	},
+
+
+	//Internal function for removing a marker from everything.
+	//dontUpdateMap: set to true if you will handle updating the map manually (for bulk functions)
+	_removeLayer: function (marker, removeFromDistanceGrid, dontUpdateMap) {
+		var gridClusters = this._gridClusters,
+			gridUnclustered = this._gridUnclustered,
+			fg = this._featureGroup,
+			map = this._map,
+			minZoom = Math.floor(this._map.getMinZoom());
+
+		//Remove the marker from distance clusters it might be in
+		if (removeFromDistanceGrid) {
+			this._removeFromGridUnclustered(marker, this._maxZoom);
+		}
+
+		//Work our way up the clusters removing them as we go if required
+		var cluster = marker.__parent,
+			markers = cluster._markers,
+			otherMarker;
+
+		//Remove the marker from the immediate parents marker list
+		this._arraySplice(markers, marker);
+
+		while (cluster) {
+			cluster._childCount--;
+			cluster._boundsNeedUpdate = true;
+
+			if (cluster._zoom < minZoom) {
+				//Top level, do nothing
+				break;
+			} else if (removeFromDistanceGrid && cluster._childCount <= 1) { //Cluster no longer required
+				//We need to push the other marker up to the parent
+				otherMarker = cluster._markers[0] === marker ? cluster._markers[1] : cluster._markers[0];
+
+				//Update distance grid
+				gridClusters[cluster._zoom].removeObject(cluster, map.project(cluster._cLatLng, cluster._zoom));
+				gridUnclustered[cluster._zoom].addObject(otherMarker, map.project(otherMarker.getLatLng(), cluster._zoom));
+
+				//Move otherMarker up to parent
+				this._arraySplice(cluster.__parent._childClusters, cluster);
+				cluster.__parent._markers.push(otherMarker);
+				otherMarker.__parent = cluster.__parent;
+
+				if (cluster._icon) {
+					//Cluster is currently on the map, need to put the marker on the map instead
+					fg.removeLayer(cluster);
+					if (!dontUpdateMap) {
+						fg.addLayer(otherMarker);
+					}
+				}
+			} else {
+				cluster._iconNeedsUpdate = true;
+			}
+
+			cluster = cluster.__parent;
+		}
+
+		delete marker.__parent;
+	},
+
+	_isOrIsParent: function (el, oel) {
+		while (oel) {
+			if (el === oel) {
+				return true;
+			}
+			oel = oel.parentNode;
+		}
+		return false;
+	},
+
+	//Override L.Evented.fire
+	fire: function (type, data, propagate) {
+		if (data && data.layer instanceof L.MarkerCluster) {
+			//Prevent multiple clustermouseover/off events if the icon is made up of stacked divs (Doesn't work in ie <= 8, no relatedTarget)
+			if (data.originalEvent && this._isOrIsParent(data.layer._icon, data.originalEvent.relatedTarget)) {
+				return;
+			}
+			type = 'cluster' + type;
+		}
+
+		L.FeatureGroup.prototype.fire.call(this, type, data, propagate);
+	},
+
+	//Override L.Evented.listens
+	listens: function (type, propagate) {
+		return L.FeatureGroup.prototype.listens.call(this, type, propagate) || L.FeatureGroup.prototype.listens.call(this, 'cluster' + type, propagate);
+	},
+
+	//Default functionality
+	_defaultIconCreateFunction: function (cluster) {
+		var childCount = cluster.getChildCount();
+
+		var c = ' marker-cluster-';
+		if (childCount < 10) {
+			c += 'small';
+		} else if (childCount < 100) {
+			c += 'medium';
+		} else {
+			c += 'large';
+		}
+
+		return new L.DivIcon({ html: '<div><span>' + childCount + '</span></div>', className: 'marker-cluster' + c, iconSize: new L.Point(40, 40) });
+	},
+
+	_bindEvents: function () {
+		var map = this._map,
+		    spiderfyOnMaxZoom = this.options.spiderfyOnMaxZoom,
+		    showCoverageOnHover = this.options.showCoverageOnHover,
+		    zoomToBoundsOnClick = this.options.zoomToBoundsOnClick;
+
+		//Zoom on cluster click or spiderfy if we are at the lowest level
+		if (spiderfyOnMaxZoom || zoomToBoundsOnClick) {
+			this.on('clusterclick', this._zoomOrSpiderfy, this);
+		}
+
+		//Show convex hull (boundary) polygon on mouse over
+		if (showCoverageOnHover) {
+			this.on('clustermouseover', this._showCoverage, this);
+			this.on('clustermouseout', this._hideCoverage, this);
+			map.on('zoomend', this._hideCoverage, this);
+		}
+	},
+
+	_zoomOrSpiderfy: function (e) {
+		var cluster = e.layer,
+		    bottomCluster = cluster;
+
+		while (bottomCluster._childClusters.length === 1) {
+			bottomCluster = bottomCluster._childClusters[0];
+		}
+
+		if (bottomCluster._zoom === this._maxZoom &&
+			bottomCluster._childCount === cluster._childCount &&
+			this.options.spiderfyOnMaxZoom) {
+
+			// All child markers are contained in a single cluster from this._maxZoom to this cluster.
+			cluster.spiderfy();
+		} else if (this.options.zoomToBoundsOnClick) {
+			cluster.zoomToBounds();
+		}
+
+		// Focus the map again for keyboard users.
+		if (e.originalEvent && e.originalEvent.keyCode === 13) {
+			this._map._container.focus();
+		}
+	},
+
+	_showCoverage: function (e) {
+		var map = this._map;
+		if (this._inZoomAnimation) {
+			return;
+		}
+		if (this._shownPolygon) {
+			map.removeLayer(this._shownPolygon);
+		}
+		if (e.layer.getChildCount() > 2 && e.layer !== this._spiderfied) {
+			this._shownPolygon = new L.Polygon(e.layer.getConvexHull(), this.options.polygonOptions);
+			map.addLayer(this._shownPolygon);
+		}
+	},
+
+	_hideCoverage: function () {
+		if (this._shownPolygon) {
+			this._map.removeLayer(this._shownPolygon);
+			this._shownPolygon = null;
+		}
+	},
+
+	_unbindEvents: function () {
+		var spiderfyOnMaxZoom = this.options.spiderfyOnMaxZoom,
+			showCoverageOnHover = this.options.showCoverageOnHover,
+			zoomToBoundsOnClick = this.options.zoomToBoundsOnClick,
+			map = this._map;
+
+		if (spiderfyOnMaxZoom || zoomToBoundsOnClick) {
+			this.off('clusterclick', this._zoomOrSpiderfy, this);
+		}
+		if (showCoverageOnHover) {
+			this.off('clustermouseover', this._showCoverage, this);
+			this.off('clustermouseout', this._hideCoverage, this);
+			map.off('zoomend', this._hideCoverage, this);
+		}
+	},
+
+	_zoomEnd: function () {
+		if (!this._map) { //May have been removed from the map by a zoomEnd handler
+			return;
+		}
+		this._mergeSplitClusters();
+
+		this._zoom = Math.round(this._map._zoom);
+		this._currentShownBounds = this._getExpandedVisibleBounds();
+	},
+
+	_moveEnd: function () {
+		if (this._inZoomAnimation) {
+			return;
+		}
+
+		var newBounds = this._getExpandedVisibleBounds();
+
+		this._topClusterLevel._recursivelyRemoveChildrenFromMap(this._currentShownBounds, Math.floor(this._map.getMinZoom()), this._zoom, newBounds);
+		this._topClusterLevel._recursivelyAddChildrenToMap(null, Math.round(this._map._zoom), newBounds);
+
+		this._currentShownBounds = newBounds;
+		return;
+	},
+
+	_generateInitialClusters: function () {
+		var maxZoom = Math.ceil(this._map.getMaxZoom()),
+			minZoom = Math.floor(this._map.getMinZoom()),
+			radius = this.options.maxClusterRadius,
+			radiusFn = radius;
+
+		//If we just set maxClusterRadius to a single number, we need to create
+		//a simple function to return that number. Otherwise, we just have to
+		//use the function we've passed in.
+		if (typeof radius !== "function") {
+			radiusFn = function () { return radius; };
+		}
+
+		if (this.options.disableClusteringAtZoom !== null) {
+			maxZoom = this.options.disableClusteringAtZoom - 1;
+		}
+		this._maxZoom = maxZoom;
+		this._gridClusters = {};
+		this._gridUnclustered = {};
+
+		//Set up DistanceGrids for each zoom
+		for (var zoom = maxZoom; zoom >= minZoom; zoom--) {
+			this._gridClusters[zoom] = new L.DistanceGrid(radiusFn(zoom));
+			this._gridUnclustered[zoom] = new L.DistanceGrid(radiusFn(zoom));
+		}
+
+		// Instantiate the appropriate L.MarkerCluster class (animated or not).
+		this._topClusterLevel = new this._markerCluster(this, minZoom - 1);
+	},
+
+	//Zoom: Zoom to start adding at (Pass this._maxZoom to start at the bottom)
+	_addLayer: function (layer, zoom) {
+		var gridClusters = this._gridClusters,
+		    gridUnclustered = this._gridUnclustered,
+			minZoom = Math.floor(this._map.getMinZoom()),
+		    markerPoint, z;
+
+		if (this.options.singleMarkerMode) {
+			this._overrideMarkerIcon(layer);
+		}
+
+		layer.on(this._childMarkerEventHandlers, this);
+
+		//Find the lowest zoom level to slot this one in
+		for (; zoom >= minZoom; zoom--) {
+			markerPoint = this._map.project(layer.getLatLng(), zoom); // calculate pixel position
+
+			//Try find a cluster close by
+			var closest = gridClusters[zoom].getNearObject(markerPoint);
+			if (closest) {
+				closest._addChild(layer);
+				layer.__parent = closest;
+				return;
+			}
+
+			//Try find a marker close by to form a new cluster with
+			closest = gridUnclustered[zoom].getNearObject(markerPoint);
+			if (closest) {
+				var parent = closest.__parent;
+				if (parent) {
+					this._removeLayer(closest, false);
+				}
+
+				//Create new cluster with these 2 in it
+
+				var newCluster = new this._markerCluster(this, zoom, closest, layer);
+				gridClusters[zoom].addObject(newCluster, this._map.project(newCluster._cLatLng, zoom));
+				closest.__parent = newCluster;
+				layer.__parent = newCluster;
+
+				//First create any new intermediate parent clusters that don't exist
+				var lastParent = newCluster;
+				for (z = zoom - 1; z > parent._zoom; z--) {
+					lastParent = new this._markerCluster(this, z, lastParent);
+					gridClusters[z].addObject(lastParent, this._map.project(closest.getLatLng(), z));
+				}
+				parent._addChild(lastParent);
+
+				//Remove closest from this zoom level and any above that it is in, replace with newCluster
+				this._removeFromGridUnclustered(closest, zoom);
+
+				return;
+			}
+
+			//Didn't manage to cluster in at this zoom, record us as a marker here and continue upwards
+			gridUnclustered[zoom].addObject(layer, markerPoint);
+		}
+
+		//Didn't get in anything, add us to the top
+		this._topClusterLevel._addChild(layer);
+		layer.__parent = this._topClusterLevel;
+		return;
+	},
+
+	/**
+	 * Refreshes the icon of all "dirty" visible clusters.
+	 * Non-visible "dirty" clusters will be updated when they are added to the map.
+	 * @private
+	 */
+	_refreshClustersIcons: function () {
+		this._featureGroup.eachLayer(function (c) {
+			if (c instanceof L.MarkerCluster && c._iconNeedsUpdate) {
+				c._updateIcon();
+			}
+		});
+	},
+
+	//Enqueue code to fire after the marker expand/contract has happened
+	_enqueue: function (fn) {
+		this._queue.push(fn);
+		if (!this._queueTimeout) {
+			this._queueTimeout = setTimeout(L.bind(this._processQueue, this), 300);
+		}
+	},
+	_processQueue: function () {
+		for (var i = 0; i < this._queue.length; i++) {
+			this._queue[i].call(this);
+		}
+		this._queue.length = 0;
+		clearTimeout(this._queueTimeout);
+		this._queueTimeout = null;
+	},
+
+	//Merge and split any existing clusters that are too big or small
+	_mergeSplitClusters: function () {
+		var mapZoom = Math.round(this._map._zoom);
+
+		//In case we are starting to split before the animation finished
+		this._processQueue();
+
+		if (this._zoom < mapZoom && this._currentShownBounds.intersects(this._getExpandedVisibleBounds())) { //Zoom in, split
+			this._animationStart();
+			//Remove clusters now off screen
+			this._topClusterLevel._recursivelyRemoveChildrenFromMap(this._currentShownBounds, Math.floor(this._map.getMinZoom()), this._zoom, this._getExpandedVisibleBounds());
+
+			this._animationZoomIn(this._zoom, mapZoom);
+
+		} else if (this._zoom > mapZoom) { //Zoom out, merge
+			this._animationStart();
+
+			this._animationZoomOut(this._zoom, mapZoom);
+		} else {
+			this._moveEnd();
+		}
+	},
+
+	//Gets the maps visible bounds expanded in each direction by the size of the screen (so the user cannot see an area we do not cover in one pan)
+	_getExpandedVisibleBounds: function () {
+		if (!this.options.removeOutsideVisibleBounds) {
+			return this._mapBoundsInfinite;
+		} else if (L.Browser.mobile) {
+			return this._checkBoundsMaxLat(this._map.getBounds());
+		}
+
+		return this._checkBoundsMaxLat(this._map.getBounds().pad(1)); // Padding expands the bounds by its own dimensions but scaled with the given factor.
+	},
+
+	/**
+	 * Expands the latitude to Infinity (or -Infinity) if the input bounds reach the map projection maximum defined latitude
+	 * (in the case of Web/Spherical Mercator, it is 85.0511287798 / see https://en.wikipedia.org/wiki/Web_Mercator#Formulas).
+	 * Otherwise, the removeOutsideVisibleBounds option will remove markers beyond that limit, whereas the same markers without
+	 * this option (or outside MCG) will have their position floored (ceiled) by the projection and rendered at that limit,
+	 * making the user think that MCG "eats" them and never displays them again.
+	 * @param bounds L.LatLngBounds
+	 * @returns {L.LatLngBounds}
+	 * @private
+	 */
+	_checkBoundsMaxLat: function (bounds) {
+		var maxLat = this._maxLat;
+
+		if (maxLat !== undefined) {
+			if (bounds.getNorth() >= maxLat) {
+				bounds._northEast.lat = Infinity;
+			}
+			if (bounds.getSouth() <= -maxLat) {
+				bounds._southWest.lat = -Infinity;
+			}
+		}
+
+		return bounds;
+	},
+
+	//Shared animation code
+	_animationAddLayerNonAnimated: function (layer, newCluster) {
+		if (newCluster === layer) {
+			this._featureGroup.addLayer(layer);
+		} else if (newCluster._childCount === 2) {
+			newCluster._addToMap();
+
+			var markers = newCluster.getAllChildMarkers();
+			this._featureGroup.removeLayer(markers[0]);
+			this._featureGroup.removeLayer(markers[1]);
+		} else {
+			newCluster._updateIcon();
+		}
+	},
+
+	/**
+	 * Extracts individual (i.e. non-group) layers from a Layer Group.
+	 * @param group to extract layers from.
+	 * @param output {Array} in which to store the extracted layers.
+	 * @returns {*|Array}
+	 * @private
+	 */
+	_extractNonGroupLayers: function (group, output) {
+		var layers = group.getLayers(),
+		    i = 0,
+		    layer;
+
+		output = output || [];
+
+		for (; i < layers.length; i++) {
+			layer = layers[i];
+
+			if (layer instanceof L.LayerGroup) {
+				this._extractNonGroupLayers(layer, output);
+				continue;
+			}
+
+			output.push(layer);
+		}
+
+		return output;
+	},
+
+	/**
+	 * Implements the singleMarkerMode option.
+	 * @param layer Marker to re-style using the Clusters iconCreateFunction.
+	 * @returns {L.Icon} The newly created icon.
+	 * @private
+	 */
+	_overrideMarkerIcon: function (layer) {
+		var icon = layer.options.icon = this.options.iconCreateFunction({
+			getChildCount: function () {
+				return 1;
+			},
+			getAllChildMarkers: function () {
+				return [layer];
+			}
+		});
+
+		return icon;
+	}
+});
+
+// Constant bounds used in case option "removeOutsideVisibleBounds" is set to false.
+L.MarkerClusterGroup.include({
+	_mapBoundsInfinite: new L.LatLngBounds(new L.LatLng(-Infinity, -Infinity), new L.LatLng(Infinity, Infinity))
+});
+
+L.MarkerClusterGroup.include({
+	_noAnimation: {
+		//Non Animated versions of everything
+		_animationStart: function () {
+			//Do nothing...
+		},
+		_animationZoomIn: function (previousZoomLevel, newZoomLevel) {
+			this._topClusterLevel._recursivelyRemoveChildrenFromMap(this._currentShownBounds, Math.floor(this._map.getMinZoom()), previousZoomLevel);
+			this._topClusterLevel._recursivelyAddChildrenToMap(null, newZoomLevel, this._getExpandedVisibleBounds());
+
+			//We didn't actually animate, but we use this event to mean "clustering animations have finished"
+			this.fire('animationend');
+		},
+		_animationZoomOut: function (previousZoomLevel, newZoomLevel) {
+			this._topClusterLevel._recursivelyRemoveChildrenFromMap(this._currentShownBounds, Math.floor(this._map.getMinZoom()), previousZoomLevel);
+			this._topClusterLevel._recursivelyAddChildrenToMap(null, newZoomLevel, this._getExpandedVisibleBounds());
+
+			//We didn't actually animate, but we use this event to mean "clustering animations have finished"
+			this.fire('animationend');
+		},
+		_animationAddLayer: function (layer, newCluster) {
+			this._animationAddLayerNonAnimated(layer, newCluster);
+		}
+	},
+
+	_withAnimation: {
+		//Animated versions here
+		_animationStart: function () {
+			this._map._mapPane.className += ' leaflet-cluster-anim';
+			this._inZoomAnimation++;
+		},
+
+		_animationZoomIn: function (previousZoomLevel, newZoomLevel) {
+			var bounds = this._getExpandedVisibleBounds(),
+			    fg = this._featureGroup,
+				minZoom = Math.floor(this._map.getMinZoom()),
+			    i;
+
+			this._ignoreMove = true;
+
+			//Add all children of current clusters to map and remove those clusters from map
+			this._topClusterLevel._recursively(bounds, previousZoomLevel, minZoom, function (c) {
+				var startPos = c._latlng,
+				    markers  = c._markers,
+				    m;
+
+				if (!bounds.contains(startPos)) {
+					startPos = null;
+				}
+
+				if (c._isSingleParent() && previousZoomLevel + 1 === newZoomLevel) { //Immediately add the new child and remove us
+					fg.removeLayer(c);
+					c._recursivelyAddChildrenToMap(null, newZoomLevel, bounds);
+				} else {
+					//Fade out old cluster
+					c.clusterHide();
+					c._recursivelyAddChildrenToMap(startPos, newZoomLevel, bounds);
+				}
+
+				//Remove all markers that aren't visible any more
+				//TODO: Do we actually need to do this on the higher levels too?
+				for (i = markers.length - 1; i >= 0; i--) {
+					m = markers[i];
+					if (!bounds.contains(m._latlng)) {
+						fg.removeLayer(m);
+					}
+				}
+
+			});
+
+			this._forceLayout();
+
+			//Update opacities
+			this._topClusterLevel._recursivelyBecomeVisible(bounds, newZoomLevel);
+			//TODO Maybe? Update markers in _recursivelyBecomeVisible
+			fg.eachLayer(function (n) {
+				if (!(n instanceof L.MarkerCluster) && n._icon) {
+					n.clusterShow();
+				}
+			});
+
+			//update the positions of the just added clusters/markers
+			this._topClusterLevel._recursively(bounds, previousZoomLevel, newZoomLevel, function (c) {
+				c._recursivelyRestoreChildPositions(newZoomLevel);
+			});
+
+			this._ignoreMove = false;
+
+			//Remove the old clusters and close the zoom animation
+			this._enqueue(function () {
+				//update the positions of the just added clusters/markers
+				this._topClusterLevel._recursively(bounds, previousZoomLevel, minZoom, function (c) {
+					fg.removeLayer(c);
+					c.clusterShow();
+				});
+
+				this._animationEnd();
+			});
+		},
+
+		_animationZoomOut: function (previousZoomLevel, newZoomLevel) {
+			this._animationZoomOutSingle(this._topClusterLevel, previousZoomLevel - 1, newZoomLevel);
+
+			//Need to add markers for those that weren't on the map before but are now
+			this._topClusterLevel._recursivelyAddChildrenToMap(null, newZoomLevel, this._getExpandedVisibleBounds());
+			//Remove markers that were on the map before but won't be now
+			this._topClusterLevel._recursivelyRemoveChildrenFromMap(this._currentShownBounds, Math.floor(this._map.getMinZoom()), previousZoomLevel, this._getExpandedVisibleBounds());
+		},
+
+		_animationAddLayer: function (layer, newCluster) {
+			var me = this,
+			    fg = this._featureGroup;
+
+			fg.addLayer(layer);
+			if (newCluster !== layer) {
+				if (newCluster._childCount > 2) { //Was already a cluster
+
+					newCluster._updateIcon();
+					this._forceLayout();
+					this._animationStart();
+
+					layer._setPos(this._map.latLngToLayerPoint(newCluster.getLatLng()));
+					layer.clusterHide();
+
+					this._enqueue(function () {
+						fg.removeLayer(layer);
+						layer.clusterShow();
+
+						me._animationEnd();
+					});
+
+				} else { //Just became a cluster
+					this._forceLayout();
+
+					me._animationStart();
+					me._animationZoomOutSingle(newCluster, this._map.getMaxZoom(), this._zoom);
+				}
+			}
+		}
+	},
+
+	// Private methods for animated versions.
+	_animationZoomOutSingle: function (cluster, previousZoomLevel, newZoomLevel) {
+		var bounds = this._getExpandedVisibleBounds(),
+			minZoom = Math.floor(this._map.getMinZoom());
+
+		//Animate all of the markers in the clusters to move to their cluster center point
+		cluster._recursivelyAnimateChildrenInAndAddSelfToMap(bounds, minZoom, previousZoomLevel + 1, newZoomLevel);
+
+		var me = this;
+
+		//Update the opacity (If we immediately set it they won't animate)
+		this._forceLayout();
+		cluster._recursivelyBecomeVisible(bounds, newZoomLevel);
+
+		//TODO: Maybe use the transition timing stuff to make this more reliable
+		//When the animations are done, tidy up
+		this._enqueue(function () {
+
+			//This cluster stopped being a cluster before the timeout fired
+			if (cluster._childCount === 1) {
+				var m = cluster._markers[0];
+				//If we were in a cluster animation at the time then the opacity and position of our child could be wrong now, so fix it
+				this._ignoreMove = true;
+				m.setLatLng(m.getLatLng());
+				this._ignoreMove = false;
+				if (m.clusterShow) {
+					m.clusterShow();
+				}
+			} else {
+				cluster._recursively(bounds, newZoomLevel, minZoom, function (c) {
+					c._recursivelyRemoveChildrenFromMap(bounds, minZoom, previousZoomLevel + 1);
+				});
+			}
+			me._animationEnd();
+		});
+	},
+
+	_animationEnd: function () {
+		if (this._map) {
+			this._map._mapPane.className = this._map._mapPane.className.replace(' leaflet-cluster-anim', '');
+		}
+		this._inZoomAnimation--;
+		this.fire('animationend');
+	},
+
+	//Force a browser layout of stuff in the map
+	// Should apply the current opacity and location to all elements so we can update them again for an animation
+	_forceLayout: function () {
+		//In my testing this works, infact offsetWidth of any element seems to work.
+		//Could loop all this._layers and do this for each _icon if it stops working
+
+		L.Util.falseFn(document.body.offsetWidth);
+	}
+});
+
+L.markerClusterGroup = function (options) {
+	return new L.MarkerClusterGroup(options);
+};
+
+var MarkerCluster = L.MarkerCluster = L.Marker.extend({
+	options: L.Icon.prototype.options,
+
+	initialize: function (group, zoom, a, b) {
+
+		L.Marker.prototype.initialize.call(this, a ? (a._cLatLng || a.getLatLng()) : new L.LatLng(0, 0),
+            { icon: this, pane: group.options.clusterPane });
+
+		this._group = group;
+		this._zoom = zoom;
+
+		this._markers = [];
+		this._childClusters = [];
+		this._childCount = 0;
+		this._iconNeedsUpdate = true;
+		this._boundsNeedUpdate = true;
+
+		this._bounds = new L.LatLngBounds();
+
+		if (a) {
+			this._addChild(a);
+		}
+		if (b) {
+			this._addChild(b);
+		}
+	},
+
+	//Recursively retrieve all child markers of this cluster
+	getAllChildMarkers: function (storageArray) {
+		storageArray = storageArray || [];
+
+		for (var i = this._childClusters.length - 1; i >= 0; i--) {
+			this._childClusters[i].getAllChildMarkers(storageArray);
+		}
+
+		for (var j = this._markers.length - 1; j >= 0; j--) {
+			storageArray.push(this._markers[j]);
+		}
+
+		return storageArray;
+	},
+
+	//Returns the count of how many child markers we have
+	getChildCount: function () {
+		return this._childCount;
+	},
+
+	//Zoom to the minimum of showing all of the child markers, or the extents of this cluster
+	zoomToBounds: function (fitBoundsOptions) {
+		var childClusters = this._childClusters.slice(),
+			map = this._group._map,
+			boundsZoom = map.getBoundsZoom(this._bounds),
+			zoom = this._zoom + 1,
+			mapZoom = map.getZoom(),
+			i;
+
+		//calculate how far we need to zoom down to see all of the markers
+		while (childClusters.length > 0 && boundsZoom > zoom) {
+			zoom++;
+			var newClusters = [];
+			for (i = 0; i < childClusters.length; i++) {
+				newClusters = newClusters.concat(childClusters[i]._childClusters);
+			}
+			childClusters = newClusters;
+		}
+
+		if (boundsZoom > zoom) {
+			this._group._map.setView(this._latlng, zoom);
+		} else if (boundsZoom <= mapZoom) { //If fitBounds wouldn't zoom us down, zoom us down instead
+			this._group._map.setView(this._latlng, mapZoom + 1);
+		} else {
+			this._group._map.fitBounds(this._bounds, fitBoundsOptions);
+		}
+	},
+
+	getBounds: function () {
+		var bounds = new L.LatLngBounds();
+		bounds.extend(this._bounds);
+		return bounds;
+	},
+
+	_updateIcon: function () {
+		this._iconNeedsUpdate = true;
+		if (this._icon) {
+			this.setIcon(this);
+		}
+	},
+
+	//Cludge for Icon, we pretend to be an icon for performance
+	createIcon: function () {
+		if (this._iconNeedsUpdate) {
+			this._iconObj = this._group.options.iconCreateFunction(this);
+			this._iconNeedsUpdate = false;
+		}
+		return this._iconObj.createIcon();
+	},
+	createShadow: function () {
+		return this._iconObj.createShadow();
+	},
+
+
+	_addChild: function (new1, isNotificationFromChild) {
+
+		this._iconNeedsUpdate = true;
+
+		this._boundsNeedUpdate = true;
+		this._setClusterCenter(new1);
+
+		if (new1 instanceof L.MarkerCluster) {
+			if (!isNotificationFromChild) {
+				this._childClusters.push(new1);
+				new1.__parent = this;
+			}
+			this._childCount += new1._childCount;
+		} else {
+			if (!isNotificationFromChild) {
+				this._markers.push(new1);
+			}
+			this._childCount++;
+		}
+
+		if (this.__parent) {
+			this.__parent._addChild(new1, true);
+		}
+	},
+
+	/**
+	 * Makes sure the cluster center is set. If not, uses the child center if it is a cluster, or the marker position.
+	 * @param child L.MarkerCluster|L.Marker that will be used as cluster center if not defined yet.
+	 * @private
+	 */
+	_setClusterCenter: function (child) {
+		if (!this._cLatLng) {
+			// when clustering, take position of the first point as the cluster center
+			this._cLatLng = child._cLatLng || child._latlng;
+		}
+	},
+
+	/**
+	 * Assigns impossible bounding values so that the next extend entirely determines the new bounds.
+	 * This method avoids having to trash the previous L.LatLngBounds object and to create a new one, which is much slower for this class.
+	 * As long as the bounds are not extended, most other methods would probably fail, as they would with bounds initialized but not extended.
+	 * @private
+	 */
+	_resetBounds: function () {
+		var bounds = this._bounds;
+
+		if (bounds._southWest) {
+			bounds._southWest.lat = Infinity;
+			bounds._southWest.lng = Infinity;
+		}
+		if (bounds._northEast) {
+			bounds._northEast.lat = -Infinity;
+			bounds._northEast.lng = -Infinity;
+		}
+	},
+
+	_recalculateBounds: function () {
+		var markers = this._markers,
+		    childClusters = this._childClusters,
+		    latSum = 0,
+		    lngSum = 0,
+		    totalCount = this._childCount,
+		    i, child, childLatLng, childCount;
+
+		// Case where all markers are removed from the map and we are left with just an empty _topClusterLevel.
+		if (totalCount === 0) {
+			return;
+		}
+
+		// Reset rather than creating a new object, for performance.
+		this._resetBounds();
+
+		// Child markers.
+		for (i = 0; i < markers.length; i++) {
+			childLatLng = markers[i]._latlng;
+
+			this._bounds.extend(childLatLng);
+
+			latSum += childLatLng.lat;
+			lngSum += childLatLng.lng;
+		}
+
+		// Child clusters.
+		for (i = 0; i < childClusters.length; i++) {
+			child = childClusters[i];
+
+			// Re-compute child bounds and weighted position first if necessary.
+			if (child._boundsNeedUpdate) {
+				child._recalculateBounds();
+			}
+
+			this._bounds.extend(child._bounds);
+
+			childLatLng = child._wLatLng;
+			childCount = child._childCount;
+
+			latSum += childLatLng.lat * childCount;
+			lngSum += childLatLng.lng * childCount;
+		}
+
+		this._latlng = this._wLatLng = new L.LatLng(latSum / totalCount, lngSum / totalCount);
+
+		// Reset dirty flag.
+		this._boundsNeedUpdate = false;
+	},
+
+	//Set our markers position as given and add it to the map
+	_addToMap: function (startPos) {
+		if (startPos) {
+			this._backupLatlng = this._latlng;
+			this.setLatLng(startPos);
+		}
+		this._group._featureGroup.addLayer(this);
+	},
+
+	_recursivelyAnimateChildrenIn: function (bounds, center, maxZoom) {
+		this._recursively(bounds, this._group._map.getMinZoom(), maxZoom - 1,
+			function (c) {
+				var markers = c._markers,
+					i, m;
+				for (i = markers.length - 1; i >= 0; i--) {
+					m = markers[i];
+
+					//Only do it if the icon is still on the map
+					if (m._icon) {
+						m._setPos(center);
+						m.clusterHide();
+					}
+				}
+			},
+			function (c) {
+				var childClusters = c._childClusters,
+					j, cm;
+				for (j = childClusters.length - 1; j >= 0; j--) {
+					cm = childClusters[j];
+					if (cm._icon) {
+						cm._setPos(center);
+						cm.clusterHide();
+					}
+				}
+			}
+		);
+	},
+
+	_recursivelyAnimateChildrenInAndAddSelfToMap: function (bounds, mapMinZoom, previousZoomLevel, newZoomLevel) {
+		this._recursively(bounds, newZoomLevel, mapMinZoom,
+			function (c) {
+				c._recursivelyAnimateChildrenIn(bounds, c._group._map.latLngToLayerPoint(c.getLatLng()).round(), previousZoomLevel);
+
+				//TODO: depthToAnimateIn affects _isSingleParent, if there is a multizoom we may/may not be.
+				//As a hack we only do a animation free zoom on a single level zoom, if someone does multiple levels then we always animate
+				if (c._isSingleParent() && previousZoomLevel - 1 === newZoomLevel) {
+					c.clusterShow();
+					c._recursivelyRemoveChildrenFromMap(bounds, mapMinZoom, previousZoomLevel); //Immediately remove our children as we are replacing them. TODO previousBounds not bounds
+				} else {
+					c.clusterHide();
+				}
+
+				c._addToMap();
+			}
+		);
+	},
+
+	_recursivelyBecomeVisible: function (bounds, zoomLevel) {
+		this._recursively(bounds, this._group._map.getMinZoom(), zoomLevel, null, function (c) {
+			c.clusterShow();
+		});
+	},
+
+	_recursivelyAddChildrenToMap: function (startPos, zoomLevel, bounds) {
+		this._recursively(bounds, this._group._map.getMinZoom() - 1, zoomLevel,
+			function (c) {
+				if (zoomLevel === c._zoom) {
+					return;
+				}
+
+				//Add our child markers at startPos (so they can be animated out)
+				for (var i = c._markers.length - 1; i >= 0; i--) {
+					var nm = c._markers[i];
+
+					if (!bounds.contains(nm._latlng)) {
+						continue;
+					}
+
+					if (startPos) {
+						nm._backupLatlng = nm.getLatLng();
+
+						nm.setLatLng(startPos);
+						if (nm.clusterHide) {
+							nm.clusterHide();
+						}
+					}
+
+					c._group._featureGroup.addLayer(nm);
+				}
+			},
+			function (c) {
+				c._addToMap(startPos);
+			}
+		);
+	},
+
+	_recursivelyRestoreChildPositions: function (zoomLevel) {
+		//Fix positions of child markers
+		for (var i = this._markers.length - 1; i >= 0; i--) {
+			var nm = this._markers[i];
+			if (nm._backupLatlng) {
+				nm.setLatLng(nm._backupLatlng);
+				delete nm._backupLatlng;
+			}
+		}
+
+		if (zoomLevel - 1 === this._zoom) {
+			//Reposition child clusters
+			for (var j = this._childClusters.length - 1; j >= 0; j--) {
+				this._childClusters[j]._restorePosition();
+			}
+		} else {
+			for (var k = this._childClusters.length - 1; k >= 0; k--) {
+				this._childClusters[k]._recursivelyRestoreChildPositions(zoomLevel);
+			}
+		}
+	},
+
+	_restorePosition: function () {
+		if (this._backupLatlng) {
+			this.setLatLng(this._backupLatlng);
+			delete this._backupLatlng;
+		}
+	},
+
+	//exceptBounds: If set, don't remove any markers/clusters in it
+	_recursivelyRemoveChildrenFromMap: function (previousBounds, mapMinZoom, zoomLevel, exceptBounds) {
+		var m, i;
+		this._recursively(previousBounds, mapMinZoom - 1, zoomLevel - 1,
+			function (c) {
+				//Remove markers at every level
+				for (i = c._markers.length - 1; i >= 0; i--) {
+					m = c._markers[i];
+					if (!exceptBounds || !exceptBounds.contains(m._latlng)) {
+						c._group._featureGroup.removeLayer(m);
+						if (m.clusterShow) {
+							m.clusterShow();
+						}
+					}
+				}
+			},
+			function (c) {
+				//Remove child clusters at just the bottom level
+				for (i = c._childClusters.length - 1; i >= 0; i--) {
+					m = c._childClusters[i];
+					if (!exceptBounds || !exceptBounds.contains(m._latlng)) {
+						c._group._featureGroup.removeLayer(m);
+						if (m.clusterShow) {
+							m.clusterShow();
+						}
+					}
+				}
+			}
+		);
+	},
+
+	//Run the given functions recursively to this and child clusters
+	// boundsToApplyTo: a L.LatLngBounds representing the bounds of what clusters to recurse in to
+	// zoomLevelToStart: zoom level to start running functions (inclusive)
+	// zoomLevelToStop: zoom level to stop running functions (inclusive)
+	// runAtEveryLevel: function that takes an L.MarkerCluster as an argument that should be applied on every level
+	// runAtBottomLevel: function that takes an L.MarkerCluster as an argument that should be applied at only the bottom level
+	_recursively: function (boundsToApplyTo, zoomLevelToStart, zoomLevelToStop, runAtEveryLevel, runAtBottomLevel) {
+		var childClusters = this._childClusters,
+		    zoom = this._zoom,
+		    i, c;
+
+		if (zoomLevelToStart <= zoom) {
+			if (runAtEveryLevel) {
+				runAtEveryLevel(this);
+			}
+			if (runAtBottomLevel && zoom === zoomLevelToStop) {
+				runAtBottomLevel(this);
+			}
+		}
+
+		if (zoom < zoomLevelToStart || zoom < zoomLevelToStop) {
+			for (i = childClusters.length - 1; i >= 0; i--) {
+				c = childClusters[i];
+				if (boundsToApplyTo.intersects(c._bounds)) {
+					c._recursively(boundsToApplyTo, zoomLevelToStart, zoomLevelToStop, runAtEveryLevel, runAtBottomLevel);
+				}
+			}
+		}
+	},
+
+	//Returns true if we are the parent of only one cluster and that cluster is the same as us
+	_isSingleParent: function () {
+		//Don't need to check this._markers as the rest won't work if there are any
+		return this._childClusters.length > 0 && this._childClusters[0]._childCount === this._childCount;
+	}
+});
+
+/*
+* Extends L.Marker to include two extra methods: clusterHide and clusterShow.
+* 
+* They work as setOpacity(0) and setOpacity(1) respectively, but
+* they will remember the marker's opacity when hiding and showing it again.
+* 
+*/
+
+
+L.Marker.include({
+	
+	clusterHide: function () {
+		this.options.opacityWhenUnclustered = this.options.opacity || 1;
+		return this.setOpacity(0);
+	},
+	
+	clusterShow: function () {
+		var ret = this.setOpacity(this.options.opacity || this.options.opacityWhenUnclustered);
+		delete this.options.opacityWhenUnclustered;
+		return ret;
+	}
+	
+});
+
+L.DistanceGrid = function (cellSize) {
+	this._cellSize = cellSize;
+	this._sqCellSize = cellSize * cellSize;
+	this._grid = {};
+	this._objectPoint = { };
+};
+
+L.DistanceGrid.prototype = {
+
+	addObject: function (obj, point) {
+		var x = this._getCoord(point.x),
+		    y = this._getCoord(point.y),
+		    grid = this._grid,
+		    row = grid[y] = grid[y] || {},
+		    cell = row[x] = row[x] || [],
+		    stamp = L.Util.stamp(obj);
+
+		this._objectPoint[stamp] = point;
+
+		cell.push(obj);
+	},
+
+	updateObject: function (obj, point) {
+		this.removeObject(obj);
+		this.addObject(obj, point);
+	},
+
+	//Returns true if the object was found
+	removeObject: function (obj, point) {
+		var x = this._getCoord(point.x),
+		    y = this._getCoord(point.y),
+		    grid = this._grid,
+		    row = grid[y] = grid[y] || {},
+		    cell = row[x] = row[x] || [],
+		    i, len;
+
+		delete this._objectPoint[L.Util.stamp(obj)];
+
+		for (i = 0, len = cell.length; i < len; i++) {
+			if (cell[i] === obj) {
+
+				cell.splice(i, 1);
+
+				if (len === 1) {
+					delete row[x];
+				}
+
+				return true;
+			}
+		}
+
+	},
+
+	eachObject: function (fn, context) {
+		var i, j, k, len, row, cell, removed,
+		    grid = this._grid;
+
+		for (i in grid) {
+			row = grid[i];
+
+			for (j in row) {
+				cell = row[j];
+
+				for (k = 0, len = cell.length; k < len; k++) {
+					removed = fn.call(context, cell[k]);
+					if (removed) {
+						k--;
+						len--;
+					}
+				}
+			}
+		}
+	},
+
+	getNearObject: function (point) {
+		var x = this._getCoord(point.x),
+		    y = this._getCoord(point.y),
+		    i, j, k, row, cell, len, obj, dist,
+		    objectPoint = this._objectPoint,
+		    closestDistSq = this._sqCellSize,
+		    closest = null;
+
+		for (i = y - 1; i <= y + 1; i++) {
+			row = this._grid[i];
+			if (row) {
+
+				for (j = x - 1; j <= x + 1; j++) {
+					cell = row[j];
+					if (cell) {
+
+						for (k = 0, len = cell.length; k < len; k++) {
+							obj = cell[k];
+							dist = this._sqDist(objectPoint[L.Util.stamp(obj)], point);
+							if (dist < closestDistSq ||
+								dist <= closestDistSq && closest === null) {
+								closestDistSq = dist;
+								closest = obj;
+							}
+						}
+					}
+				}
+			}
+		}
+		return closest;
+	},
+
+	_getCoord: function (x) {
+		var coord = Math.floor(x / this._cellSize);
+		return isFinite(coord) ? coord : x;
+	},
+
+	_sqDist: function (p, p2) {
+		var dx = p2.x - p.x,
+		    dy = p2.y - p.y;
+		return dx * dx + dy * dy;
+	}
+};
+
+/* Copyright (c) 2012 the authors listed at the following URL, and/or
+the authors of referenced articles or incorporated external code:
+http://en.literateprograms.org/Quickhull_(Javascript)?action=history&offset=20120410175256
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+Retrieved from: http://en.literateprograms.org/Quickhull_(Javascript)?oldid=18434
+*/
+
+(function () {
+	L.QuickHull = {
+
+		/*
+		 * @param {Object} cpt a point to be measured from the baseline
+		 * @param {Array} bl the baseline, as represented by a two-element
+		 *   array of latlng objects.
+		 * @returns {Number} an approximate distance measure
+		 */
+		getDistant: function (cpt, bl) {
+			var vY = bl[1].lat - bl[0].lat,
+				vX = bl[0].lng - bl[1].lng;
+			return (vX * (cpt.lat - bl[0].lat) + vY * (cpt.lng - bl[0].lng));
+		},
+
+		/*
+		 * @param {Array} baseLine a two-element array of latlng objects
+		 *   representing the baseline to project from
+		 * @param {Array} latLngs an array of latlng objects
+		 * @returns {Object} the maximum point and all new points to stay
+		 *   in consideration for the hull.
+		 */
+		findMostDistantPointFromBaseLine: function (baseLine, latLngs) {
+			var maxD = 0,
+				maxPt = null,
+				newPoints = [],
+				i, pt, d;
+
+			for (i = latLngs.length - 1; i >= 0; i--) {
+				pt = latLngs[i];
+				d = this.getDistant(pt, baseLine);
+
+				if (d > 0) {
+					newPoints.push(pt);
+				} else {
+					continue;
+				}
+
+				if (d > maxD) {
+					maxD = d;
+					maxPt = pt;
+				}
+			}
+
+			return { maxPoint: maxPt, newPoints: newPoints };
+		},
+
+
+		/*
+		 * Given a baseline, compute the convex hull of latLngs as an array
+		 * of latLngs.
+		 *
+		 * @param {Array} latLngs
+		 * @returns {Array}
+		 */
+		buildConvexHull: function (baseLine, latLngs) {
+			var convexHullBaseLines = [],
+				t = this.findMostDistantPointFromBaseLine(baseLine, latLngs);
+
+			if (t.maxPoint) { // if there is still a point "outside" the base line
+				convexHullBaseLines =
+					convexHullBaseLines.concat(
+						this.buildConvexHull([baseLine[0], t.maxPoint], t.newPoints)
+					);
+				convexHullBaseLines =
+					convexHullBaseLines.concat(
+						this.buildConvexHull([t.maxPoint, baseLine[1]], t.newPoints)
+					);
+				return convexHullBaseLines;
+			} else {  // if there is no more point "outside" the base line, the current base line is part of the convex hull
+				return [baseLine[0]];
+			}
+		},
+
+		/*
+		 * Given an array of latlngs, compute a convex hull as an array
+		 * of latlngs
+		 *
+		 * @param {Array} latLngs
+		 * @returns {Array}
+		 */
+		getConvexHull: function (latLngs) {
+			// find first baseline
+			var maxLat = false, minLat = false,
+				maxLng = false, minLng = false,
+				maxLatPt = null, minLatPt = null,
+				maxLngPt = null, minLngPt = null,
+				maxPt = null, minPt = null,
+				i;
+
+			for (i = latLngs.length - 1; i >= 0; i--) {
+				var pt = latLngs[i];
+				if (maxLat === false || pt.lat > maxLat) {
+					maxLatPt = pt;
+					maxLat = pt.lat;
+				}
+				if (minLat === false || pt.lat < minLat) {
+					minLatPt = pt;
+					minLat = pt.lat;
+				}
+				if (maxLng === false || pt.lng > maxLng) {
+					maxLngPt = pt;
+					maxLng = pt.lng;
+				}
+				if (minLng === false || pt.lng < minLng) {
+					minLngPt = pt;
+					minLng = pt.lng;
+				}
+			}
+			
+			if (minLat !== maxLat) {
+				minPt = minLatPt;
+				maxPt = maxLatPt;
+			} else {
+				minPt = minLngPt;
+				maxPt = maxLngPt;
+			}
+
+			var ch = [].concat(this.buildConvexHull([minPt, maxPt], latLngs),
+								this.buildConvexHull([maxPt, minPt], latLngs));
+			return ch;
+		}
+	};
+}());
+
+L.MarkerCluster.include({
+	getConvexHull: function () {
+		var childMarkers = this.getAllChildMarkers(),
+			points = [],
+			p, i;
+
+		for (i = childMarkers.length - 1; i >= 0; i--) {
+			p = childMarkers[i].getLatLng();
+			points.push(p);
+		}
+
+		return L.QuickHull.getConvexHull(points);
+	}
+});
+
+//This code is 100% based on https://github.com/jawj/OverlappingMarkerSpiderfier-Leaflet
+//Huge thanks to jawj for implementing it first to make my job easy :-)
+
+L.MarkerCluster.include({
+
+	_2PI: Math.PI * 2,
+	_circleFootSeparation: 25, //related to circumference of circle
+	_circleStartAngle: 0,
+
+	_spiralFootSeparation:  28, //related to size of spiral (experiment!)
+	_spiralLengthStart: 11,
+	_spiralLengthFactor: 5,
+
+	_circleSpiralSwitchover: 9, //show spiral instead of circle from this marker count upwards.
+								// 0 -> always spiral; Infinity -> always circle
+
+	spiderfy: function () {
+		if (this._group._spiderfied === this || this._group._inZoomAnimation) {
+			return;
+		}
+
+		var childMarkers = this.getAllChildMarkers(),
+			group = this._group,
+			map = group._map,
+			center = map.latLngToLayerPoint(this._latlng),
+			positions;
+
+		this._group._unspiderfy();
+		this._group._spiderfied = this;
+
+		//TODO Maybe: childMarkers order by distance to center
+
+		if (childMarkers.length >= this._circleSpiralSwitchover) {
+			positions = this._generatePointsSpiral(childMarkers.length, center);
+		} else {
+			center.y += 10; // Otherwise circles look wrong => hack for standard blue icon, renders differently for other icons.
+			positions = this._generatePointsCircle(childMarkers.length, center);
+		}
+
+		this._animationSpiderfy(childMarkers, positions);
+	},
+
+	unspiderfy: function (zoomDetails) {
+		/// <param Name="zoomDetails">Argument from zoomanim if being called in a zoom animation or null otherwise</param>
+		if (this._group._inZoomAnimation) {
+			return;
+		}
+		this._animationUnspiderfy(zoomDetails);
+
+		this._group._spiderfied = null;
+	},
+
+	_generatePointsCircle: function (count, centerPt) {
+		var circumference = this._group.options.spiderfyDistanceMultiplier * this._circleFootSeparation * (2 + count),
+			legLength = circumference / this._2PI,  //radius from circumference
+			angleStep = this._2PI / count,
+			res = [],
+			i, angle;
+
+		legLength = Math.max(legLength, 35); // Minimum distance to get outside the cluster icon.
+
+		res.length = count;
+
+		for (i = 0; i < count; i++) { // Clockwise, like spiral.
+			angle = this._circleStartAngle + i * angleStep;
+			res[i] = new L.Point(centerPt.x + legLength * Math.cos(angle), centerPt.y + legLength * Math.sin(angle))._round();
+		}
+
+		return res;
+	},
+
+	_generatePointsSpiral: function (count, centerPt) {
+		var spiderfyDistanceMultiplier = this._group.options.spiderfyDistanceMultiplier,
+			legLength = spiderfyDistanceMultiplier * this._spiralLengthStart,
+			separation = spiderfyDistanceMultiplier * this._spiralFootSeparation,
+			lengthFactor = spiderfyDistanceMultiplier * this._spiralLengthFactor * this._2PI,
+			angle = 0,
+			res = [],
+			i;
+
+		res.length = count;
+
+		// Higher index, closer position to cluster center.
+		for (i = count; i >= 0; i--) {
+			// Skip the first position, so that we are already farther from center and we avoid
+			// being under the default cluster icon (especially important for Circle Markers).
+			if (i < count) {
+				res[i] = new L.Point(centerPt.x + legLength * Math.cos(angle), centerPt.y + legLength * Math.sin(angle))._round();
+			}
+			angle += separation / legLength + i * 0.0005;
+			legLength += lengthFactor / angle;
+		}
+		return res;
+	},
+
+	_noanimationUnspiderfy: function () {
+		var group = this._group,
+			map = group._map,
+			fg = group._featureGroup,
+			childMarkers = this.getAllChildMarkers(),
+			m, i;
+
+		group._ignoreMove = true;
+
+		this.setOpacity(1);
+		for (i = childMarkers.length - 1; i >= 0; i--) {
+			m = childMarkers[i];
+
+			fg.removeLayer(m);
+
+			if (m._preSpiderfyLatlng) {
+				m.setLatLng(m._preSpiderfyLatlng);
+				delete m._preSpiderfyLatlng;
+			}
+			if (m.setZIndexOffset) {
+				m.setZIndexOffset(0);
+			}
+
+			if (m._spiderLeg) {
+				map.removeLayer(m._spiderLeg);
+				delete m._spiderLeg;
+			}
+		}
+
+		group.fire('unspiderfied', {
+			cluster: this,
+			markers: childMarkers
+		});
+		group._ignoreMove = false;
+		group._spiderfied = null;
+	}
+});
+
+//Non Animated versions of everything
+L.MarkerClusterNonAnimated = L.MarkerCluster.extend({
+	_animationSpiderfy: function (childMarkers, positions) {
+		var group = this._group,
+			map = group._map,
+			fg = group._featureGroup,
+			legOptions = this._group.options.spiderLegPolylineOptions,
+			i, m, leg, newPos;
+
+		group._ignoreMove = true;
+
+		// Traverse in ascending order to make sure that inner circleMarkers are on top of further legs. Normal markers are re-ordered by newPosition.
+		// The reverse order trick no longer improves performance on modern browsers.
+		for (i = 0; i < childMarkers.length; i++) {
+			newPos = map.layerPointToLatLng(positions[i]);
+			m = childMarkers[i];
+
+			// Add the leg before the marker, so that in case the latter is a circleMarker, the leg is behind it.
+			leg = new L.Polyline([this._latlng, newPos], legOptions);
+			map.addLayer(leg);
+			m._spiderLeg = leg;
+
+			// Now add the marker.
+			m._preSpiderfyLatlng = m._latlng;
+			m.setLatLng(newPos);
+			if (m.setZIndexOffset) {
+				m.setZIndexOffset(1000000); //Make these appear on top of EVERYTHING
+			}
+
+			fg.addLayer(m);
+		}
+		this.setOpacity(0.3);
+
+		group._ignoreMove = false;
+		group.fire('spiderfied', {
+			cluster: this,
+			markers: childMarkers
+		});
+	},
+
+	_animationUnspiderfy: function () {
+		this._noanimationUnspiderfy();
+	}
+});
+
+//Animated versions here
+L.MarkerCluster.include({
+
+	_animationSpiderfy: function (childMarkers, positions) {
+		var me = this,
+			group = this._group,
+			map = group._map,
+			fg = group._featureGroup,
+			thisLayerLatLng = this._latlng,
+			thisLayerPos = map.latLngToLayerPoint(thisLayerLatLng),
+			svg = L.Path.SVG,
+			legOptions = L.extend({}, this._group.options.spiderLegPolylineOptions), // Copy the options so that we can modify them for animation.
+			finalLegOpacity = legOptions.opacity,
+			i, m, leg, legPath, legLength, newPos;
+
+		if (finalLegOpacity === undefined) {
+			finalLegOpacity = L.MarkerClusterGroup.prototype.options.spiderLegPolylineOptions.opacity;
+		}
+
+		if (svg) {
+			// If the initial opacity of the spider leg is not 0 then it appears before the animation starts.
+			legOptions.opacity = 0;
+
+			// Add the class for CSS transitions.
+			legOptions.className = (legOptions.className || '') + ' leaflet-cluster-spider-leg';
+		} else {
+			// Make sure we have a defined opacity.
+			legOptions.opacity = finalLegOpacity;
+		}
+
+		group._ignoreMove = true;
+
+		// Add markers and spider legs to map, hidden at our center point.
+		// Traverse in ascending order to make sure that inner circleMarkers are on top of further legs. Normal markers are re-ordered by newPosition.
+		// The reverse order trick no longer improves performance on modern browsers.
+		for (i = 0; i < childMarkers.length; i++) {
+			m = childMarkers[i];
+
+			newPos = map.layerPointToLatLng(positions[i]);
+
+			// Add the leg before the marker, so that in case the latter is a circleMarker, the leg is behind it.
+			leg = new L.Polyline([thisLayerLatLng, newPos], legOptions);
+			map.addLayer(leg);
+			m._spiderLeg = leg;
+
+			// Explanations: https://jakearchibald.com/2013/animated-line-drawing-svg/
+			// In our case the transition property is declared in the CSS file.
+			if (svg) {
+				legPath = leg._path;
+				legLength = legPath.getTotalLength() + 0.1; // Need a small extra length to avoid remaining dot in Firefox.
+				legPath.style.strokeDasharray = legLength; // Just 1 length is enough, it will be duplicated.
+				legPath.style.strokeDashoffset = legLength;
+			}
+
+			// If it is a marker, add it now and we'll animate it out
+			if (m.setZIndexOffset) {
+				m.setZIndexOffset(1000000); // Make normal markers appear on top of EVERYTHING
+			}
+			if (m.clusterHide) {
+				m.clusterHide();
+			}
+			
+			// Vectors just get immediately added
+			fg.addLayer(m);
+
+			if (m._setPos) {
+				m._setPos(thisLayerPos);
+			}
+		}
+
+		group._forceLayout();
+		group._animationStart();
+
+		// Reveal markers and spider legs.
+		for (i = childMarkers.length - 1; i >= 0; i--) {
+			newPos = map.layerPointToLatLng(positions[i]);
+			m = childMarkers[i];
+
+			//Move marker to new position
+			m._preSpiderfyLatlng = m._latlng;
+			m.setLatLng(newPos);
+			
+			if (m.clusterShow) {
+				m.clusterShow();
+			}
+
+			// Animate leg (animation is actually delegated to CSS transition).
+			if (svg) {
+				leg = m._spiderLeg;
+				legPath = leg._path;
+				legPath.style.strokeDashoffset = 0;
+				//legPath.style.strokeOpacity = finalLegOpacity;
+				leg.setStyle({opacity: finalLegOpacity});
+			}
+		}
+		this.setOpacity(0.3);
+
+		group._ignoreMove = false;
+
+		setTimeout(function () {
+			group._animationEnd();
+			group.fire('spiderfied', {
+				cluster: me,
+				markers: childMarkers
+			});
+		}, 200);
+	},
+
+	_animationUnspiderfy: function (zoomDetails) {
+		var me = this,
+			group = this._group,
+			map = group._map,
+			fg = group._featureGroup,
+			thisLayerPos = zoomDetails ? map._latLngToNewLayerPoint(this._latlng, zoomDetails.zoom, zoomDetails.center) : map.latLngToLayerPoint(this._latlng),
+			childMarkers = this.getAllChildMarkers(),
+			svg = L.Path.SVG,
+			m, i, leg, legPath, legLength, nonAnimatable;
+
+		group._ignoreMove = true;
+		group._animationStart();
+
+		//Make us visible and bring the child markers back in
+		this.setOpacity(1);
+		for (i = childMarkers.length - 1; i >= 0; i--) {
+			m = childMarkers[i];
+
+			//Marker was added to us after we were spiderfied
+			if (!m._preSpiderfyLatlng) {
+				continue;
+			}
+
+			//Close any popup on the marker first, otherwise setting the location of the marker will make the map scroll
+			m.closePopup();
+
+			//Fix up the location to the real one
+			m.setLatLng(m._preSpiderfyLatlng);
+			delete m._preSpiderfyLatlng;
+
+			//Hack override the location to be our center
+			nonAnimatable = true;
+			if (m._setPos) {
+				m._setPos(thisLayerPos);
+				nonAnimatable = false;
+			}
+			if (m.clusterHide) {
+				m.clusterHide();
+				nonAnimatable = false;
+			}
+			if (nonAnimatable) {
+				fg.removeLayer(m);
+			}
+
+			// Animate the spider leg back in (animation is actually delegated to CSS transition).
+			if (svg) {
+				leg = m._spiderLeg;
+				legPath = leg._path;
+				legLength = legPath.getTotalLength() + 0.1;
+				legPath.style.strokeDashoffset = legLength;
+				leg.setStyle({opacity: 0});
+			}
+		}
+
+		group._ignoreMove = false;
+
+		setTimeout(function () {
+			//If we have only <= one child left then that marker will be shown on the map so don't remove it!
+			var stillThereChildCount = 0;
+			for (i = childMarkers.length - 1; i >= 0; i--) {
+				m = childMarkers[i];
+				if (m._spiderLeg) {
+					stillThereChildCount++;
+				}
+			}
+
+
+			for (i = childMarkers.length - 1; i >= 0; i--) {
+				m = childMarkers[i];
+
+				if (!m._spiderLeg) { //Has already been unspiderfied
+					continue;
+				}
+
+				if (m.clusterShow) {
+					m.clusterShow();
+				}
+				if (m.setZIndexOffset) {
+					m.setZIndexOffset(0);
+				}
+
+				if (stillThereChildCount > 1) {
+					fg.removeLayer(m);
+				}
+
+				map.removeLayer(m._spiderLeg);
+				delete m._spiderLeg;
+			}
+			group._animationEnd();
+			group.fire('unspiderfied', {
+				cluster: me,
+				markers: childMarkers
+			});
+		}, 200);
+	}
+});
+
+
+L.MarkerClusterGroup.include({
+	//The MarkerCluster currently spiderfied (if any)
+	_spiderfied: null,
+
+	unspiderfy: function () {
+		this._unspiderfy.apply(this, arguments);
+	},
+
+	_spiderfierOnAdd: function () {
+		this._map.on('click', this._unspiderfyWrapper, this);
+
+		if (this._map.options.zoomAnimation) {
+			this._map.on('zoomstart', this._unspiderfyZoomStart, this);
+		}
+		//Browsers without zoomAnimation or a big zoom don't fire zoomstart
+		this._map.on('zoomend', this._noanimationUnspiderfy, this);
+
+		if (!L.Browser.touch) {
+			this._map.getRenderer(this);
+			//Needs to happen in the pageload, not after, or animations don't work in webkit
+			//  http://stackoverflow.com/questions/8455200/svg-animate-with-dynamically-added-elements
+			//Disable on touch browsers as the animation messes up on a touch zoom and isn't very noticable
+		}
+	},
+
+	_spiderfierOnRemove: function () {
+		this._map.off('click', this._unspiderfyWrapper, this);
+		this._map.off('zoomstart', this._unspiderfyZoomStart, this);
+		this._map.off('zoomanim', this._unspiderfyZoomAnim, this);
+		this._map.off('zoomend', this._noanimationUnspiderfy, this);
+
+		//Ensure that markers are back where they should be
+		// Use no animation to avoid a sticky leaflet-cluster-anim class on mapPane
+		this._noanimationUnspiderfy();
+	},
+
+	//On zoom start we add a zoomanim handler so that we are guaranteed to be last (after markers are animated)
+	//This means we can define the animation they do rather than Markers doing an animation to their actual location
+	_unspiderfyZoomStart: function () {
+		if (!this._map) { //May have been removed from the map by a zoomEnd handler
+			return;
+		}
+
+		this._map.on('zoomanim', this._unspiderfyZoomAnim, this);
+	},
+
+	_unspiderfyZoomAnim: function (zoomDetails) {
+		//Wait until the first zoomanim after the user has finished touch-zooming before running the animation
+		if (L.DomUtil.hasClass(this._map._mapPane, 'leaflet-touching')) {
+			return;
+		}
+
+		this._map.off('zoomanim', this._unspiderfyZoomAnim, this);
+		this._unspiderfy(zoomDetails);
+	},
+
+	_unspiderfyWrapper: function () {
+		/// <summary>_unspiderfy but passes no arguments</summary>
+		this._unspiderfy();
+	},
+
+	_unspiderfy: function (zoomDetails) {
+		if (this._spiderfied) {
+			this._spiderfied.unspiderfy(zoomDetails);
+		}
+	},
+
+	_noanimationUnspiderfy: function () {
+		if (this._spiderfied) {
+			this._spiderfied._noanimationUnspiderfy();
+		}
+	},
+
+	//If the given layer is currently being spiderfied then we unspiderfy it so it isn't on the map anymore etc
+	_unspiderfyLayer: function (layer) {
+		if (layer._spiderLeg) {
+			this._featureGroup.removeLayer(layer);
+
+			if (layer.clusterShow) {
+				layer.clusterShow();
+			}
+				//Position will be fixed up immediately in _animationUnspiderfy
+			if (layer.setZIndexOffset) {
+				layer.setZIndexOffset(0);
+			}
+
+			this._map.removeLayer(layer._spiderLeg);
+			delete layer._spiderLeg;
+		}
+	}
+});
+
+/**
+ * Adds 1 public method to MCG and 1 to L.Marker to facilitate changing
+ * markers' icon options and refreshing their icon and their parent clusters
+ * accordingly (case where their iconCreateFunction uses data of childMarkers
+ * to make up the cluster icon).
+ */
+
+
+L.MarkerClusterGroup.include({
+	/**
+	 * Updates the icon of all clusters which are parents of the given marker(s).
+	 * In singleMarkerMode, also updates the given marker(s) icon.
+	 * @param layers L.MarkerClusterGroup|L.LayerGroup|Array(L.Marker)|Map(L.Marker)|
+	 * L.MarkerCluster|L.Marker (optional) list of markers (or single marker) whose parent
+	 * clusters need to be updated. If not provided, retrieves all child markers of this.
+	 * @returns {L.MarkerClusterGroup}
+	 */
+	refreshClusters: function (layers) {
+		if (!layers) {
+			layers = this._topClusterLevel.getAllChildMarkers();
+		} else if (layers instanceof L.MarkerClusterGroup) {
+			layers = layers._topClusterLevel.getAllChildMarkers();
+		} else if (layers instanceof L.LayerGroup) {
+			layers = layers._layers;
+		} else if (layers instanceof L.MarkerCluster) {
+			layers = layers.getAllChildMarkers();
+		} else if (layers instanceof L.Marker) {
+			layers = [layers];
+		} // else: must be an Array(L.Marker)|Map(L.Marker)
+		this._flagParentsIconsNeedUpdate(layers);
+		this._refreshClustersIcons();
+
+		// In case of singleMarkerMode, also re-draw the markers.
+		if (this.options.singleMarkerMode) {
+			this._refreshSingleMarkerModeMarkers(layers);
+		}
+
+		return this;
+	},
+
+	/**
+	 * Simply flags all parent clusters of the given markers as having a "dirty" icon.
+	 * @param layers Array(L.Marker)|Map(L.Marker) list of markers.
+	 * @private
+	 */
+	_flagParentsIconsNeedUpdate: function (layers) {
+		var id, parent;
+
+		// Assumes layers is an Array or an Object whose prototype is non-enumerable.
+		for (id in layers) {
+			// Flag parent clusters' icon as "dirty", all the way up.
+			// Dumb process that flags multiple times upper parents, but still
+			// much more efficient than trying to be smart and make short lists,
+			// at least in the case of a hierarchy following a power law:
+			// http://jsperf.com/flag-nodes-in-power-hierarchy/2
+			parent = layers[id].__parent;
+			while (parent) {
+				parent._iconNeedsUpdate = true;
+				parent = parent.__parent;
+			}
+		}
+	},
+
+	/**
+	 * Re-draws the icon of the supplied markers.
+	 * To be used in singleMarkerMode only.
+	 * @param layers Array(L.Marker)|Map(L.Marker) list of markers.
+	 * @private
+	 */
+	_refreshSingleMarkerModeMarkers: function (layers) {
+		var id, layer;
+
+		for (id in layers) {
+			layer = layers[id];
+
+			// Make sure we do not override markers that do not belong to THIS group.
+			if (this.hasLayer(layer)) {
+				// Need to re-create the icon first, then re-draw the marker.
+				layer.setIcon(this._overrideMarkerIcon(layer));
+			}
+		}
+	}
+});
+
+L.Marker.include({
+	/**
+	 * Updates the given options in the marker's icon and refreshes the marker.
+	 * @param options map object of icon options.
+	 * @param directlyRefreshClusters boolean (optional) true to trigger
+	 * MCG.refreshClustersOf() right away with this single marker.
+	 * @returns {L.Marker}
+	 */
+	refreshIconOptions: function (options, directlyRefreshClusters) {
+		var icon = this.options.icon;
+
+		L.setOptions(icon, options);
+
+		this.setIcon(icon);
+
+		// Shortcut to refresh the associated MCG clusters right away.
+		// To be used when refreshing a single marker.
+		// Otherwise, better use MCG.refreshClusters() once at the end with
+		// the list of modified markers.
+		if (directlyRefreshClusters && this.__parent) {
+			this.__parent._group.refreshClusters(this);
+		}
+
+		return this;
+	}
+});
+
+exports.MarkerClusterGroup = MarkerClusterGroup;
+exports.MarkerCluster = MarkerCluster;
+
+})));
+
+});
+
+// =========== SHAPES =========
+var ShapeType;
+(function (ShapeType) {
+    ShapeType[ShapeType["CIRCLE"] = 0] = "CIRCLE";
+    ShapeType[ShapeType["POLYGON"] = 1] = "POLYGON";
+    ShapeType[ShapeType["MARKER"] = 2] = "MARKER";
+    ShapeType[ShapeType["POLYLINE"] = 3] = "POLYLINE";
+    ShapeType[ShapeType["LABEL"] = 4] = "LABEL";
+    ShapeType[ShapeType["MULTIPOLYGON"] = 5] = "MULTIPOLYGON";
+})(ShapeType || (ShapeType = {}));
+var DropDownItemType;
+(function (DropDownItemType) {
+    DropDownItemType[DropDownItemType["REGULAR"] = 0] = "REGULAR";
+    DropDownItemType[DropDownItemType["RADIO_BUTTON"] = 1] = "RADIO_BUTTON";
+    DropDownItemType[DropDownItemType["CHECK_BOX"] = 2] = "CHECK_BOX";
+})(DropDownItemType || (DropDownItemType = {}));
+
+// export * from './shapeLayerContainer'
+
+// import './ShapeManager.css';	// commented out
+// info on shape for internal use of Gis conponent
+// contains ShapeDefinition, which was received from props from external application
+class ShapeManagerBase {
+    getName() {
+        return ShapeType[this.getType()];
+    }
+    getHeatLayerPoints(shapeObject) {
+        Utils.doNothing(shapeObject);
+        return null;
+    }
+    toggleSelectShape(context /*GisPluginContext*/, leafletObject) {
+        Utils.doNothing(context);
+        // Change isSelected state
+        leafletObject.shapeDef.data.isSelected = !leafletObject.shapeDef.data.isSelected;
+        if (leafletObject.shapeDef.data.isSelectedFade) {
+            leafletObject.shapeDef.data.isSelectedFade = false;
+        }
+        // Handle Selected-leaflet-shpae-list
+        // Utils.selectedLeafletObjectHandler(context, leafletObject);
+    }
+    selectShape(context /*GisPluginContext*/, leafletObject) {
+        Utils.doNothing([context, leafletObject]);
+        // Change isSelected state
+        // leafletObject.shapeDef.data.isSelected = !leafletObject.shapeDef.data.isSelected;
+        // Handle Selected-leaflet-shpae-list
+        // Utils.selectedLeafletObjectHandler(context, leafletObject);
+    }
+    updateIsSelectedView(leafletObject) {
+        const isSelected = lodash.get(leafletObject, 'shapeDef.data.isSelected');
+        const leafletObjectParent = leafletObject.__parent && leafletObject.__parent._group.getVisibleParent(leafletObject);
+        const color = isSelected ? 'orange' : '#38f';
+        const styles = {
+            color,
+            opacity: !!lodash.get(leafletObject, 'shapeDef.data.isSelectedFade') ? '0.5' : '1'
+        };
+        if (isSelected && leafletObjectParent) {
+            leafletObjectParent._icon.classList.add('selected-cluster');
+        }
+        else if (leafletObjectParent) {
+            leafletObjectParent._icon.classList.remove('selected-cluster');
+        }
+        leafletObject.setStyle(styles);
+    }
+    toggleHighlight(element, context /*GisPluginContext*/) {
+        Utils.doNothing(context);
+        const target = element._icon || element.path; // point or other svg shape
+        if (!target || !lodash.get(element, 'shapeDef.data.groupId')) {
+            return;
+        }
+        const isHighLighted = target.classList.contains('highlighted');
+    }
+    getCoordinateList(shapeObject) {
+        Utils.doNothing(shapeObject);
+        return [];
+    }
+    ;
+    getMiddleCoordinate(shapeObject) {
+        Utils.doNothing(shapeObject);
+        // TBD get middle coordinate for selecting with shift and mouse - zoomboxend
+        return null;
+    }
+    ;
+}
+
+class CircleShapeManager extends ShapeManagerBase {
+    // getCoordinateAsString(shapeObject: ShapeObject): string {
+    // 	const circle = <CircleShape>shapeObject.shape;
+    // 	Utils.doNothing(circle);
+    // 	return null // Utils.getCoordinageStrByCoordinate(circle.coordinate);
+    // }
+    getType() {
+        return ShapeType.CIRCLE;
+    }
+    shapeObjectToWkt(shapeObject, shapeObjectOptions) {
+        Utils.doNothing(shapeObjectOptions);
+        const circle = shapeObject.shape;
+        if (circle.coordinate && (circle.radius >= 0)) {
+            const radius = circle.radius;
+            const centerPoint = circle.coordinate;
+            // const TOP_ANGLE     = 0;
+            const RIGHT_ANGLE = 90;
+            const BOTTOM_ANGLE = 180;
+            const LEFT_ANGLE = 270;
+            const INITIAL_ANGLE = 360;
+            const pi = null; // Utils.computeNewCoordinateFromCoordinateAndDistance(centerPoint, INITIAL_ANGLE, radius);
+            const pR = null; // Utils.computeNewCoordinateFromCoordinateAndDistance(centerPoint, RIGHT_ANGLE, radius);
+            const pB = null; // Utils.computeNewCoordinateFromCoordinateAndDistance(centerPoint, BOTTOM_ANGLE, radius);
+            const pL = null; // Utils.computeNewCoordinateFromCoordinateAndDistance(centerPoint, LEFT_ANGLE, radius);
+            Utils.doNothing([radius, centerPoint, RIGHT_ANGLE, BOTTOM_ANGLE, LEFT_ANGLE, INITIAL_ANGLE]);
+            // const pT = Utils.computeNewCoordinateFromCoordinateAndDistance(centerPoint, TOP_ANGLE, radius);
+            // return 'CIRCULARSTRING(' + pR + ',' + pB + ',' + pL + ',' + pT + ',' + pi  + ')';
+            return 'CURVEPOLYGON(CIRCULARSTRING(' + pi + ',' + pR + ',' + pB + ',' + pL + ',' + pi + '))';
+        }
+        else {
+            throw new Error("Please check if you have circle coordinate point and radius");
+        }
+    }
+    shapeWktToObject(shapeWkt) {
+        let stripped = shapeWkt.replace(/[^0-9\,\.\ \-]/g, '');
+        let circlePointsArr = stripped.split(',');
+        let CIRCLE_POINTS;
+        (function (CIRCLE_POINTS) {
+            CIRCLE_POINTS[CIRCLE_POINTS["RIGHT"] = 0] = "RIGHT";
+            CIRCLE_POINTS[CIRCLE_POINTS["BOTTOM"] = 1] = "BOTTOM";
+            CIRCLE_POINTS[CIRCLE_POINTS["LEFT"] = 2] = "LEFT";
+            CIRCLE_POINTS[CIRCLE_POINTS["TOP"] = 3] = "TOP";
+        })(CIRCLE_POINTS || (CIRCLE_POINTS = {}));
+        // Parse coords
+        const bottomCoords = this._seperateCirclePoint(circlePointsArr, CIRCLE_POINTS.BOTTOM);
+        const topCoords = this._seperateCirclePoint(circlePointsArr, CIRCLE_POINTS.TOP);
+        // Calculate middle point
+        const middlePoint = {
+            lat: (bottomCoords.lat + topCoords.lat) / 2,
+            lng: (bottomCoords.lng + topCoords.lng) / 2
+        };
+        // Circle
+        const DEFAULT_RADIUS = 0;
+        const radius = this._calculateDistanceBetween2Points(middlePoint, topCoords) || DEFAULT_RADIUS;
+        if (middlePoint) {
+            const circleObj = {
+                shape: { coordinate: middlePoint, radius },
+                type: ShapeType.CIRCLE
+            };
+            return circleObj;
+        }
+        else {
+            throw 'Error, invalid circle-wkt format';
+        }
+    }
+    isWktOfType(wkt) {
+        return (wkt.indexOf('CIRCULARSTRING(') > -1);
+    }
+    addShapeToLayer(shapeDef, container, eventHandlers) {
+        Utils.doNothing(eventHandlers);
+        if (shapeDef.shapeObject) {
+            // Create Circle from shape values
+            const circleShape = shapeDef.shapeObject.shape;
+            const circleShapeOptions = shapeDef.options;
+            const DEFAULT_CIRCLE_OPTIONS = {
+                radius: 0
+            };
+            const circleShapeOptionsExtended = circleShapeOptions || DEFAULT_CIRCLE_OPTIONS;
+            circleShapeOptionsExtended.radius = circleShape.radius;
+            const ClusterableCircle = leafletSrc.Circle.extend({
+                getBounds: function () {
+                    return this.getLatLng().toBounds(this.getRadius() * 2);
+                }
+            });
+            const leafletObject = new ClusterableCircle(circleShape.coordinate, circleShapeOptionsExtended);
+            leafletObject.shapeDef = lodash.merge(shapeDef, {
+                data: {
+                    isSelected: lodash.get(shapeDef, 'data.isSelected', false),
+                    count: lodash.get(shapeDef, 'data.count', 1),
+                }
+            });
+            // Utils.setEventsOnLeafletLayer(leafletObject, eventHandlers);	// Add events
+            container.addLayer(leafletObject); // Add to layerGroup
+            return leafletObject;
+        }
+        else {
+            console.error('shapeDef.shapeObject.shape is missing for creating the circle');
+            return null;
+        }
+        // tbd , use _.defaults for default options
+    }
+    getShapeObjectFromDrawingLayer(layer) {
+        const circleItem = {
+            coordinate: layer.getLatLng(),
+            radius: layer.getRadius()
+        };
+        let circleObj = {
+            shape: circleItem,
+            type: ShapeType.CIRCLE
+        };
+        return circleObj;
+    }
+    _seperateCirclePoint(circlePointsArr, pDir) {
+        let COORDS;
+        (function (COORDS) {
+            COORDS[COORDS["LAT"] = 0] = "LAT";
+            COORDS[COORDS["LNG"] = 1] = "LNG";
+        })(COORDS || (COORDS = {}));
+        const coordsArr = circlePointsArr[pDir].split(' ');
+        const coords = {
+            lat: Number(coordsArr[COORDS.LAT]),
+            lng: Number(coordsArr[COORDS.LNG])
+        };
+        return coords;
+    }
+    _calculateDistanceBetween2Points(p1, p2) {
+        const lat1 = p1.lat;
+        const lon1 = p1.lng;
+        const lat2 = p2.lat;
+        const lon2 = p2.lng;
+        const R = 6371e3; // metres
+        const φ1 = this._toRad(lat1);
+        const φ2 = this._toRad(lat2);
+        const Δφ = this._toRad(lat2 - lat1);
+        const Δλ = this._toRad(lon2 - lon1);
+        const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        const distance = R * c;
+        return distance;
+    }
+    _toRad(vInput) {
+        return vInput * Math.PI / 180;
+    }
+    getCoordinateList(shapeObject) {
+        const circle = shapeObject.shape;
+        return [circle.coordinate];
+    }
+    getRadius(shapeObject) {
+        const circle = shapeObject.shape;
+        return circle.radius;
+    }
+    getAreaSize(shapeObject) {
+        const circle = shapeObject.shape;
+        const areaSizeCalc = Math.PI * Math.pow(circle.radius, 2);
+        return areaSizeCalc || 0;
+    }
+    isLayerOfThisShapeType(leafletLayer) {
+        if (!leafletLayer.getRadius) {
+            return false;
+        }
+        return true;
+    }
+}
+
+class PolygonShapeManager extends ShapeManagerBase {
+    // getCoordinateAsString(shapeObject: ShapeObject): string {
+    //   const polygon: PolygonShape = shapeObject.shape as PolygonShape;
+    //   const coordinatesStrArr: string[] = [];
+    //   polygon.coordinates.forEach((coordinate: Coordinate) => {
+    //     Utils.doNothing(coordinate)
+    //     // Iterate coordinates
+    //     // coordinatesStrArr.push(Utils.getCoordinageStrByCoordinate(coordinate));
+    //   });
+    //   return coordinatesStrArr.join(',');
+    // }
+    getCoordinateList(shapeObject) {
+        const polygon = shapeObject.shape;
+        return polygon.coordinates;
+    }
+    getType() {
+        return ShapeType.POLYGON;
+    }
+    shapeObjectToWkt(shapeObject) {
+        const polygon = shapeObject.shape;
+        if (polygon.coordinates) {
+            if (!this.hasClosePoint(polygon.coordinates)) {
+                polygon.coordinates.push(polygon.coordinates[0]);
+            }
+            const coordinates = polygon.coordinates.map((item) => (`${item.lng} ${item.lat}`)).join(',');
+            return `POLYGON((${coordinates}))`;
+        }
+        else {
+            throw new Error('Polygon has no coordinates');
+        }
+    }
+    hasClosePoint(coordList) {
+        if (coordList.length > 0) {
+            if (coordList[0].lat === coordList[coordList.length - 1].lat && coordList[0].lng === coordList[coordList.length - 1].lng) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            throw 'error: polygon with one coordinate';
+        }
+    }
+    shapeWktToObject(shapeWkt) {
+        const lngLatsStr = shapeWkt.replace(/[^0-9\.\,\ \-]/g, '');
+        const lngLatsArr = lngLatsStr.split(',');
+        const coordinates = [];
+        lngLatsArr.forEach((coordinatesStr) => {
+            const coordinate = coordinatesStr.split(' ');
+            const coord = {
+                lng: Number(coordinate[0]),
+                lat: Number(coordinate[1])
+            };
+            coordinates.push(coord);
+        });
+        const polygonObj = {
+            shape: { coordinates: coordinates },
+            type: ShapeType.POLYGON
+        };
+        return polygonObj;
+    }
+    isWktOfType(wkt) {
+        /* TBD use shapeWktToObject method to parse wkt string,
+          if success and get the object, return true
+          else return false
+        */
+        return (wkt.indexOf('MULTIPOLYGON(') === -1 && wkt.indexOf('POLYGON(') > -1);
+        // return true; // tbd, start with circle
+    }
+    addShapeToLayer(shapeDef, container, eventHandlers) {
+        Utils.doNothing(eventHandlers);
+        if (shapeDef.shapeObject) {
+            // Create Circle from shape values
+            const polygonShape = shapeDef.shapeObject.shape;
+            const polygonShapeOptions = shapeDef.options;
+            const { coordinates } = polygonShape;
+            // Clusterable Polygon ********************************************
+            const ClusterablePolygon = leafletSrc.Polygon.extend({
+                _originalInitialize: leafletSrc.Polygon.prototype.initialize,
+                initialize: function (bounds, options) {
+                    this._originalInitialize(bounds, options);
+                    this._latlng = this.getBounds().getCenter();
+                },
+                getLatLng: function () {
+                    return this._latlng;
+                },
+                setLatLng: function () { }
+            });
+            // ****************************************************************
+            const leafletObject = new ClusterablePolygon(coordinates, polygonShapeOptions);
+            leafletObject.shapeDef = lodash.merge(shapeDef, {
+                data: {
+                    isSelected: lodash.get(shapeDef, 'data.isSelected', false),
+                    count: lodash.get(shapeDef, 'data.count', 1),
+                }
+            });
+            // Utils.setEventsOnLeafletLayer(leafletObject, eventHandlers);	// Add events
+            container.addLayer(leafletObject); // Add to layerGroup
+            return leafletObject;
+        }
+        else {
+            console.error('shapeDef.shapeObject.shape is missing for creating the circle');
+            return null;
+        }
+        // tbd , use _.defaults for default options
+    }
+    getShapeObjectFromDrawingLayer(layer) {
+        const polygon = {
+            coordinates: layer.getLatLngs()[0]
+        };
+        const polygonObj = {
+            shape: polygon,
+            type: ShapeType.POLYGON
+        };
+        return polygonObj;
+    }
+    getAreaSize(shapeObject) {
+        const polygonShape = shapeObject.shape;
+        const areaSizeCalc = leafletSrc.GeometryUtil.geodesicArea(polygonShape.coordinates);
+        return areaSizeCalc || 0;
+    }
+    isLayerOfThisShapeType(leafletLayer) {
+        let success = false;
+        const tagName = lodash.get(leafletLayer, 'feature.geometry.type');
+        if (tagName && tagName.toLowerCase() === 'polygon') {
+            // Way A
+            success = true;
+        }
+        else {
+            // Way B
+            // Polygon | Polyline
+            const item = lodash.get(leafletLayer, '_rings[0][0]');
+            if (item) {
+                const itemKeys = Object.keys(item);
+                success = (itemKeys.indexOf('_code') > -1);
+            }
+        }
+        return success;
+    }
+}
+
+const interceptSvg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30" height="30" >
+<g id="circle" fill='#505050' stroke="white" stroke-width="1px">
+  <g>
+    <circle class="circle-1" cx="15" cy="15" r="8"></circle>
+    <circle class="circle-2" cx="15" cy="15" r="8"></circle>
+    <circle class="circle-3" cx="15" cy="15" r="8"></circle>
+    <circle cx="15" cy="15" r="8"></circle>
+  </g>
+</g>
+<g id="v-sign" fill="#505050">
+  <g>
+    <path d="m19.198114,12.177358l-5.793397,6.350944l-2.602831,-2.910849l0.671698,-0.70566l1.931132,2.116981l5.121699,-5.557076l0.671698,0.70566z"></path>
+  </g>
+</g>
+</svg>`;
+
+const markerSvg = `<svg width="20" height="27" xmlns="http://www.w3.org/2000/svg">
+<g>
+    <path stroke-width='1' fill="#505050" id="svg_1" d="m10,12.904844a2.978867,2.975777 0 0 1 -2.978867,-2.975777a2.978867,2.975777 0 0 1 2.978867,-2.975777a2.978867,2.975777 0 0 1 2.978867,2.975777a2.978867,2.975777 0 0 1 -2.978867,2.975777m0,-11.307954a8.340826,8.332177 0 0 0 -8.340826,8.332177c0,6.249133 8.340826,15.474043 8.340826,15.474043c0,0 8.340826,-9.22491 8.340826,-15.474043a8.340826,8.332177 0 0 0 -8.340826,-8.332177z"/>
+</g>
+</svg>`;
+
+class MarkerShapeManager extends ShapeManagerBase {
+    // getCoordinateAsString(shapeObject: ShapeObject): string {
+    // 	const marker = shapeObject.shape as MarkerShape;
+    // 	Utils.doNothing(marker)
+    // 	return null // Utils.getCoordinageStrByCoordinate(marker.coordinate);
+    // }
+    getHeatLayerPoints(shapeObject) {
+        const marker = shapeObject.shape;
+        return marker.coordinate;
+    }
+    getType() {
+        return ShapeType.MARKER;
+    }
+    shapeObjectToWkt(shapeObject) {
+        const marker = shapeObject.shape;
+        return `POINT(${marker.coordinate.lng} ${marker.coordinate.lat})`;
+    }
+    shapeWktToObject(shapeWkt) {
+        const lnglatArr = shapeWkt.replace(/[^0-9\.\ \-]/g, '').split(' ');
+        if (lnglatArr.length === 2) {
+            const lnglat = {
+                lng: Number(lnglatArr[0]),
+                lat: Number(lnglatArr[1])
+            };
+            // Create label object
+            const markerObj = {
+                shape: { coordinate: lnglat },
+                type: ShapeType.MARKER
+            };
+            return markerObj;
+        }
+        else {
+            throw 'missing latitude or longitude';
+        }
+    }
+    isWktOfType(wkt) {
+        return (wkt.indexOf('POINT(') > -1);
+    }
+    addShapeToLayer(shapeDef, container) {
+        if (shapeDef.shapeObject) {
+            // Create Marker from shape values
+            const markerShape = shapeDef.shapeObject.shape;
+            const markerShapeOptions = shapeDef.options || {};
+            const { lat, lng } = markerShape.coordinate;
+            const isInercept = (lodash.get(shapeDef, 'data.type') === 'intercept');
+            const interceptIcon = leafletSrc.divIcon({
+                html: isInercept ? interceptSvg : markerSvg,
+                className: isInercept ? 'intecept-svg' : 'marker-svg',
+                iconSize: isInercept ? new leafletSrc.Point(30, 30) : new leafletSrc.Point(20, 27)
+            });
+            lodash.assign(markerShapeOptions, { icon: interceptIcon });
+            const leafletObject = new leafletSrc.Marker([lat, lng], markerShapeOptions);
+            leafletObject.shapeDef = lodash.merge(shapeDef, {
+                data: {
+                    isSelected: lodash.get(shapeDef, 'data.isSelected', false),
+                    count: lodash.get(shapeDef, 'data.count', 1),
+                }
+            });
+            container.addLayer(leafletObject); // Add to layerGroup
+            return leafletObject;
+        }
+        else {
+            console.error('shapeDef.shapeObject.shape is missing for creating the marker');
+            return null;
+        }
+        // tbd , use _.defaults for default options
+    }
+    updateIsSelectedView(leafletObject) {
+        const isSelected = lodash.get(leafletObject, 'shapeDef.data.isSelected');
+        const leafletObjectParent = leafletObject.__parent && leafletObject.__parent._group.getVisibleParent(leafletObject);
+        if (isSelected && leafletObjectParent) {
+            leafletObjectParent._icon.classList.add('selected-cluster');
+        }
+        else if (leafletObjectParent) {
+            leafletObjectParent._icon.classList.remove('selected-cluster');
+        }
+        if (!leafletObject._icon) {
+            return;
+        } // Object that hide under cluster
+        // add or remove 'selected' css class
+        const shapeData = lodash.get(leafletObject, 'shapeDef.data');
+        const unselected = '#505050';
+        const strokeSelected = 'rgba(0, 166, 218, 1)';
+        const backGroundSelected = '#ffffcc';
+        // set lcation styling must be inline styling,
+        if (shapeData.isSelected) {
+            const interceptStroke = !shapeData.isSelectedFade ? strokeSelected : unselected;
+            if (shapeData.type === 'intercept') {
+                const circle = leafletObject._icon.querySelector('#circle');
+                if (!circle) {
+                    return;
+                }
+                const sign = leafletObject._icon.querySelector('#v-sign');
+                circle.style.strokeWidth = '2px';
+                circle.style.fill = backGroundSelected;
+                circle.style.stroke = interceptStroke;
+                sign.style.stroke = interceptStroke;
+            }
+            else {
+                const marker = leafletObject._icon.querySelector('path');
+                if (!marker) {
+                    return;
+                }
+                marker.style.fill = backGroundSelected;
+                marker.style.stroke = interceptStroke;
+            }
+        }
+        else {
+            if (shapeData.type === 'intercept') {
+                const circle = leafletObject._icon.querySelector('#circle');
+                if (!circle) {
+                    return;
+                }
+                const sign = leafletObject._icon.querySelector('#v-sign');
+                circle.style.fill = unselected;
+                circle.style.stroke = 'white';
+                circle.style.strokeWidth = "1px";
+                sign.style.stroke = unselected;
+            }
+            else {
+                const marker = leafletObject._icon.querySelector('path');
+                if (!marker) {
+                    return;
+                }
+                marker.style.fill = unselected;
+                marker.style.stroke = 'initial';
+            }
+        }
+    }
+    getShapeObjectFromDrawingLayer(layer) {
+        const marker = {
+            coordinate: layer.getLatLng()
+        };
+        // Create label object
+        const markerObj = {
+            shape: marker,
+            type: ShapeType.MARKER
+        };
+        return markerObj;
+    }
+    getCoordinateList(shapeObject) {
+        const marker = shapeObject.shape;
+        return [marker.coordinate];
+    }
+    getAreaSize(shapeObject) {
+        Utils.doNothing(shapeObject);
+        return 0;
+    }
+    isLayerOfThisShapeType(leafletLayer) {
+        let success = false;
+        const tagName = lodash.get(leafletLayer, 'feature.geometry.type');
+        if (tagName && tagName.toLowerCase() === 'point') {
+            // Way A
+            success = true;
+        }
+        else {
+            // Way B
+            // Marker | Label
+            const markerClassNames = lodash.get(leafletLayer, '_icon.className');
+            if (markerClassNames) {
+                success = (markerClassNames.indexOf('textLabelClass') === -1);
+            }
+        }
+        return success;
+    }
+}
+// const ClusterableMarker = LPlus.Marker.extend({
+// 	getLatLng: function () {
+// 		return this._latlng;
+// 	},
+// 	getBounds: function () {
+// 		return this.getLatLng();
+// 	},
+// 	setLatLng: function () { }
+// });
+
+class LabelShapeManager extends ShapeManagerBase {
+    // getCoordinateAsString(shapeObject: ShapeObject): string {
+    // 	const label = <LabelShape>shapeObject.shape;
+    // 	Utils.doNothing(label);
+    // 	return null // Utils.getCoordinageStrByCoordinate(label.coordinate);
+    // }
+    getType() {
+        return ShapeType.LABEL;
+    }
+    isWktOfType(wkt) {
+        return (wkt.indexOf('LABEL(') > -1);
+    }
+    shapeObjectToWkt(shapeObject) {
+        const label = shapeObject.shape;
+        return 'LABEL(' + label.coordinate.lng + ' ' + label.coordinate.lat + ',' + label.text + ')';
+    }
+    shapeWktToObject(shapeWkt) {
+        const labelParts = shapeWkt.split(',');
+        if (labelParts.length === 2) {
+            const lnglatStr = labelParts[0].replace(/[^0-9\.\ \-]/g, '');
+            let strValue = labelParts[1];
+            if (lnglatStr && strValue) {
+                const lnglatArr = lnglatStr.split(' ');
+                if (lnglatArr.length === 2) {
+                    const lnglat = {
+                        lng: Number(lnglatArr[0]),
+                        lat: Number(lnglatArr[1])
+                    };
+                    strValue = strValue.replace(/[)]/g, '');
+                    // Create label object
+                    const labelObj = {
+                        shape: { coordinate: lnglat, text: strValue },
+                        type: ShapeType.LABEL
+                    };
+                    return labelObj;
+                }
+                else {
+                    throw 'missing latitude or longitude';
+                }
+            }
+            else {
+                throw 'format are not valid';
+            }
+        }
+        else {
+            throw 'missing latitude/longitude or label text';
+        }
+    }
+    addShapeToLayer(shapeDef, container, eventHandlers) {
+        Utils.doNothing(eventHandlers);
+        if (shapeDef.shapeObject) { // everytime true, because shapeDef.shapeObject filled with value at shape initialize
+            // Create Circle from shape values
+            const labelShape = shapeDef.shapeObject.shape;
+            const labelShapeOptions = shapeDef.options || {};
+            const { lat, lng } = labelShape.coordinate;
+            const textIcon = leafletSrc.divIcon({
+                className: 'leaflet-marker-icon textLabelClass leaflet-zoom-animated leaflet-interactive',
+                html: labelShape.text
+            });
+            labelShapeOptions.icon = textIcon;
+            const leafletObject = leafletSrc.marker([lat, lng], labelShapeOptions);
+            leafletObject.shapeDef = lodash.merge(shapeDef, {
+                data: {
+                    isSelected: lodash.get(shapeDef, 'data.isSelected', false),
+                    count: lodash.get(shapeDef, 'data.count', 1),
+                }
+            });
+            // Utils.setEventsOnLeafletLayer(leafletObject, eventHandlers);	// Add events
+            container.addLayer(leafletObject); // Add to layerGroup
+            return leafletObject;
+        }
+        else {
+            console.error('shapeDef.shapeObject.shape is missing for creating the circle');
+            return null;
+        }
+    }
+    updateIsSelectedView(leafletObject) {
+        Utils.doNothing(leafletObject);
+        console.error('TBD for label');
+    }
+    getShapeObjectFromDrawingLayer(layer) {
+        const label = {
+            coordinate: layer.getLatLng(),
+            text: layer.value
+        };
+        return {
+            shape: label,
+            type: ShapeType.LABEL
+        };
+    }
+    getCoordinateList(shapeObject) {
+        const label = shapeObject.shape;
+        return [label.coordinate];
+    }
+    getAreaSize(shapeObject) {
+        Utils.doNothing(shapeObject);
+        return 0;
+    }
+    isLayerOfThisShapeType(leafletLayer) {
+        // Marker | Label
+        const markerClassNames = lodash.get(leafletLayer, '_icon.className');
+        if (!markerClassNames) {
+            return false;
+        }
+        return markerClassNames.indexOf('textLabelClass') > -1;
+    }
+}
+
+class PolylineShapeManager extends ShapeManagerBase {
+    // getCoordinateAsString(shapeObject: ShapeObject): string {
+    // 	const polyline:          PolylineShape = shapeObject.shape as PolylineShape;
+    // 	const coordinatesStrArr: string[] = [];
+    // 	// Iterate coordinates
+    // 	polyline.coordinates.forEach((coordinate: Coordinate) => {
+    // 		Utils.doNothing(coordinate)
+    // 		// coordinatesStrArr.push(Utils.getCoordinageStrByCoordinate(coordinate));
+    // 	});
+    // 	return coordinatesStrArr.join(',');
+    // }
+    getCoordinateList(shapeObject) {
+        const polyline = shapeObject.shape;
+        return polyline.coordinates;
+    }
+    getType() {
+        return ShapeType.POLYLINE;
+    }
+    isWktOfType(wkt) {
+        return (wkt.indexOf('LINESTRING(') > -1);
+    }
+    shapeObjectToWkt(shapeObject) {
+        const polyline = shapeObject.shape;
+        const coordinate = polyline.coordinates.map((item) => (`${item.lng} ${item.lat}`)).join(',');
+        return `LINESTRING(${coordinate})`;
+    }
+    shapeWktToObject(shapeWkt) {
+        const lnglatsStr = shapeWkt.replace(/[^0-9\.\,\ \-]/g, '');
+        const lnglatsArr = lnglatsStr.split(',');
+        const coordinates = [];
+        for (const coordsStr of lnglatsArr) {
+            const coordinate = coordsStr.split(' ');
+            const coord = {
+                lng: Number(coordinate[0]),
+                lat: Number(coordinate[1])
+            };
+            coordinates.push(coord);
+        }
+        const polylineObj = {
+            shape: { coordinates: coordinates },
+            type: ShapeType.POLYLINE
+        };
+        return polylineObj;
+    }
+    addShapeToLayer(shapeDef, container, eventHandlers) {
+        Utils.doNothing(eventHandlers);
+        if (shapeDef.shapeObject) {
+            // Create Circle from shape values
+            const polylineShape = shapeDef.shapeObject.shape;
+            const polylineShapeOptions = shapeDef.options;
+            const { coordinates } = polylineShape;
+            // Clusterable Polyline ********************************************
+            const ClusterablePolyline = leafletSrc.Polyline.extend({
+                _originalInitialize: leafletSrc.Polyline.prototype.initialize,
+                initialize: function (bounds, options) {
+                    this._originalInitialize(bounds, options);
+                    this._latlng = this.getBounds().getCenter();
+                },
+                getLatLng: function () {
+                    return this._latlng;
+                },
+                setLatLng: function () { }
+            });
+            // ****************************************************************
+            const leafletObject = new ClusterablePolyline(coordinates, polylineShapeOptions);
+            leafletObject.shapeDef = lodash.merge(shapeDef, {
+                data: {
+                    isSelected: lodash.get(shapeDef, 'data.isSelected', false),
+                    count: lodash.get(shapeDef, 'data.count', 1),
+                }
+            });
+            // Utils.setEventsOnLeafletLayer(leafletObject, eventHandlers);	// Add events
+            container.addLayer(leafletObject); // Add to layerGroup
+            return leafletObject;
+        }
+        else {
+            console.error('shapeDef.shapeObject.shape is missing for creating the polyline');
+            return null;
+        }
+    }
+    getShapeObjectFromDrawingLayer(layer) {
+        const polyline = {
+            coordinates: layer.getLatLngs()
+        };
+        const polylineObj = {
+            shape: polyline,
+            type: ShapeType.POLYLINE
+        };
+        return polylineObj;
+    }
+    getAreaSize(shapeObject) {
+        const polyline = shapeObject.shape;
+        const areaSizeCalc = leafletSrc.GeometryUtil.geodesicArea(polyline.coordinates);
+        return areaSizeCalc || 0;
+    }
+    isLayerOfThisShapeType(leafletLayer) {
+        let success = false;
+        const tagName = lodash.get(leafletLayer, 'feature.geometry.type');
+        if (tagName && tagName.toLowerCase() === 'linestring') {
+            // Way A
+            success = true;
+        }
+        else {
+            // Way B
+            // Polygon | Polyline
+            const item = lodash.get(leafletLayer, '_rings[0][0]');
+            if (item) {
+                const itemKeys = Object.keys(item);
+                success = (itemKeys.indexOf('_code') === -1);
+            }
+        }
+        return success;
+    }
+}
+
+class MultiPolygonShapeManager extends ShapeManagerBase {
+    // getCoordinateAsString(shapeObject: ShapeObject): string {
+    //   const polygonsStrArr: string[] = [];
+    //   const multipolygon = shapeObject.shape as MultiPolygonShape;
+    //   const allPolygons: PolygonShape[] = multipolygon.polygons || [];
+    //   allPolygons.forEach((polygon: PolygonShape) => {
+    //     // Iterate all polygons
+    //     const coordinatesStrArr: string[] = [];
+    //     polygon.coordinates.forEach((coordinate: Coordinate) => {
+    //       Utils.doNothing(coordinate)
+    //       // Iterate coordinates
+    //       // coordinatesStrArr.push(Utils.getCoordinageStrByCoordinate(coordinate));
+    //     });
+    //     const stringifiedPointsOfPolygon = coordinatesStrArr.join(",");
+    //     polygonsStrArr.push(stringifiedPointsOfPolygon);
+    //   });
+    //   return polygonsStrArr.join(",");
+    // }
+    getType() {
+        return ShapeType.MULTIPOLYGON;
+    }
+    shapeObjectToWkt(shapeObject) {
+        const multipolygon = shapeObject.shape;
+        if (multipolygon.polygons && multipolygon.polygons.length > 0) {
+            const multiPolygon = multipolygon.polygons
+                .map((polygon) => {
+                const anyObj = polygon;
+                return ("((" +
+                    anyObj.shape.coordinates
+                        .map((coordinate) => `${coordinate.lng} ${coordinate.lat}`)
+                        .join(",") +
+                    "))");
+            })
+                .join(",");
+            return `MULTIPOLYGON(${multiPolygon})`;
+        }
+        else {
+            return "";
+        }
+    }
+    shapeWktToObject(shapeWkt) {
+        shapeWkt = shapeWkt.replace(/, /g, ",");
+        const multipolygonArr = shapeWkt.split("),(");
+        const polygons = multipolygonArr.map(polygon => polygon.replace(/[^0-9\.\,\ \-]/g, ""));
+        const multiPolygonShape = {
+            polygons: polygons.map((polygon) => ({
+                coordinates: polygon
+                    .split(",")
+                    .map((coordinateStr) => ({
+                    lng: Number(coordinateStr.split(" ")[0]),
+                    lat: Number(coordinateStr.split(" ")[1])
+                }))
+            }))
+        };
+        return {
+            type: ShapeType.MULTIPOLYGON,
+            shape: multiPolygonShape
+        };
+    }
+    isWktOfType(wkt) {
+        /* TBD use shapeWktToObject method to parse wkt string,
+             if success and get the object, return true
+             else return false
+             */
+        return wkt.indexOf("MULTIPOLYGON") > -1;
+        // return true; // tbd, start with circle
+    }
+    addShapeToLayer(shapeDef, container, eventHandlers) {
+        Utils.doNothing(eventHandlers);
+        if (shapeDef.shapeObject) {
+            // Create Circle from shape values
+            const multiPolygonShape = shapeDef
+                .shapeObject.shape;
+            const mp = {
+                type: "Feature",
+                geometry: {
+                    type: "MultiPolygon",
+                    coordinates: [this._toGeoJsonMultipolygon(multiPolygonShape)]
+                },
+                properties: {
+                // "name": "MultiPolygon"
+                }
+            };
+            const leafletObject = new leafletSrc.GeoJSON(mp);
+            leafletObject.shapeDef = lodash.merge(shapeDef, {
+                data: {
+                    isSelected: lodash.get(shapeDef, "data.isSelected", false),
+                    count: lodash.get(shapeDef, "data.count", 1)
+                }
+            });
+            // Utils.setEventsOnLeafletLayer(leafletObject, eventHandlers);	// Add events
+            container.addLayer(leafletObject); // Add to layerGroup
+            return leafletObject;
+        }
+        else {
+            console.error("shapeDef.shapeObject.shape is missing for creating the Polygons");
+            return null;
+        }
+        // tbd , use _.defaults for default options
+    }
+    getShapeObjectFromDrawingLayer(layer) {
+        const polygon = {
+            coordinates: layer.getLatLngs()[0]
+        };
+        return {
+            shape: polygon,
+            type: ShapeType.MULTIPOLYGON
+        };
+    }
+    getAreaSize(shapeObject) {
+        Utils.doNothing(shapeObject);
+        console.log("TBD getAreaSize() for multipolygon");
+        return 0;
+    }
+    isLayerOfThisShapeType(leafletLayer) {
+        if (!leafletLayer.getLayers()) {
+            return false;
+        }
+        return true;
+    }
+    _toGeoJsonMultipolygon(multiPolygonObj) {
+        // GeoJson type
+        return multiPolygonObj.polygons.map((polygon) => polygon.coordinates.map((coord) => [coord.lng, coord.lat]));
+    }
+}
+
+// import { ShapeType, ShapeDefinition } from '../../../../api-generated/wrapper/api-src';
+const DRAWABLE_MARKER = 'marker';
+const DRAWABLE_CIRCLE = 'circle';
+const DRAWABLE_POLYGON = 'polygon';
+const DRAWABLE_POLYLINE = 'polyline';
+const DRAWABLE_RECTANGLE = 'rectangle';
+class ShapeManagerRepository {
+    static initialize() {
+        this.managersByType = {};
+        ShapeManagerRepository.managersByType[ShapeType.CIRCLE] = new CircleShapeManager(); // wkt not supported
+        ShapeManagerRepository.managersByType[ShapeType.MARKER] = new MarkerShapeManager();
+        ShapeManagerRepository.managersByType[ShapeType.POLYGON] = new PolygonShapeManager();
+        ShapeManagerRepository.managersByType[ShapeType.POLYLINE] = new PolylineShapeManager();
+        ShapeManagerRepository.managersByType[ShapeType.LABEL] = new LabelShapeManager(); // wkt not supported
+        ShapeManagerRepository.managersByType[ShapeType.MULTIPOLYGON] = new MultiPolygonShapeManager(); // wkt not supported?
+    }
+    static getManagerByShapeId(id) {
+        // Get type by id
+        let type = ShapeManagerRepository.getTypeById(id);
+        return ShapeManagerRepository.getManagerByType(type);
+    }
+    static getTypeById(id) {
+        console.log(id);
+        return null;
+    }
+    static getManagerByType(shapeType) {
+        return ShapeManagerRepository.managersByType[shapeType];
+    }
+    // public static getManagerByLeafletLayer(leafletLayer: any): ShapeManagerInterface | null {
+    // 	for (const managerEnum of Object.keys(this.managersByType)) {
+    // 		const manager = this.managersByType[managerEnum];
+    // 		if (manager.isLayerOfThisShapeType(leafletLayer)) {
+    // 			return manager;
+    // 		}
+    // 	}
+    // 	console.error(`ShapeManagerRepository: Unable to detect manager of layer: ${leafletLayer}`);
+    // 	return null;
+    // }
+    // public static getManagerByShapeDefLayer(layer: L.Layer): ShapeManagerInterface | null {
+    // 	const shapeType: ShapeType = _.get(layer, 'shapeDef.shapeObject.type');
+    // 	if (shapeType !== null && shapeType !== undefined) {
+    // 		return ShapeManagerRepository.getManagerByType(shapeType);
+    // 	}
+    // 	console.error('ShapeManagerRepository: Unable to detect layer');
+    // 	return null;
+    // }
+    static getManagerByWkt(wkt) {
+        for (const managerEnum of Object.keys(this.managersByType)) {
+            const manager = this.managersByType[managerEnum];
+            if (manager.isWktOfType(wkt)) {
+                return manager;
+            }
+        }
+        console.error(`ShapeManagerRepository: Unable to detect WKT ${wkt}`);
+        return null;
+    }
+    static getManagerByShapeDefinition(shapeDef) {
+        const shapeType = lodash.get(shapeDef, 'shapeObject.type');
+        if (shapeType !== null && shapeType !== undefined) {
+            return ShapeManagerRepository.getManagerByType(shapeType);
+        }
+        if (shapeDef.shapeWkt) {
+            return ShapeManagerRepository.getManagerByWkt(shapeDef.shapeWkt);
+        }
+        console.error('ShapeManagerRepository: Either shapeObject or shapeWkt must not be empty');
+        return null;
+    }
+    static getTypeNumberByDrawableTypeName(shapeTypeName) {
+        switch (shapeTypeName.toLowerCase()) {
+            case DRAWABLE_MARKER:
+                return ShapeType.MARKER;
+            case DRAWABLE_CIRCLE:
+                return ShapeType.CIRCLE;
+            case DRAWABLE_POLYGON:
+            case DRAWABLE_RECTANGLE:
+                return ShapeType.POLYGON;
+            case DRAWABLE_POLYLINE:
+                return ShapeType.POLYLINE;
+            default:
+                throw 'shapeType unrecognize: ' + shapeTypeName;
+        }
+    }
+}
+ShapeManagerRepository.initialize();
+
+var global$1 = typeof global !== "undefined" ? global :
+            typeof self !== "undefined" ? self :
+            typeof window !== "undefined" ? window : {}
+
+// shim for using process in browser
+// based off https://github.com/defunctzombie/node-process/blob/master/browser.js
+
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
+var cachedSetTimeout = defaultSetTimout;
+var cachedClearTimeout = defaultClearTimeout;
+if (typeof global$1.setTimeout === 'function') {
+    cachedSetTimeout = setTimeout;
+}
+if (typeof global$1.clearTimeout === 'function') {
+    cachedClearTimeout = clearTimeout;
+}
+
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+
+
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+
+
+
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
+}
+function nextTick(fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        runTimeout(drainQueue);
+    }
+}
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+var title = 'browser';
+var platform = 'browser';
+var browser = true;
+var env = {};
+var argv = [];
+var version = ''; // empty string to avoid regexp issues
+var versions = {};
+var release = {};
+var config = {};
+
+function noop() {}
+
+var on = noop;
+var addListener = noop;
+var once = noop;
+var off = noop;
+var removeListener = noop;
+var removeAllListeners = noop;
+var emit = noop;
+
+function binding(name) {
+    throw new Error('process.binding is not supported');
+}
+
+function cwd () { return '/' }
+function chdir (dir) {
+    throw new Error('process.chdir is not supported');
+}function umask() { return 0; }
+
+// from https://github.com/kumavis/browser-process-hrtime/blob/master/index.js
+var performance = global$1.performance || {};
+var performanceNow =
+  performance.now        ||
+  performance.mozNow     ||
+  performance.msNow      ||
+  performance.oNow       ||
+  performance.webkitNow  ||
+  function(){ return (new Date()).getTime() };
+
+// generate timestamp or delta
+// see http://nodejs.org/api/process.html#process_process_hrtime
+function hrtime(previousTimestamp){
+  var clocktime = performanceNow.call(performance)*1e-3;
+  var seconds = Math.floor(clocktime);
+  var nanoseconds = Math.floor((clocktime%1)*1e9);
+  if (previousTimestamp) {
+    seconds = seconds - previousTimestamp[0];
+    nanoseconds = nanoseconds - previousTimestamp[1];
+    if (nanoseconds<0) {
+      seconds--;
+      nanoseconds += 1e9;
+    }
+  }
+  return [seconds,nanoseconds]
+}
+
+var startTime = new Date();
+function uptime() {
+  var currentTime = new Date();
+  var dif = currentTime - startTime;
+  return dif / 1000;
+}
+
+var process = {
+  nextTick: nextTick,
+  title: title,
+  browser: browser,
+  env: env,
+  argv: argv,
+  version: version,
+  versions: versions,
+  on: on,
+  addListener: addListener,
+  once: once,
+  off: off,
+  removeListener: removeListener,
+  removeAllListeners: removeAllListeners,
+  emit: emit,
+  binding: binding,
+  cwd: cwd,
+  chdir: chdir,
+  umask: umask,
+  hrtime: hrtime,
+  platform: platform,
+  release: release,
+  config: config,
+  uptime: uptime
+};
+
+/** MobX - (c) Michel Weststrate 2015, 2016 - MIT Licensed */
+/*! *****************************************************************************
+Copyright (c) Microsoft Corporation. All rights reserved.
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+this file except in compliance with the License. You may obtain a copy of the
+License at http://www.apache.org/licenses/LICENSE-2.0
+
+THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
+WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
+MERCHANTABLITY OR NON-INFRINGEMENT.
+
+See the Apache Version 2.0 License for specific language governing permissions
+and limitations under the License.
+***************************************************************************** */
+/* global Reflect, Promise */
+
+var extendStatics = Object.setPrototypeOf ||
+    ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+    function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+
+function __extends(d, b) {
+    extendStatics(d, b);
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+}
+
+var __assign = Object.assign || function __assign(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+    }
+    return t;
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function __read(o, n) {
+    var m = typeof Symbol === "function" && o[Symbol.iterator];
+    if (!m) return o;
+    var i = m.call(o), r, ar = [], e;
+    try {
+        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
+    }
+    catch (error) { e = { error: error }; }
+    finally {
+        try {
+            if (r && !r.done && (m = i["return"])) m.call(i);
+        }
+        finally { if (e) throw e.error; }
+    }
+    return ar;
+}
+
+function __spread() {
+    for (var ar = [], i = 0; i < arguments.length; i++)
+        ar = ar.concat(__read(arguments[i]));
+    return ar;
+}
+
+var enumerableDescriptorCache = {};
+var nonEnumerableDescriptorCache = {};
+function createPropertyInitializerDescriptor(prop, enumerable) {
+    var cache = enumerable ? enumerableDescriptorCache : nonEnumerableDescriptorCache;
+    return (cache[prop] ||
+        (cache[prop] = {
+            configurable: true,
+            enumerable: enumerable,
+            get: function () {
+                initializeInstance(this);
+                return this[prop];
+            },
+            set: function (value) {
+                initializeInstance(this);
+                this[prop] = value;
+            }
+        }));
+}
+function initializeInstance(target) {
+    if (target.__mobxDidRunLazyInitializers === true)
+        return;
+    var decorators = target.__mobxDecorators;
+    if (decorators) {
+        addHiddenProp(target, "__mobxDidRunLazyInitializers", true);
+        for (var key in decorators) {
+            var d = decorators[key];
+            d.propertyCreator(target, d.prop, d.descriptor, d.decoratorTarget, d.decoratorArguments);
+        }
+    }
+}
+function createPropDecorator(propertyInitiallyEnumerable, propertyCreator) {
+    return function decoratorFactory() {
+        var decoratorArguments;
+        var decorator = function decorate(target, prop, descriptor, applyImmediately
+        // This is a special parameter to signal the direct application of a decorator, allow extendObservable to skip the entire type decoration part,
+        // as the instance to apply the deorator to equals the target
+        ) {
+            if (applyImmediately === true) {
+                propertyCreator(target, prop, descriptor, target, decoratorArguments);
+                return null;
+            }
+            if (true && !quacksLikeADecorator(arguments))
+                fail$1("This function is a decorator, but it wasn't invoked like a decorator");
+            if (!Object.prototype.hasOwnProperty.call(target, "__mobxDecorators")) {
+                var inheritedDecorators = target.__mobxDecorators;
+                addHiddenProp(target, "__mobxDecorators", __assign({}, inheritedDecorators));
+            }
+            target.__mobxDecorators[prop] = {
+                prop: prop,
+                propertyCreator: propertyCreator,
+                descriptor: descriptor,
+                decoratorTarget: target,
+                decoratorArguments: decoratorArguments
+            };
+            return createPropertyInitializerDescriptor(prop, propertyInitiallyEnumerable);
+        };
+        if (quacksLikeADecorator(arguments)) {
+            // @decorator
+            decoratorArguments = EMPTY_ARRAY;
+            return decorator.apply(null, arguments);
+        }
+        else {
+            // @decorator(args)
+            decoratorArguments = Array.prototype.slice.call(arguments);
+            return decorator;
+        }
+    };
+}
+function quacksLikeADecorator(args) {
+    return (((args.length === 2 || args.length === 3) && typeof args[1] === "string") ||
+        (args.length === 4 && args[3] === true));
+}
+
+function isSpyEnabled() {
+    return !!globalState.spyListeners.length;
+}
+function spyReport(event) {
+    if (!globalState.spyListeners.length)
+        return;
+    var listeners = globalState.spyListeners;
+    for (var i = 0, l = listeners.length; i < l; i++)
+        listeners[i](event);
+}
+function spyReportStart(event) {
+    var change = __assign({}, event, { spyReportStart: true });
+    spyReport(change);
+}
+var END_EVENT = { spyReportEnd: true };
+function spyReportEnd(change) {
+    if (change)
+        spyReport(__assign({}, change, { spyReportEnd: true }));
+    else
+        spyReport(END_EVENT);
+}
+function spy(listener) {
+    globalState.spyListeners.push(listener);
+    return once$1(function () {
+        globalState.spyListeners = globalState.spyListeners
+            .filter(function (l) { return l !== listener; });
+    });
+}
+
+function createAction(actionName, fn) {
+    {
+        invariant(typeof fn === "function", "`action` can only be invoked on functions");
+        if (typeof actionName !== "string" || !actionName)
+            fail("actions should have valid names, got: '" + actionName + "'");
+    }
+    var res = function () {
+        return executeAction(actionName, fn, this, arguments);
+    };
+    res.isMobxAction = true;
+    return res;
+}
+function executeAction(actionName, fn, scope, args) {
+    var runInfo = startAction(actionName, fn, scope, args);
+    try {
+        return fn.apply(scope, args);
+    }
+    finally {
+        endAction(runInfo);
+    }
+}
+function startAction(actionName, fn, scope, args) {
+    var notifySpy = isSpyEnabled() && !!actionName;
+    var startTime = 0;
+    if (notifySpy) {
+        startTime = Date.now();
+        var l = (args && args.length) || 0;
+        var flattendArgs = new Array(l);
+        if (l > 0)
+            for (var i = 0; i < l; i++)
+                flattendArgs[i] = args[i];
+        spyReportStart({
+            type: "action",
+            name: actionName,
+            object: scope,
+            arguments: flattendArgs
+        });
+    }
+    var prevDerivation = untrackedStart();
+    startBatch();
+    var prevAllowStateChanges = allowStateChangesStart(true);
+    return {
+        prevDerivation: prevDerivation,
+        prevAllowStateChanges: prevAllowStateChanges,
+        notifySpy: notifySpy,
+        startTime: startTime
+    };
+}
+function endAction(runInfo) {
+    allowStateChangesEnd(runInfo.prevAllowStateChanges);
+    endBatch();
+    untrackedEnd(runInfo.prevDerivation);
+    if (runInfo.notifySpy)
+        spyReportEnd({ time: Date.now() - runInfo.startTime });
+}
+function allowStateChangesStart(allowStateChanges) {
+    var prev = globalState.allowStateChanges;
+    globalState.allowStateChanges = allowStateChanges;
+    return prev;
+}
+function allowStateChangesEnd(prev) {
+    globalState.allowStateChanges = prev;
+}
+
+function dontReassignFields() {
+    fail$1(true && "@action fields are not reassignable");
+}
+function namedActionDecorator(name) {
+    return function (target, prop, descriptor) {
+        if (descriptor) {
+            if (true && descriptor.get !== undefined) {
+                return fail$1("@action cannot be used with getters");
+            }
+            // babel / typescript
+            // @action method() { }
+            if (descriptor.value) {
+                // typescript
+                return {
+                    value: createAction(name, descriptor.value),
+                    enumerable: false,
+                    configurable: false,
+                    writable: true // for typescript, this must be writable, otherwise it cannot inherit :/ (see inheritable actions test)
+                };
+            }
+            // babel only: @action method = () => {}
+            var initializer_1 = descriptor.initializer;
+            return {
+                enumerable: false,
+                configurable: false,
+                writable: true,
+                initializer: function () {
+                    // N.B: we can't immediately invoke initializer; this would be wrong
+                    return createAction(name, initializer_1.call(this));
+                }
+            };
+        }
+        // bound instance methods
+        return actionFieldDecorator(name).apply(this, arguments);
+    };
+}
+function actionFieldDecorator(name) {
+    // Simple property that writes on first invocation to the current instance
+    return function (target, prop, descriptor) {
+        Object.defineProperty(target, prop, {
+            configurable: true,
+            enumerable: false,
+            get: function () {
+                return undefined;
+            },
+            set: function (value) {
+                addHiddenFinalProp(this, prop, action(name, value));
+            }
+        });
+    };
+}
+function boundActionDecorator(target, propertyName, descriptor, applyToInstance) {
+    if (applyToInstance === true) {
+        defineBoundAction(target, propertyName, descriptor.value);
+        return null;
+    }
+    if (descriptor) {
+        // if (descriptor.value)
+        // Typescript / Babel: @action.bound method() { }
+        // also: babel @action.bound method = () => {}
+        return {
+            configurable: true,
+            enumerable: false,
+            get: function () {
+                defineBoundAction(this, propertyName, descriptor.value || descriptor.initializer.call(this));
+                return this[propertyName];
+            },
+            set: dontReassignFields
+        };
+    }
+    // field decorator Typescript @action.bound method = () => {}
+    return {
+        enumerable: false,
+        configurable: true,
+        set: function (v) {
+            defineBoundAction(this, propertyName, v);
+        },
+        get: function () {
+            return undefined;
+        }
+    };
+}
+
+var action = function action(arg1, arg2, arg3, arg4) {
+    // action(fn() {})
+    if (arguments.length === 1 && typeof arg1 === "function")
+        return createAction(arg1.name || "<unnamed action>", arg1);
+    // action("name", fn() {})
+    if (arguments.length === 2 && typeof arg2 === "function")
+        return createAction(arg1, arg2);
+    // @action("name") fn() {}
+    if (arguments.length === 1 && typeof arg1 === "string")
+        return namedActionDecorator(arg1);
+    // @action fn() {}
+    if (arg4 === true) {
+        // apply to instance immediately
+        arg1[arg2] = createAction(arg1.name || arg2, arg3.value);
+    }
+    else {
+        return namedActionDecorator(arg2).apply(null, arguments);
+    }
+};
+action.bound = boundActionDecorator;
+function isAction(thing) {
+    return typeof thing === "function" && thing.isMobxAction === true;
+}
+function defineBoundAction(target, propertyName, fn) {
+    addHiddenProp(target, propertyName, createAction(propertyName, fn.bind(target)));
+}
+
+var toString = Object.prototype.toString;
+function deepEqual(a, b) {
+    return eq(a, b);
+}
+// Copied from https://github.com/jashkenas/underscore/blob/5c237a7c682fb68fd5378203f0bf22dce1624854/underscore.js#L1186-L1289
+// Internal recursive comparison function for `isEqual`.
+function eq(a, b, aStack, bStack) {
+    // Identical objects are equal. `0 === -0`, but they aren't identical.
+    // See the [Harmony `egal` proposal](http://wiki.ecmascript.org/doku.php?id=harmony:egal).
+    if (a === b)
+        return a !== 0 || 1 / a === 1 / b;
+    // `null` or `undefined` only equal to itself (strict comparison).
+    if (a == null || b == null)
+        return false;
+    // `NaN`s are equivalent, but non-reflexive.
+    if (a !== a)
+        return b !== b;
+    // Exhaust primitive checks
+    var type = typeof a;
+    if (type !== "function" && type !== "object" && typeof b != "object")
+        return false;
+    return deepEq(a, b, aStack, bStack);
+}
+// Internal recursive comparison function for `isEqual`.
+function deepEq(a, b, aStack, bStack) {
+    // Unwrap any wrapped objects.
+    a = unwrap(a);
+    b = unwrap(b);
+    // Compare `[[Class]]` names.
+    var className = toString.call(a);
+    if (className !== toString.call(b))
+        return false;
+    switch (className) {
+        // Strings, numbers, regular expressions, dates, and booleans are compared by value.
+        case "[object RegExp]":
+        // RegExps are coerced to strings for comparison (Note: '' + /a/i === '/a/i')
+        case "[object String]":
+            // Primitives and their corresponding object wrappers are equivalent; thus, `"5"` is
+            // equivalent to `new String("5")`.
+            return "" + a === "" + b;
+        case "[object Number]":
+            // `NaN`s are equivalent, but non-reflexive.
+            // Object(NaN) is equivalent to NaN.
+            if (+a !== +a)
+                return +b !== +b;
+            // An `egal` comparison is performed for other numeric values.
+            return +a === 0 ? 1 / +a === 1 / b : +a === +b;
+        case "[object Date]":
+        case "[object Boolean]":
+            // Coerce dates and booleans to numeric primitive values. Dates are compared by their
+            // millisecond representations. Note that invalid dates with millisecond representations
+            // of `NaN` are not equivalent.
+            return +a === +b;
+        case "[object Symbol]":
+            return (typeof Symbol !== "undefined" && Symbol.valueOf.call(a) === Symbol.valueOf.call(b));
+    }
+    var areArrays = className === "[object Array]";
+    if (!areArrays) {
+        if (typeof a != "object" || typeof b != "object")
+            return false;
+        // Objects with different constructors are not equivalent, but `Object`s or `Array`s
+        // from different frames are.
+        var aCtor = a.constructor, bCtor = b.constructor;
+        if (aCtor !== bCtor &&
+            !(typeof aCtor === "function" &&
+                aCtor instanceof aCtor &&
+                typeof bCtor === "function" &&
+                bCtor instanceof bCtor) &&
+            ("constructor" in a && "constructor" in b)) {
+            return false;
+        }
+    }
+    // Assume equality for cyclic structures. The algorithm for detecting cyclic
+    // structures is adapted from ES 5.1 section 15.12.3, abstract operation `JO`.
+    // Initializing stack of traversed objects.
+    // It's done here since we only need them for objects and arrays comparison.
+    aStack = aStack || [];
+    bStack = bStack || [];
+    var length = aStack.length;
+    while (length--) {
+        // Linear search. Performance is inversely proportional to the number of
+        // unique nested structures.
+        if (aStack[length] === a)
+            return bStack[length] === b;
+    }
+    // Add the first object to the stack of traversed objects.
+    aStack.push(a);
+    bStack.push(b);
+    // Recursively compare objects and arrays.
+    if (areArrays) {
+        // Compare array lengths to determine if a deep comparison is necessary.
+        length = a.length;
+        if (length !== b.length)
+            return false;
+        // Deep compare the contents, ignoring non-numeric properties.
+        while (length--) {
+            if (!eq(a[length], b[length], aStack, bStack))
+                return false;
+        }
+    }
+    else {
+        // Deep compare objects.
+        var keys$$1 = Object.keys(a), key;
+        length = keys$$1.length;
+        // Ensure that both objects contain the same number of properties before comparing deep equality.
+        if (Object.keys(b).length !== length)
+            return false;
+        while (length--) {
+            // Deep compare each member
+            key = keys$$1[length];
+            if (!(has$$1(b, key) && eq(a[key], b[key], aStack, bStack)))
+                return false;
+        }
+    }
+    // Remove the first object from the stack of traversed objects.
+    aStack.pop();
+    bStack.pop();
+    return true;
+}
+function unwrap(a) {
+    if (isObservableArray(a))
+        return a.peek();
+    if (isES6Map(a) || isObservableMap(a))
+        return iteratorToArray(a.entries());
+    return a;
+}
+function has$$1(a, key) {
+    return Object.prototype.hasOwnProperty.call(a, key);
+}
+
+function identityComparer(a, b) {
+    return a === b;
+}
+function structuralComparer(a, b) {
+    return deepEqual(a, b);
+}
+function defaultComparer(a, b) {
+    return areBothNaN(a, b) || identityComparer(a, b);
+}
+var comparer = {
+    identity: identityComparer,
+    structural: structuralComparer,
+    default: defaultComparer
+};
+
+/**
+ * Creates a named reactive view and keeps it alive, so that the view is always
+ * updated if one of the dependencies changes, even when the view is not further used by something else.
+ * @param view The reactive view
+ * @returns disposer function, which can be used to stop the view from being updated in the future.
+ */
+function autorun(view, opts) {
+    if (opts === void 0) { opts = EMPTY_OBJECT; }
+    {
+        invariant(typeof view === "function", "Autorun expects a function as first argument");
+        invariant(isAction(view) === false, "Autorun does not accept actions since actions are untrackable");
+    }
+    var name = (opts && opts.name) || view.name || "Autorun@" + getNextId();
+    var runSync = !opts.scheduler && !opts.delay;
+    var reaction;
+    if (runSync) {
+        // normal autorun
+        reaction = new Reaction(name, function () {
+            this.track(reactionRunner);
+        }, opts.onError);
+    }
+    else {
+        var scheduler_1 = createSchedulerFromOptions(opts);
+        // debounced autorun
+        var isScheduled_1 = false;
+        reaction = new Reaction(name, function () {
+            if (!isScheduled_1) {
+                isScheduled_1 = true;
+                scheduler_1(function () {
+                    isScheduled_1 = false;
+                    if (!reaction.isDisposed)
+                        reaction.track(reactionRunner);
+                });
+            }
+        }, opts.onError);
+    }
+    function reactionRunner() {
+        view(reaction);
+    }
+    reaction.schedule();
+    return reaction.getDisposer();
+}
+var run = function (f) { return f(); };
+function createSchedulerFromOptions(opts) {
+    return opts.scheduler
+        ? opts.scheduler
+        : opts.delay ? function (f) { return setTimeout(f, opts.delay); } : run;
+}
+function reaction(expression, effect, opts) {
+    if (opts === void 0) { opts = EMPTY_OBJECT; }
+    if (typeof opts === "boolean") {
+        opts = { fireImmediately: opts };
+        deprecated("Using fireImmediately as argument is deprecated. Use '{ fireImmediately: true }' instead");
+    }
+    {
+        invariant(typeof expression === "function", "First argument to reaction should be a function");
+        invariant(typeof opts === "object", "Third argument of reactions should be an object");
+    }
+    var name = opts.name || "Reaction@" + getNextId();
+    var effectAction = action(name, opts.onError ? wrapErrorHandler(opts.onError, effect) : effect);
+    var runSync = !opts.scheduler && !opts.delay;
+    var scheduler = createSchedulerFromOptions(opts);
+    var firstTime = true;
+    var isScheduled = false;
+    var value;
+    var equals = opts.compareStructural
+        ? comparer.structural
+        : opts.equals || comparer.default;
+    var r = new Reaction(name, function () {
+        if (firstTime || runSync) {
+            reactionRunner();
+        }
+        else if (!isScheduled) {
+            isScheduled = true;
+            scheduler(reactionRunner);
+        }
+    }, opts.onError);
+    function reactionRunner() {
+        isScheduled = false; // Q: move into reaction runner?
+        if (r.isDisposed)
+            return;
+        var changed = false;
+        r.track(function () {
+            var nextValue = expression(r);
+            changed = firstTime || !equals(value, nextValue);
+            value = nextValue;
+        });
+        if (firstTime && opts.fireImmediately)
+            effectAction(value, r);
+        if (!firstTime && changed === true)
+            effectAction(value, r);
+        if (firstTime)
+            firstTime = false;
+    }
+    r.schedule();
+    return r.getDisposer();
+}
+function wrapErrorHandler(errorHandler, baseFn) {
+    return function () {
+        try {
+            return baseFn.apply(this, arguments);
+        }
+        catch (e) {
+            errorHandler.call(this, e);
+        }
+    };
+}
+
+/**
+ * A node in the state dependency root that observes other nodes, and can be observed itself.
+ *
+ * ComputedValue will remember the result of the computation for the duration of the batch, or
+ * while being observed.
+ *
+ * During this time it will recompute only when one of its direct dependencies changed,
+ * but only when it is being accessed with `ComputedValue.get()`.
+ *
+ * Implementation description:
+ * 1. First time it's being accessed it will compute and remember result
+ *    give back remembered result until 2. happens
+ * 2. First time any deep dependency change, propagate POSSIBLY_STALE to all observers, wait for 3.
+ * 3. When it's being accessed, recompute if any shallow dependency changed.
+ *    if result changed: propagate STALE to all observers, that were POSSIBLY_STALE from the last step.
+ *    go to step 2. either way
+ *
+ * If at any point it's outside batch and it isn't observed: reset everything and go to 1.
+ */
+var ComputedValue = /** @class */ (function () {
+    /**
+     * Create a new computed value based on a function expression.
+     *
+     * The `name` property is for debug purposes only.
+     *
+     * The `equals` property specifies the comparer function to use to determine if a newly produced
+     * value differs from the previous value. Two comparers are provided in the library; `defaultComparer`
+     * compares based on identity comparison (===), and `structualComparer` deeply compares the structure.
+     * Structural comparison can be convenient if you always produce an new aggregated object and
+     * don't want to notify observers if it is structurally the same.
+     * This is useful for working with vectors, mouse coordinates etc.
+     */
+    function ComputedValue(options) {
+        var _this = this;
+        this.dependenciesState = IDerivationState.NOT_TRACKING;
+        this.observing = []; // nodes we are looking at. Our value depends on these nodes
+        this.newObserving = null; // during tracking it's an array with new observed observers
+        this.isBeingObserved = false;
+        this.isPendingUnobservation = false;
+        this.observers = [];
+        this.observersIndexes = {};
+        this.diffValue = 0;
+        this.runId = 0;
+        this.lastAccessedBy = 0;
+        this.lowestObserverState = IDerivationState.UP_TO_DATE;
+        this.unboundDepsCount = 0;
+        this.__mapid = "#" + getNextId();
+        this.value = new CaughtException(null);
+        this.isComputing = false; // to check for cycles
+        this.isRunningSetter = false;
+        this.isTracing = TraceMode.NONE;
+        this.derivation = options.get;
+        this.name = options.name || "ComputedValue@" + getNextId();
+        if (options.set)
+            this.setter = createAction(this.name + "-setter", options.set);
+        this.equals =
+            options.equals ||
+                (options.compareStructural || options.struct
+                    ? comparer.structural
+                    : comparer.default);
+        this.scope = options.context;
+        this.requiresReaction = !!options.requiresReaction;
+        if (options.keepAlive === true) {
+            // dangerous: never exposed, so this cmputed value should not depend on observables
+            // that live globally, or it will never get disposed! (nor anything attached to it)
+            autorun(function () { return _this.get(); });
+        }
+    }
+    ComputedValue.prototype.onBecomeStale = function () {
+        propagateMaybeChanged(this);
+    };
+    ComputedValue.prototype.onBecomeUnobserved = function () { };
+    ComputedValue.prototype.onBecomeObserved = function () { };
+    /**
+     * Returns the current value of this computed value.
+     * Will evaluate its computation first if needed.
+     */
+    ComputedValue.prototype.get = function () {
+        if (this.isComputing)
+            fail$1("Cycle detected in computation " + this.name + ": " + this.derivation);
+        if (globalState.inBatch === 0) {
+            if (shouldCompute(this)) {
+                this.warnAboutUntrackedRead();
+                startBatch(); // See perf test 'computed memoization'
+                this.value = this.computeValue(false);
+                endBatch();
+            }
+        }
+        else {
+            reportObserved(this);
+            if (shouldCompute(this))
+                if (this.trackAndCompute())
+                    propagateChangeConfirmed(this);
+        }
+        var result = this.value;
+        if (isCaughtException(result))
+            throw result.cause;
+        return result;
+    };
+    ComputedValue.prototype.peek = function () {
+        var res = this.computeValue(false);
+        if (isCaughtException(res))
+            throw res.cause;
+        return res;
+    };
+    ComputedValue.prototype.set = function (value) {
+        if (this.setter) {
+            invariant(!this.isRunningSetter, "The setter of computed value '" + this
+                .name + "' is trying to update itself. Did you intend to update an _observable_ value, instead of the computed property?");
+            this.isRunningSetter = true;
+            try {
+                this.setter.call(this.scope, value);
+            }
+            finally {
+                this.isRunningSetter = false;
+            }
+        }
+        else
+            invariant(false, true &&
+                "[ComputedValue '" + this
+                    .name + "'] It is not possible to assign a new value to a computed value.");
+    };
+    ComputedValue.prototype.trackAndCompute = function () {
+        if (isSpyEnabled()) {
+            spyReport({
+                object: this.scope,
+                type: "compute",
+                name: this.name
+            });
+        }
+        var oldValue = this.value;
+        var wasSuspended = 
+        /* see #1208 */ this.dependenciesState === IDerivationState.NOT_TRACKING;
+        var newValue = (this.value = this.computeValue(true));
+        return (wasSuspended ||
+            isCaughtException(oldValue) ||
+            isCaughtException(newValue) ||
+            !this.equals(oldValue, newValue));
+    };
+    ComputedValue.prototype.computeValue = function (track) {
+        this.isComputing = true;
+        globalState.computationDepth++;
+        var res;
+        if (track) {
+            res = trackDerivedFunction(this, this.derivation, this.scope);
+        }
+        else {
+            if (globalState.disableErrorBoundaries === true) {
+                res = this.derivation.call(this.scope);
+            }
+            else {
+                try {
+                    res = this.derivation.call(this.scope);
+                }
+                catch (e) {
+                    res = new CaughtException(e);
+                }
+            }
+        }
+        globalState.computationDepth--;
+        this.isComputing = false;
+        return res;
+    };
+    ComputedValue.prototype.suspend = function () {
+        clearObserving(this);
+        this.value = undefined; // don't hold on to computed value!
+    };
+    ComputedValue.prototype.observe = function (listener, fireImmediately) {
+        var _this = this;
+        var firstTime = true;
+        var prevValue = undefined;
+        return autorun(function () {
+            var newValue = _this.get();
+            if (!firstTime || fireImmediately) {
+                var prevU = untrackedStart();
+                listener({
+                    type: "update",
+                    object: _this,
+                    newValue: newValue,
+                    oldValue: prevValue
+                });
+                untrackedEnd(prevU);
+            }
+            firstTime = false;
+            prevValue = newValue;
+        });
+    };
+    ComputedValue.prototype.warnAboutUntrackedRead = function () {
+        if (this.requiresReaction === true) {
+            fail$1("[mobx] Computed value " + this.name + " is read outside a reactive context");
+        }
+        if (this.isTracing !== TraceMode.NONE) {
+            console.log("[mobx.trace] '" + this
+                .name + "' is being read outside a reactive context. Doing a full recompute");
+        }
+        if (globalState.computedRequiresReaction) {
+            console.warn("[mobx] Computed value " + this
+                .name + " is being read outside a reactive context. Doing a full recompute");
+        }
+    };
+    ComputedValue.prototype.toJSON = function () {
+        return this.get();
+    };
+    ComputedValue.prototype.toString = function () {
+        return this.name + "[" + this.derivation.toString() + "]";
+    };
+    ComputedValue.prototype.valueOf = function () {
+        return toPrimitive(this.get());
+    };
+    return ComputedValue;
+}());
+ComputedValue.prototype[primitiveSymbol()] = ComputedValue.prototype.valueOf;
+var isComputedValue = createInstanceofPredicate("ComputedValue", ComputedValue);
+
+function hasInterceptors(interceptable) {
+    return interceptable.interceptors !== undefined && interceptable.interceptors.length > 0;
+}
+function registerInterceptor(interceptable, handler) {
+    var interceptors = interceptable.interceptors || (interceptable.interceptors = []);
+    interceptors.push(handler);
+    return once$1(function () {
+        var idx = interceptors.indexOf(handler);
+        if (idx !== -1)
+            interceptors.splice(idx, 1);
+    });
+}
+function interceptChange(interceptable, change) {
+    var prevU = untrackedStart();
+    try {
+        var interceptors = interceptable.interceptors;
+        if (interceptors)
+            for (var i = 0, l = interceptors.length; i < l; i++) {
+                change = interceptors[i](change);
+                invariant(!change || change.type, "Intercept handlers should return nothing or a change object");
+                if (!change)
+                    break;
+            }
+        return change;
+    }
+    finally {
+        untrackedEnd(prevU);
+    }
+}
+
+function hasListeners(listenable) {
+    return listenable.changeListeners !== undefined && listenable.changeListeners.length > 0;
+}
+function registerListener(listenable, handler) {
+    var listeners = listenable.changeListeners || (listenable.changeListeners = []);
+    listeners.push(handler);
+    return once$1(function () {
+        var idx = listeners.indexOf(handler);
+        if (idx !== -1)
+            listeners.splice(idx, 1);
+    });
+}
+function notifyListeners(listenable, change) {
+    var prevU = untrackedStart();
+    var listeners = listenable.changeListeners;
+    if (!listeners)
+        return;
+    listeners = listeners.slice();
+    for (var i = 0, l = listeners.length; i < l; i++) {
+        listeners[i](change);
+    }
+    untrackedEnd(prevU);
+}
+
+var UNCHANGED = {};
+declareAtom();
+var ObservableValue = /** @class */ (function (_super) {
+    __extends(ObservableValue, _super);
+    function ObservableValue(value, enhancer, name, notifySpy) {
+        if (name === void 0) { name = "ObservableValue@" + getNextId(); }
+        if (notifySpy === void 0) { notifySpy = true; }
+        var _this = _super.call(this, name) || this;
+        _this.enhancer = enhancer;
+        _this.hasUnreportedChange = false;
+        _this.value = enhancer(value, undefined, name);
+        if (notifySpy && isSpyEnabled()) {
+            // only notify spy if this is a stand-alone observable
+            spyReport({ type: "create", name: _this.name, newValue: "" + _this.value });
+        }
+        return _this;
+    }
+    ObservableValue.prototype.dehanceValue = function (value) {
+        if (this.dehancer !== undefined)
+            return this.dehancer(value);
+        return value;
+    };
+    ObservableValue.prototype.set = function (newValue) {
+        var oldValue = this.value;
+        newValue = this.prepareNewValue(newValue);
+        if (newValue !== UNCHANGED) {
+            var notifySpy = isSpyEnabled();
+            if (notifySpy) {
+                spyReportStart({
+                    type: "update",
+                    name: this.name,
+                    newValue: newValue,
+                    oldValue: oldValue
+                });
+            }
+            this.setNewValue(newValue);
+            if (notifySpy)
+                spyReportEnd();
+        }
+    };
+    ObservableValue.prototype.prepareNewValue = function (newValue) {
+        checkIfStateModificationsAreAllowed(this);
+        if (hasInterceptors(this)) {
+            var change = interceptChange(this, {
+                object: this,
+                type: "update",
+                newValue: newValue
+            });
+            if (!change)
+                return UNCHANGED;
+            newValue = change.newValue;
+        }
+        // apply modifier
+        newValue = this.enhancer(newValue, this.value, this.name);
+        return this.value !== newValue ? newValue : UNCHANGED;
+    };
+    ObservableValue.prototype.setNewValue = function (newValue) {
+        var oldValue = this.value;
+        this.value = newValue;
+        this.reportChanged();
+        if (hasListeners(this)) {
+            notifyListeners(this, {
+                type: "update",
+                object: this,
+                newValue: newValue,
+                oldValue: oldValue
+            });
+        }
+    };
+    ObservableValue.prototype.get = function () {
+        this.reportObserved();
+        return this.dehanceValue(this.value);
+    };
+    ObservableValue.prototype.intercept = function (handler) {
+        return registerInterceptor(this, handler);
+    };
+    ObservableValue.prototype.observe = function (listener, fireImmediately) {
+        if (fireImmediately)
+            listener({
+                object: this,
+                type: "update",
+                newValue: this.value,
+                oldValue: undefined
+            });
+        return registerListener(this, listener);
+    };
+    ObservableValue.prototype.toJSON = function () {
+        return this.get();
+    };
+    ObservableValue.prototype.toString = function () {
+        return this.name + "[" + this.value + "]";
+    };
+    ObservableValue.prototype.valueOf = function () {
+        return toPrimitive(this.get());
+    };
+    return ObservableValue;
+}(Atom));
+ObservableValue.prototype[primitiveSymbol()] = ObservableValue.prototype.valueOf;
+var isObservableValue = createInstanceofPredicate("ObservableValue", ObservableValue);
+
+var ObservableObjectAdministration = /** @class */ (function () {
+    function ObservableObjectAdministration(target, name, defaultEnhancer) {
+        this.target = target;
+        this.name = name;
+        this.defaultEnhancer = defaultEnhancer;
+        this.values = {};
+    }
+    ObservableObjectAdministration.prototype.read = function (owner, key) {
+        if (this.target !== owner) {
+            this.illegalAccess(owner, key);
+            return;
+        }
+        return this.values[key].get();
+    };
+    ObservableObjectAdministration.prototype.write = function (owner, key, newValue) {
+        var instance = this.target;
+        if (instance !== owner) {
+            this.illegalAccess(owner, key);
+            return;
+        }
+        var observable = this.values[key];
+        if (observable instanceof ComputedValue) {
+            observable.set(newValue);
+            return;
+        }
+        // intercept
+        if (hasInterceptors(this)) {
+            var change = interceptChange(this, {
+                type: "update",
+                object: instance,
+                name: key,
+                newValue: newValue
+            });
+            if (!change)
+                return;
+            newValue = change.newValue;
+        }
+        newValue = observable.prepareNewValue(newValue);
+        // notify spy & observers
+        if (newValue !== UNCHANGED) {
+            var notify = hasListeners(this);
+            var notifySpy = isSpyEnabled();
+            var change = notify || notifySpy
+                ? {
+                    type: "update",
+                    object: instance,
+                    oldValue: observable.value,
+                    name: key,
+                    newValue: newValue
+                }
+                : null;
+            if (notifySpy)
+                spyReportStart(__assign({}, change, { name: this.name, key: key }));
+            observable.setNewValue(newValue);
+            if (notify)
+                notifyListeners(this, change);
+            if (notifySpy)
+                spyReportEnd();
+        }
+    };
+    ObservableObjectAdministration.prototype.remove = function (key) {
+        if (!this.values[key])
+            return;
+        var target = this.target;
+        if (hasInterceptors(this)) {
+            var change = interceptChange(this, {
+                object: target,
+                name: key,
+                type: "remove"
+            });
+            if (!change)
+                return;
+        }
+        try {
+            startBatch();
+            var notify = hasListeners(this);
+            var notifySpy = isSpyEnabled();
+            var oldValue = this.values[key].get();
+            if (this.keys)
+                this.keys.remove(key);
+            delete this.values[key];
+            delete this.target[key];
+            var change = notify || notifySpy
+                ? {
+                    type: "remove",
+                    object: target,
+                    oldValue: oldValue,
+                    name: key
+                }
+                : null;
+            if (notifySpy)
+                spyReportStart(__assign({}, change, { name: this.name, key: key }));
+            if (notify)
+                notifyListeners(this, change);
+            if (notifySpy)
+                spyReportEnd();
+        }
+        finally {
+            endBatch();
+        }
+    };
+    ObservableObjectAdministration.prototype.illegalAccess = function (owner, propName) {
+        /**
+         * This happens if a property is accessed through the prototype chain, but the property was
+         * declared directly as own property on the prototype.
+         *
+         * E.g.:
+         * class A {
+         * }
+         * extendObservable(A.prototype, { x: 1 })
+         *
+         * classB extens A {
+         * }
+         * console.log(new B().x)
+         *
+         * It is unclear whether the property should be considered 'static' or inherited.
+         * Either use `console.log(A.x)`
+         * or: decorate(A, { x: observable })
+         *
+         * When using decorate, the property will always be redeclared as own property on the actual instance
+         */
+        return fail$1("Property '" + propName + "' of '" + owner + "' was accessed through the prototype chain. Use 'decorate' instead to declare the prop or access it statically through it's owner");
+    };
+    /**
+     * Observes this object. Triggers for the events 'add', 'update' and 'delete'.
+     * See: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/observe
+     * for callback details
+     */
+    ObservableObjectAdministration.prototype.observe = function (callback, fireImmediately) {
+        true &&
+            invariant(fireImmediately !== true, "`observe` doesn't support the fire immediately property for observable objects.");
+        return registerListener(this, callback);
+    };
+    ObservableObjectAdministration.prototype.intercept = function (handler) {
+        return registerInterceptor(this, handler);
+    };
+    ObservableObjectAdministration.prototype.getKeys = function () {
+        var _this = this;
+        if (this.keys === undefined) {
+            this.keys = new ObservableArray(Object.keys(this.values).filter(function (key) { return _this.values[key] instanceof ObservableValue; }), referenceEnhancer, "keys(" + this.name + ")", true);
+        }
+        return this.keys.slice();
+    };
+    return ObservableObjectAdministration;
+}());
+function asObservableObject(target, name, defaultEnhancer) {
+    if (name === void 0) { name = ""; }
+    if (defaultEnhancer === void 0) { defaultEnhancer = deepEnhancer; }
+    var adm = target.$mobx;
+    if (adm)
+        return adm;
+    true &&
+        invariant(Object.isExtensible(target), "Cannot make the designated object observable; it is not extensible");
+    if (!isPlainObject(target))
+        name = (target.constructor.name || "ObservableObject") + "@" + getNextId();
+    if (!name)
+        name = "ObservableObject@" + getNextId();
+    adm = new ObservableObjectAdministration(target, name, defaultEnhancer);
+    addHiddenFinalProp(target, "$mobx", adm);
+    return adm;
+}
+function defineObservableProperty(target, propName, newValue, enhancer) {
+    var adm = asObservableObject(target);
+    assertPropertyConfigurable(target, propName);
+    if (hasInterceptors(adm)) {
+        var change = interceptChange(adm, {
+            object: target,
+            name: propName,
+            type: "add",
+            newValue: newValue
+        });
+        if (!change)
+            return;
+        newValue = change.newValue;
+    }
+    var observable = (adm.values[propName] = new ObservableValue(newValue, enhancer, adm.name + "." + propName, false));
+    newValue = observable.value; // observableValue might have changed it
+    Object.defineProperty(target, propName, generateObservablePropConfig(propName));
+    if (adm.keys)
+        adm.keys.push(propName);
+    notifyPropertyAddition(adm, target, propName, newValue);
+}
+function defineComputedProperty(target, // which objects holds the observable and provides `this` context?
+propName, options) {
+    var adm = asObservableObject(target);
+    options.name = adm.name + "." + propName;
+    options.context = target;
+    adm.values[propName] = new ComputedValue(options);
+    Object.defineProperty(target, propName, generateComputedPropConfig(propName));
+}
+var observablePropertyConfigs = {};
+var computedPropertyConfigs = {};
+function generateObservablePropConfig(propName) {
+    return (observablePropertyConfigs[propName] ||
+        (observablePropertyConfigs[propName] = {
+            configurable: true,
+            enumerable: true,
+            get: function () {
+                return this.$mobx.read(this, propName);
+            },
+            set: function (v) {
+                this.$mobx.write(this, propName, v);
+            }
+        }));
+}
+function getAdministrationForComputedPropOwner(owner) {
+    var adm = owner.$mobx;
+    if (!adm) {
+        // because computed props are declared on proty,
+        // the current instance might not have been initialized yet
+        initializeInstance(owner);
+        return owner.$mobx;
+    }
+    return adm;
+}
+function generateComputedPropConfig(propName) {
+    return (computedPropertyConfigs[propName] ||
+        (computedPropertyConfigs[propName] = {
+            configurable: true,
+            enumerable: false,
+            get: function () {
+                return getAdministrationForComputedPropOwner(this).read(this, propName);
+            },
+            set: function (v) {
+                getAdministrationForComputedPropOwner(this).write(this, propName, v);
+            }
+        }));
+}
+function notifyPropertyAddition(adm, object, key, newValue) {
+    var notify = hasListeners(adm);
+    var notifySpy = isSpyEnabled();
+    var change = notify || notifySpy
+        ? {
+            type: "add",
+            object: object,
+            name: key,
+            newValue: newValue
+        }
+        : null;
+    if (notifySpy)
+        spyReportStart(__assign({}, change, { name: adm.name, key: key }));
+    if (notify)
+        notifyListeners(adm, change);
+    if (notifySpy)
+        spyReportEnd();
+}
+var isObservableObjectAdministration = createInstanceofPredicate("ObservableObjectAdministration", ObservableObjectAdministration);
+function isObservableObject(thing) {
+    if (isObject(thing)) {
+        // Initializers run lazily when transpiling to babel, so make sure they are run...
+        initializeInstance(thing);
+        return isObservableObjectAdministration(thing.$mobx);
+    }
+    return false;
+}
+
+function createDecoratorForEnhancer(enhancer) {
+    var decorator = createPropDecorator(true, function (target, propertyName, descriptor, _decoratorTarget, decoratorArgs) {
+        var initialValue = descriptor
+            ? descriptor.initializer ? descriptor.initializer.call(target) : descriptor.value
+            : undefined;
+        defineObservableProperty(target, propertyName, initialValue, enhancer);
+    });
+    var res = 
+    // Extra process checks, as this happens during module initialization
+    typeof process !== "undefined" && process.env && true
+        ? function observableDecorator() {
+            // This wrapper function is just to detect illegal decorator invocations, deprecate in a next version
+            // and simply return the created prop decorator
+            if (arguments.length < 2)
+                return fail$1("Incorrect decorator invocation. @observable decorator doesn't expect any arguments");
+            return decorator.apply(null, arguments);
+        }
+        : decorator;
+    res.enhancer = enhancer;
+    return res;
+}
+
+function _isObservable(value, property) {
+    if (value === null || value === undefined)
+        return false;
+    if (property !== undefined) {
+        if (true &&
+            (isObservableMap(value) || isObservableArray(value)))
+            return fail$1("isObservable(object, propertyName) is not supported for arrays and maps. Use map.has or array.length instead.");
+        if (isObservableObject(value)) {
+            var o = value.$mobx;
+            return o.values && !!o.values[property];
+        }
+        return false;
+    }
+    // For first check, see #701
+    return (isObservableObject(value) ||
+        !!value.$mobx ||
+        isAtom(value) ||
+        isReaction(value) ||
+        isComputedValue(value));
+}
+function isObservable(value) {
+    if (arguments.length !== 1)
+        fail$1(true &&
+            "isObservable expects only 1 argument. Use isObservableProp to inspect the observability of a property");
+    return _isObservable(value);
+}
+
+function _isComputed(value, property) {
+    if (value === null || value === undefined)
+        return false;
+    if (property !== undefined) {
+        if (isObservableObject(value) === false)
+            return false;
+        if (!value.$mobx.values[property])
+            return false;
+        var atom = getAtom(value, property);
+        return isComputedValue(atom);
+    }
+    return isComputedValue(value);
+}
+function isComputed(value) {
+    if (arguments.length > 1)
+        return fail$1(true &&
+            "isComputed expects only 1 argument. Use isObservableProp to inspect the observability of a property");
+    return _isComputed(value);
+}
+
+var computedDecorator = createPropDecorator(false, function (instance, propertyName, descriptor, decoratorTarget, decoratorArgs) {
+    var get = descriptor.get, set = descriptor.set; // initialValue is the descriptor for get / set props
+    // Optimization: faster on decorator target or instance? Assuming target
+    // Optimiziation: find out if declaring on instance isn't just faster. (also makes the property descriptor simpler). But, more memory usage..
+    var options = decoratorArgs[0] || {};
+    defineComputedProperty(instance, propertyName, __assign({}, options, { get: get, set: set }));
+});
+var computedStructDecorator = computedDecorator({ equals: comparer.structural });
+function extendObservable(target, properties, decorators, options) {
+    {
+        invariant(arguments.length >= 2 && arguments.length <= 4, "'extendObservable' expected 2-4 arguments");
+        invariant(typeof target === "object", "'extendObservable' expects an object as first argument");
+        invariant(!isObservableMap(target), "'extendObservable' should not be used on maps, use map.merge instead");
+        invariant(!isObservable(properties), "Extending an object with another observable (object) is not supported. Please construct an explicit propertymap, using `toJS` if need. See issue #540");
+        if (decorators)
+            for (var key in decorators)
+                if (!(key in properties))
+                    fail$1("Trying to declare a decorator for unspecified property '" + key + "'");
+    }
+    options = asCreateObservableOptions(options);
+    var defaultDecorator = options.defaultDecorator || (options.deep === false ? refDecorator : deepDecorator);
+    asObservableObject(target, options.name, defaultDecorator.enhancer); // make sure object is observable, even without initial props
+    startBatch();
+    try {
+        for (var key in properties) {
+            var descriptor = Object.getOwnPropertyDescriptor(properties, key);
+            {
+                if (Object.getOwnPropertyDescriptor(target, key))
+                    fail$1("'extendObservable' can only be used to introduce new properties. Use 'set' or 'decorate' instead. The property '" + key + "' already exists on '" + target + "'");
+                if (isComputed(descriptor.value))
+                    fail$1("Passing a 'computed' as initial property value is no longer supported by extendObservable. Use a getter or decorator instead");
+            }
+            var decorator = decorators && key in decorators
+                ? decorators[key]
+                : descriptor.get ? computedDecorator : defaultDecorator;
+            if (true && typeof decorator !== "function")
+                return fail$1("Not a valid decorator for '" + key + "', got: " + decorator);
+            var resultDescriptor = decorator(target, key, descriptor, true);
+            if (resultDescriptor // otherwise, assume already applied, due to `applyToInstance`
+            )
+                Object.defineProperty(target, key, resultDescriptor);
+        }
+    }
+    finally {
+        endBatch();
+    }
+    return target;
+}
+
+// Predefined bags of create observable options, to avoid allocating temporarily option objects
+// in the majority of cases
+var defaultCreateObservableOptions = {
+    deep: true,
+    name: undefined,
+    defaultDecorator: undefined
+};
+var shallowCreateObservableOptions = {
+    deep: false,
+    name: undefined,
+    defaultDecorator: undefined
+};
+Object.freeze(defaultCreateObservableOptions);
+Object.freeze(shallowCreateObservableOptions);
+function assertValidOption(key) {
+    if (!/^(deep|name|defaultDecorator)$/.test(key))
+        fail$1("invalid option for (extend)observable: " + key);
+}
+function asCreateObservableOptions(thing) {
+    if (thing === null || thing === undefined)
+        return defaultCreateObservableOptions;
+    if (typeof thing === "string")
+        return { name: thing, deep: true };
+    {
+        if (typeof thing !== "object")
+            return fail$1("expected options object");
+        Object.keys(thing).forEach(assertValidOption);
+    }
+    return thing;
+}
+function getEnhancerFromOptions(options) {
+    return options.defaultDecorator
+        ? options.defaultDecorator.enhancer
+        : options.deep === false ? referenceEnhancer : deepEnhancer;
+}
+var deepDecorator = createDecoratorForEnhancer(deepEnhancer);
+var shallowDecorator = createDecoratorForEnhancer(shallowEnhancer);
+var refDecorator = createDecoratorForEnhancer(referenceEnhancer);
+var refStructDecorator = createDecoratorForEnhancer(refStructEnhancer);
+/**
+ * Turns an object, array or function into a reactive structure.
+ * @param v the value which should become observable.
+ */
+function createObservable(v, arg2, arg3) {
+    // @observable someProp;
+    if (typeof arguments[1] === "string") {
+        return deepDecorator.apply(null, arguments);
+    }
+    // it is an observable already, done
+    if (isObservable(v))
+        return v;
+    // something that can be converted and mutated?
+    var res = isPlainObject(v)
+        ? observable.object(v, arg2, arg3)
+        : Array.isArray(v) ? observable.array(v, arg2) : isES6Map(v) ? observable.map(v, arg2) : v;
+    // this value could be converted to a new observable data structure, return it
+    if (res !== v)
+        return res;
+    // otherwise, just box it
+    fail$1(true &&
+        "The provided value could not be converted into an observable. If you want just create an observable reference to the object use 'observable.box(value)'");
+}
+var observableFactories = {
+    box: function (value, options) {
+        if (arguments.length > 2)
+            incorrectlyUsedAsDecorator("box");
+        var o = asCreateObservableOptions(options);
+        return new ObservableValue(value, getEnhancerFromOptions(o), o.name);
+    },
+    shallowBox: function (value, name) {
+        if (arguments.length > 2)
+            incorrectlyUsedAsDecorator("shallowBox");
+        deprecated("observable.shallowBox", "observable.box(value, { deep: false })");
+        return observable.box(value, { name: name, deep: false });
+    },
+    array: function (initialValues, options) {
+        if (arguments.length > 2)
+            incorrectlyUsedAsDecorator("array");
+        var o = asCreateObservableOptions(options);
+        return new ObservableArray(initialValues, getEnhancerFromOptions(o), o.name);
+    },
+    shallowArray: function (initialValues, name) {
+        if (arguments.length > 2)
+            incorrectlyUsedAsDecorator("shallowArray");
+        deprecated("observable.shallowArray", "observable.array(values, { deep: false })");
+        return observable.array(initialValues, { name: name, deep: false });
+    },
+    map: function (initialValues, options) {
+        if (arguments.length > 2)
+            incorrectlyUsedAsDecorator("map");
+        var o = asCreateObservableOptions(options);
+        return new ObservableMap(initialValues, getEnhancerFromOptions(o), o.name);
+    },
+    shallowMap: function (initialValues, name) {
+        if (arguments.length > 2)
+            incorrectlyUsedAsDecorator("shallowMap");
+        deprecated("observable.shallowMap", "observable.map(values, { deep: false })");
+        return observable.map(initialValues, { name: name, deep: false });
+    },
+    object: function (props, decorators, options) {
+        if (typeof arguments[1] === "string")
+            incorrectlyUsedAsDecorator("object");
+        var o = asCreateObservableOptions(options);
+        return extendObservable({}, props, decorators, o);
+    },
+    shallowObject: function (props, name) {
+        if (typeof arguments[1] === "string")
+            incorrectlyUsedAsDecorator("shallowObject");
+        deprecated("observable.shallowObject", "observable.object(values, {}, { deep: false })");
+        return observable.object(props, {}, { name: name, deep: false });
+    },
+    ref: refDecorator,
+    shallow: shallowDecorator,
+    deep: deepDecorator,
+    struct: refStructDecorator
+};
+var observable = createObservable;
+// weird trick to keep our typings nicely with our funcs, and still extend the observable function
+Object.keys(observableFactories).forEach(function (name) { return (observable[name] = observableFactories[name]); });
+function incorrectlyUsedAsDecorator(methodName) {
+    fail$1(
+    // true &&
+    "Expected one or two arguments to observable." + methodName + ". Did you accidentally try to use observable." + methodName + " as decorator?");
+}
+
+function deepEnhancer(v, _, name) {
+    // it is an observable already, done
+    if (isObservable(v))
+        return v;
+    // something that can be converted and mutated?
+    if (Array.isArray(v))
+        return observable.array(v, { name: name });
+    if (isPlainObject(v))
+        return observable.object(v, undefined, { name: name });
+    if (isES6Map(v))
+        return observable.map(v, { name: name });
+    return v;
+}
+function shallowEnhancer(v, _, name) {
+    if (v === undefined || v === null)
+        return v;
+    if (isObservableObject(v) || isObservableArray(v) || isObservableMap(v))
+        return v;
+    if (Array.isArray(v))
+        return observable.array(v, { name: name, deep: false });
+    if (isPlainObject(v))
+        return observable.object(v, undefined, { name: name, deep: false });
+    if (isES6Map(v))
+        return observable.map(v, { name: name, deep: false });
+    return fail$1(true &&
+        "The shallow modifier / decorator can only used in combination with arrays, objects and maps");
+}
+function referenceEnhancer(newValue) {
+    // never turn into an observable
+    return newValue;
+}
+function refStructEnhancer(v, oldValue, name) {
+    if (true && isObservable(v))
+        throw "observable.struct should not be used with observable values";
+    if (deepEqual(v, oldValue))
+        return oldValue;
+    return v;
+}
+
+function iteratorSymbol() {
+    return (typeof Symbol === "function" && Symbol.iterator) || "@@iterator";
+}
+
+function declareIterator(prototType, iteratorFactory) {
+    addHiddenFinalProp(prototType, iteratorSymbol(), iteratorFactory);
+}
+function makeIterable(iterator) {
+    iterator[iteratorSymbol()] = self$1;
+    return iterator;
+}
+function self$1() {
+    return this;
+}
+
+/**
+ * During a transaction no views are updated until the end of the transaction.
+ * The transaction will be run synchronously nonetheless.
+ *
+ * @param action a function that updates some reactive state
+ * @returns any value that was returned by the 'action' parameter.
+ */
+function transaction(action, thisArg) {
+    if (thisArg === void 0) { thisArg = undefined; }
+    startBatch();
+    try {
+        return action.apply(thisArg);
+    }
+    finally {
+        endBatch();
+    }
+}
+
+var ObservableMapMarker = {};
+var ObservableMap = /** @class */ (function () {
+    function ObservableMap(initialData, enhancer, name) {
+        if (enhancer === void 0) { enhancer = deepEnhancer; }
+        if (name === void 0) { name = "ObservableMap@" + getNextId(); }
+        this.enhancer = enhancer;
+        this.name = name;
+        this.$mobx = ObservableMapMarker;
+        this._keys = new ObservableArray(undefined, referenceEnhancer, this.name + ".keys()", true);
+        if (typeof Map !== "function") {
+            throw new Error("mobx.map requires Map polyfill for the current browser. Check babel-polyfill or core-js/es6/map.js");
+        }
+        this._data = new Map();
+        this._hasMap = new Map();
+        this.merge(initialData);
+    }
+    ObservableMap.prototype._has = function (key) {
+        return this._data.has(key);
+    };
+    ObservableMap.prototype.has = function (key) {
+        if (this._hasMap.has(key))
+            return this._hasMap.get(key).get();
+        return this._updateHasMapEntry(key, false).get();
+    };
+    ObservableMap.prototype.set = function (key, value) {
+        var hasKey = this._has(key);
+        if (hasInterceptors(this)) {
+            var change = interceptChange(this, {
+                type: hasKey ? "update" : "add",
+                object: this,
+                newValue: value,
+                name: key
+            });
+            if (!change)
+                return this;
+            value = change.newValue;
+        }
+        if (hasKey) {
+            this._updateValue(key, value);
+        }
+        else {
+            this._addValue(key, value);
+        }
+        return this;
+    };
+    ObservableMap.prototype.delete = function (key) {
+        var _this = this;
+        if (hasInterceptors(this)) {
+            var change = interceptChange(this, {
+                type: "delete",
+                object: this,
+                name: key
+            });
+            if (!change)
+                return false;
+        }
+        if (this._has(key)) {
+            var notifySpy = isSpyEnabled();
+            var notify = hasListeners(this);
+            var change = notify || notifySpy
+                ? {
+                    type: "delete",
+                    object: this,
+                    oldValue: this._data.get(key).value,
+                    name: key
+                }
+                : null;
+            if (notifySpy)
+                spyReportStart(__assign({}, change, { name: this.name, key: key }));
+            transaction(function () {
+                _this._keys.remove(key);
+                _this._updateHasMapEntry(key, false);
+                var observable = _this._data.get(key);
+                observable.setNewValue(undefined);
+                _this._data.delete(key);
+            });
+            if (notify)
+                notifyListeners(this, change);
+            if (notifySpy)
+                spyReportEnd();
+            return true;
+        }
+        return false;
+    };
+    ObservableMap.prototype._updateHasMapEntry = function (key, value) {
+        // optimization; don't fill the hasMap if we are not observing, or remove entry if there are no observers anymore
+        var entry = this._hasMap.get(key);
+        if (entry) {
+            entry.setNewValue(value);
+        }
+        else {
+            entry = new ObservableValue(value, referenceEnhancer, this.name + "." + key + "?", false);
+            this._hasMap.set(key, entry);
+        }
+        return entry;
+    };
+    ObservableMap.prototype._updateValue = function (key, newValue) {
+        var observable = this._data.get(key);
+        newValue = observable.prepareNewValue(newValue);
+        if (newValue !== UNCHANGED) {
+            var notifySpy = isSpyEnabled();
+            var notify = hasListeners(this);
+            var change = notify || notifySpy
+                ? {
+                    type: "update",
+                    object: this,
+                    oldValue: observable.value,
+                    name: key,
+                    newValue: newValue
+                }
+                : null;
+            if (notifySpy)
+                spyReportStart(__assign({}, change, { name: this.name, key: key }));
+            observable.setNewValue(newValue);
+            if (notify)
+                notifyListeners(this, change);
+            if (notifySpy)
+                spyReportEnd();
+        }
+    };
+    ObservableMap.prototype._addValue = function (key, newValue) {
+        var _this = this;
+        transaction(function () {
+            var observable = new ObservableValue(newValue, _this.enhancer, _this.name + "." + key, false);
+            _this._data.set(key, observable);
+            newValue = observable.value; // value might have been changed
+            _this._updateHasMapEntry(key, true);
+            _this._keys.push(key);
+        });
+        var notifySpy = isSpyEnabled();
+        var notify = hasListeners(this);
+        var change = notify || notifySpy
+            ? {
+                type: "add",
+                object: this,
+                name: key,
+                newValue: newValue
+            }
+            : null;
+        if (notifySpy)
+            spyReportStart(__assign({}, change, { name: this.name, key: key }));
+        if (notify)
+            notifyListeners(this, change);
+        if (notifySpy)
+            spyReportEnd();
+    };
+    ObservableMap.prototype.get = function (key) {
+        if (this.has(key))
+            return this.dehanceValue(this._data.get(key).get());
+        return this.dehanceValue(undefined);
+    };
+    ObservableMap.prototype.dehanceValue = function (value) {
+        if (this.dehancer !== undefined) {
+            return this.dehancer(value);
+        }
+        return value;
+    };
+    ObservableMap.prototype.keys = function () {
+        return this._keys[iteratorSymbol()]();
+    };
+    ObservableMap.prototype.values = function () {
+        var self = this;
+        var nextIndex = 0;
+        return makeIterable({
+            next: function () {
+                return nextIndex < self._keys.length
+                    ? { value: self.get(self._keys[nextIndex++]), done: false }
+                    : { value: undefined, done: true };
+            }
+        });
+    };
+    ObservableMap.prototype.entries = function () {
+        var self = this;
+        var nextIndex = 0;
+        return makeIterable({
+            next: function () {
+                if (nextIndex < self._keys.length) {
+                    var key = self._keys[nextIndex++];
+                    return {
+                        value: [key, self.get(key)],
+                        done: false
+                    };
+                }
+                return { done: true };
+            }
+        });
+    };
+    ObservableMap.prototype.forEach = function (callback, thisArg) {
+        var _this = this;
+        this._keys.forEach(function (key) { return callback.call(thisArg, _this.get(key), key, _this); });
+    };
+    /** Merge another object into this object, returns this. */
+    ObservableMap.prototype.merge = function (other) {
+        var _this = this;
+        if (isObservableMap(other)) {
+            other = other.toJS();
+        }
+        transaction(function () {
+            if (isPlainObject(other))
+                Object.keys(other).forEach(function (key) { return _this.set(key, other[key]); });
+            else if (Array.isArray(other))
+                other.forEach(function (_a) {
+                    var _b = __read(_a, 2), key = _b[0], value = _b[1];
+                    return _this.set(key, value);
+                });
+            else if (isES6Map(other))
+                other.forEach(function (value, key) { return _this.set(key, value); });
+            else if (other !== null && other !== undefined)
+                fail$1("Cannot initialize map from " + other);
+        });
+        return this;
+    };
+    ObservableMap.prototype.clear = function () {
+        var _this = this;
+        transaction(function () {
+            untracked(function () {
+                _this._keys.slice().forEach(function (key) { return _this.delete(key); });
+            });
+        });
+    };
+    ObservableMap.prototype.replace = function (values) {
+        var _this = this;
+        transaction(function () {
+            // grab all the keys that are present in the new map but not present in the current map
+            // and delete them from the map, then merge the new map
+            // this will cause reactions only on changed values
+            var newKeys = getMapLikeKeys(values);
+            var oldKeys = _this._keys;
+            var missingKeys = oldKeys.filter(function (k) { return newKeys.indexOf(k) === -1; });
+            missingKeys.forEach(function (k) { return _this.delete(k); });
+            _this.merge(values);
+        });
+        return this;
+    };
+    Object.defineProperty(ObservableMap.prototype, "size", {
+        get: function () {
+            return this._keys.length;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * Returns a plain object that represents this map.
+     * Note that all the keys being stringified.
+     * If there are duplicating keys after converting them to strings, behaviour is undetermined.
+     */
+    ObservableMap.prototype.toPOJO = function () {
+        var _this = this;
+        var res = {};
+        this._keys.forEach(function (key) { return (res["" + key] = _this.get(key)); });
+        return res;
+    };
+    /**
+     * Returns a shallow non observable object clone of this map.
+     * Note that the values migth still be observable. For a deep clone use mobx.toJS.
+     */
+    ObservableMap.prototype.toJS = function () {
+        var _this = this;
+        var res = new Map();
+        this._keys.forEach(function (key) { return res.set(key, _this.get(key)); });
+        return res;
+    };
+    ObservableMap.prototype.toJSON = function () {
+        // Used by JSON.stringify
+        return this.toPOJO();
+    };
+    ObservableMap.prototype.toString = function () {
+        var _this = this;
+        return (this.name +
+            "[{ " +
+            this._keys.map(function (key) { return key + ": " + ("" + _this.get(key)); }).join(", ") +
+            " }]");
+    };
+    /**
+     * Observes this object. Triggers for the events 'add', 'update' and 'delete'.
+     * See: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/observe
+     * for callback details
+     */
+    ObservableMap.prototype.observe = function (listener, fireImmediately) {
+        true &&
+            invariant(fireImmediately !== true, "`observe` doesn't support fireImmediately=true in combination with maps.");
+        return registerListener(this, listener);
+    };
+    ObservableMap.prototype.intercept = function (handler) {
+        return registerInterceptor(this, handler);
+    };
+    return ObservableMap;
+}());
+declareIterator(ObservableMap.prototype, function () {
+    return this.entries();
+});
+addHiddenFinalProp(ObservableMap.prototype, typeof Symbol !== "undefined" ? Symbol.toStringTag : "@@toStringTag", "Map");
+/* 'var' fixes small-build issue */
+var isObservableMap = createInstanceofPredicate("ObservableMap", ObservableMap);
+
+function getAtom(thing, property) {
+    if (typeof thing === "object" && thing !== null) {
+        if (isObservableArray(thing)) {
+            if (property !== undefined)
+                fail$1(true &&
+                    "It is not possible to get index atoms from arrays");
+            return thing.$mobx.atom;
+        }
+        if (isObservableMap(thing)) {
+            var anyThing = thing;
+            if (property === undefined)
+                return getAtom(anyThing._keys);
+            var observable = anyThing._data.get(property) || anyThing._hasMap.get(property);
+            if (!observable)
+                fail$1(true &&
+                    "the entry '" + property + "' does not exist in the observable map '" + getDebugName(thing) + "'");
+            return observable;
+        }
+        // Initializers run lazily when transpiling to babel, so make sure they are run...
+        initializeInstance(thing);
+        if (property && !thing.$mobx)
+            thing[property]; // See #1072
+        if (isObservableObject(thing)) {
+            if (!property)
+                return fail$1(true && "please specify a property");
+            var observable = thing.$mobx.values[property];
+            if (!observable)
+                fail$1(true &&
+                    "no observable property '" + property + "' found on the observable object '" + getDebugName(thing) + "'");
+            return observable;
+        }
+        if (isAtom(thing) || isComputedValue(thing) || isReaction(thing)) {
+            return thing;
+        }
+    }
+    else if (typeof thing === "function") {
+        if (isReaction(thing.$mobx)) {
+            // disposer function
+            return thing.$mobx;
+        }
+    }
+    return fail$1(true && "Cannot obtain atom from " + thing);
+}
+function getAdministration(thing, property) {
+    if (!thing)
+        fail$1("Expecting some object");
+    if (property !== undefined)
+        return getAdministration(getAtom(thing, property));
+    if (isAtom(thing) || isComputedValue(thing) || isReaction(thing))
+        return thing;
+    if (isObservableMap(thing))
+        return thing;
+    // Initializers run lazily when transpiling to babel, so make sure they are run...
+    initializeInstance(thing);
+    if (thing.$mobx)
+        return thing.$mobx;
+    fail$1(true && "Cannot obtain administration from " + thing);
+}
+function getDebugName(thing, property) {
+    var named;
+    if (property !== undefined)
+        named = getAtom(thing, property);
+    else if (isObservableObject(thing) || isObservableMap(thing))
+        named = getAdministration(thing);
+    else
+        named = getAtom(thing); // valid for arrays as well
+    return named.name;
+}
+
+/**
+ * Anything that can be used to _store_ state is an Atom in mobx. Atoms have two important jobs
+ *
+ * 1) detect when they are being _used_ and report this (using reportObserved). This allows mobx to make the connection between running functions and the data they used
+ * 2) they should notify mobx whenever they have _changed_. This way mobx can re-run any functions (derivations) that are using this atom.
+ */
+var Atom;
+var isAtom;
+function declareAtom() {
+    if (Atom)
+        return;
+    Atom = /** @class */ (function () {
+        /**
+         * Create a new atom. For debugging purposes it is recommended to give it a name.
+         * The onBecomeObserved and onBecomeUnobserved callbacks can be used for resource management.
+         */
+        function AtomImpl(name) {
+            if (name === void 0) { name = "Atom@" + getNextId(); }
+            this.name = name;
+            this.isPendingUnobservation = false; // for effective unobserving. BaseAtom has true, for extra optimization, so its onBecomeUnobserved never gets called, because it's not needed
+            this.isBeingObserved = false;
+            this.observers = [];
+            this.observersIndexes = {};
+            this.diffValue = 0;
+            this.lastAccessedBy = 0;
+            this.lowestObserverState = IDerivationState.NOT_TRACKING;
+        }
+        AtomImpl.prototype.onBecomeUnobserved = function () {
+            // noop
+        };
+        AtomImpl.prototype.onBecomeObserved = function () {
+            /* noop */
+        };
+        /**
+     * Invoke this method to notify mobx that your atom has been used somehow.
+     * Returns true if there is currently a reactive context.
+     */
+        AtomImpl.prototype.reportObserved = function () {
+            return reportObserved(this);
+        };
+        /**
+     * Invoke this method _after_ this method has changed to signal mobx that all its observers should invalidate.
+     */
+        AtomImpl.prototype.reportChanged = function () {
+            startBatch();
+            propagateChanged(this);
+            endBatch();
+        };
+        AtomImpl.prototype.toString = function () {
+            return this.name;
+        };
+        return AtomImpl;
+    }());
+    isAtom = createInstanceofPredicate("Atom", Atom);
+}
+
+var MAX_SPLICE_SIZE = 10000; // See e.g. https://github.com/mobxjs/mobx/issues/859
+// Detects bug in safari 9.1.1 (or iOS 9 safari mobile). See #364
+var safariPrototypeSetterInheritanceBug = (function () {
+    var v = false;
+    var p = {};
+    Object.defineProperty(p, "0", {
+        set: function () {
+            v = true;
+        }
+    });
+    Object.create(p)["0"] = 1;
+    return v === false;
+})();
+/**
+ * This array buffer contains two lists of properties, so that all arrays
+ * can recycle their property definitions, which significantly improves performance of creating
+ * properties on the fly.
+ */
+var OBSERVABLE_ARRAY_BUFFER_SIZE = 0;
+// Typescript workaround to make sure ObservableArray extends Array
+var StubArray = /** @class */ (function () {
+    function StubArray() {
+    }
+    return StubArray;
+}());
+function inherit(ctor, proto) {
+    if (typeof Object["setPrototypeOf"] !== "undefined") {
+        Object["setPrototypeOf"](ctor.prototype, proto);
+    }
+    else if (typeof ctor.prototype.__proto__ !== "undefined") {
+        ctor.prototype.__proto__ = proto;
+    }
+    else {
+        ctor["prototype"] = proto;
+    }
+}
+inherit(StubArray, Array.prototype);
+// Weex freeze Array.prototype
+// Make them writeable and configurable in prototype chain
+// https://github.com/alibaba/weex/pull/1529
+if (Object.isFrozen(Array)) {
+    
+    [
+        "constructor",
+        "push",
+        "shift",
+        "concat",
+        "pop",
+        "unshift",
+        "replace",
+        "find",
+        "findIndex",
+        "splice",
+        "reverse",
+        "sort"
+    ].forEach(function (key) {
+        Object.defineProperty(StubArray.prototype, key, {
+            configurable: true,
+            writable: true,
+            value: Array.prototype[key]
+        });
+    });
+}
+var ObservableArrayAdministration = /** @class */ (function () {
+    function ObservableArrayAdministration(name, enhancer, array, owned) {
+        this.array = array;
+        this.owned = owned;
+        this.values = [];
+        this.lastKnownLength = 0;
+        this.atom = new Atom(name || "ObservableArray@" + getNextId());
+        this.enhancer = function (newV, oldV) { return enhancer(newV, oldV, name + "[..]"); };
+    }
+    ObservableArrayAdministration.prototype.dehanceValue = function (value) {
+        if (this.dehancer !== undefined)
+            return this.dehancer(value);
+        return value;
+    };
+    ObservableArrayAdministration.prototype.dehanceValues = function (values) {
+        if (this.dehancer !== undefined && this.values.length > 0)
+            return values.map(this.dehancer);
+        return values;
+    };
+    ObservableArrayAdministration.prototype.intercept = function (handler) {
+        return registerInterceptor(this, handler);
+    };
+    ObservableArrayAdministration.prototype.observe = function (listener, fireImmediately) {
+        if (fireImmediately === void 0) { fireImmediately = false; }
+        if (fireImmediately) {
+            listener({
+                object: this.array,
+                type: "splice",
+                index: 0,
+                added: this.values.slice(),
+                addedCount: this.values.length,
+                removed: [],
+                removedCount: 0
+            });
+        }
+        return registerListener(this, listener);
+    };
+    ObservableArrayAdministration.prototype.getArrayLength = function () {
+        this.atom.reportObserved();
+        return this.values.length;
+    };
+    ObservableArrayAdministration.prototype.setArrayLength = function (newLength) {
+        if (typeof newLength !== "number" || newLength < 0)
+            throw new Error("[mobx.array] Out of range: " + newLength);
+        var currentLength = this.values.length;
+        if (newLength === currentLength)
+            return;
+        else if (newLength > currentLength) {
+            var newItems = new Array(newLength - currentLength);
+            for (var i = 0; i < newLength - currentLength; i++)
+                newItems[i] = undefined; // No Array.fill everywhere...
+            this.spliceWithArray(currentLength, 0, newItems);
+        }
+        else
+            this.spliceWithArray(newLength, currentLength - newLength);
+    };
+    // adds / removes the necessary numeric properties to this object
+    ObservableArrayAdministration.prototype.updateArrayLength = function (oldLength, delta) {
+        if (oldLength !== this.lastKnownLength)
+            throw new Error("[mobx] Modification exception: the internal structure of an observable array was changed. Did you use peek() to change it?");
+        this.lastKnownLength += delta;
+        if (delta > 0 && oldLength + delta + 1 > OBSERVABLE_ARRAY_BUFFER_SIZE)
+            reserveArrayBuffer(oldLength + delta + 1);
+    };
+    ObservableArrayAdministration.prototype.spliceWithArray = function (index, deleteCount, newItems) {
+        var _this = this;
+        checkIfStateModificationsAreAllowed(this.atom);
+        var length = this.values.length;
+        if (index === undefined)
+            index = 0;
+        else if (index > length)
+            index = length;
+        else if (index < 0)
+            index = Math.max(0, length + index);
+        if (arguments.length === 1)
+            deleteCount = length - index;
+        else if (deleteCount === undefined || deleteCount === null)
+            deleteCount = 0;
+        else
+            deleteCount = Math.max(0, Math.min(deleteCount, length - index));
+        if (newItems === undefined)
+            newItems = EMPTY_ARRAY;
+        if (hasInterceptors(this)) {
+            var change = interceptChange(this, {
+                object: this.array,
+                type: "splice",
+                index: index,
+                removedCount: deleteCount,
+                added: newItems
+            });
+            if (!change)
+                return EMPTY_ARRAY;
+            deleteCount = change.removedCount;
+            newItems = change.added;
+        }
+        newItems =
+            newItems.length === 0 ? newItems : newItems.map(function (v) { return _this.enhancer(v, undefined); });
+        var lengthDelta = newItems.length - deleteCount;
+        this.updateArrayLength(length, lengthDelta); // create or remove new entries
+        var res = this.spliceItemsIntoValues(index, deleteCount, newItems);
+        if (deleteCount !== 0 || newItems.length !== 0)
+            this.notifyArraySplice(index, newItems, res);
+        return this.dehanceValues(res);
+    };
+    ObservableArrayAdministration.prototype.spliceItemsIntoValues = function (index, deleteCount, newItems) {
+        if (newItems.length < MAX_SPLICE_SIZE) {
+            return (_a = this.values).splice.apply(_a, __spread([index, deleteCount], newItems));
+        }
+        else {
+            var res = this.values.slice(index, index + deleteCount);
+            this.values = this.values
+                .slice(0, index)
+                .concat(newItems, this.values.slice(index + deleteCount));
+            return res;
+        }
+        var _a;
+    };
+    ObservableArrayAdministration.prototype.notifyArrayChildUpdate = function (index, newValue, oldValue) {
+        var notifySpy = !this.owned && isSpyEnabled();
+        var notify = hasListeners(this);
+        var change = notify || notifySpy
+            ? {
+                object: this.array,
+                type: "update",
+                index: index,
+                newValue: newValue,
+                oldValue: oldValue
+            }
+            : null;
+        if (notifySpy)
+            spyReportStart(__assign({}, change, { name: this.atom.name }));
+        this.atom.reportChanged();
+        if (notify)
+            notifyListeners(this, change);
+        if (notifySpy)
+            spyReportEnd();
+    };
+    ObservableArrayAdministration.prototype.notifyArraySplice = function (index, added, removed) {
+        var notifySpy = !this.owned && isSpyEnabled();
+        var notify = hasListeners(this);
+        var change = notify || notifySpy
+            ? {
+                object: this.array,
+                type: "splice",
+                index: index,
+                removed: removed,
+                added: added,
+                removedCount: removed.length,
+                addedCount: added.length
+            }
+            : null;
+        if (notifySpy)
+            spyReportStart(__assign({}, change, { name: this.atom.name }));
+        this.atom.reportChanged();
+        // conform: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/observe
+        if (notify)
+            notifyListeners(this, change);
+        if (notifySpy)
+            spyReportEnd();
+    };
+    return ObservableArrayAdministration;
+}());
+var ObservableArray = /** @class */ (function (_super) {
+    __extends(ObservableArray, _super);
+    function ObservableArray(initialValues, enhancer, name, owned) {
+        if (name === void 0) { name = "ObservableArray@" + getNextId(); }
+        if (owned === void 0) { owned = false; }
+        var _this = _super.call(this) || this;
+        var adm = new ObservableArrayAdministration(name, enhancer, _this, owned);
+        addHiddenFinalProp(_this, "$mobx", adm);
+        if (initialValues && initialValues.length) {
+            _this.spliceWithArray(0, 0, initialValues);
+        }
+        if (safariPrototypeSetterInheritanceBug) {
+            // Seems that Safari won't use numeric prototype setter untill any * numeric property is
+            // defined on the instance. After that it works fine, even if this property is deleted.
+            Object.defineProperty(adm.array, "0", ENTRY_0);
+        }
+        return _this;
+    }
+    ObservableArray.prototype.intercept = function (handler) {
+        return this.$mobx.intercept(handler);
+    };
+    ObservableArray.prototype.observe = function (listener, fireImmediately) {
+        if (fireImmediately === void 0) { fireImmediately = false; }
+        return this.$mobx.observe(listener, fireImmediately);
+    };
+    ObservableArray.prototype.clear = function () {
+        return this.splice(0);
+    };
+    ObservableArray.prototype.concat = function () {
+        var arrays = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            arrays[_i] = arguments[_i];
+        }
+        this.$mobx.atom.reportObserved();
+        return Array.prototype.concat.apply(this.peek(), arrays.map(function (a) { return (isObservableArray(a) ? a.peek() : a); }));
+    };
+    ObservableArray.prototype.replace = function (newItems) {
+        return this.$mobx.spliceWithArray(0, this.$mobx.values.length, newItems);
+    };
+    /**
+     * Converts this array back to a (shallow) javascript structure.
+     * For a deep clone use mobx.toJS
+     */
+    ObservableArray.prototype.toJS = function () {
+        return this.slice();
+    };
+    ObservableArray.prototype.toJSON = function () {
+        // Used by JSON.stringify
+        return this.toJS();
+    };
+    ObservableArray.prototype.peek = function () {
+        this.$mobx.atom.reportObserved();
+        return this.$mobx.dehanceValues(this.$mobx.values);
+    };
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find
+    ObservableArray.prototype.find = function (predicate, thisArg, fromIndex) {
+        if (fromIndex === void 0) { fromIndex = 0; }
+        if (arguments.length === 3)
+            deprecated("The array.find fromIndex argument to find will not be supported anymore in the next major");
+        var idx = this.findIndex.apply(this, arguments);
+        return idx === -1 ? undefined : this.get(idx);
+    };
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex
+    ObservableArray.prototype.findIndex = function (predicate, thisArg, fromIndex) {
+        if (fromIndex === void 0) { fromIndex = 0; }
+        if (arguments.length === 3)
+            deprecated("The array.findIndex fromIndex argument to find will not be supported anymore in the next major");
+        var items = this.peek(), l = items.length;
+        for (var i = fromIndex; i < l; i++)
+            if (predicate.call(thisArg, items[i], i, this))
+                return i;
+        return -1;
+    };
+    /*
+     * functions that do alter the internal structure of the array, (based on lib.es6.d.ts)
+     * since these functions alter the inner structure of the array, the have side effects.
+     * Because the have side effects, they should not be used in computed function,
+     * and for that reason the do not call dependencyState.notifyObserved
+     */
+    ObservableArray.prototype.splice = function (index, deleteCount) {
+        var newItems = [];
+        for (var _i = 2; _i < arguments.length; _i++) {
+            newItems[_i - 2] = arguments[_i];
+        }
+        switch (arguments.length) {
+            case 0:
+                return [];
+            case 1:
+                return this.$mobx.spliceWithArray(index);
+            case 2:
+                return this.$mobx.spliceWithArray(index, deleteCount);
+        }
+        return this.$mobx.spliceWithArray(index, deleteCount, newItems);
+    };
+    ObservableArray.prototype.spliceWithArray = function (index, deleteCount, newItems) {
+        return this.$mobx.spliceWithArray(index, deleteCount, newItems);
+    };
+    ObservableArray.prototype.push = function () {
+        var items = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            items[_i] = arguments[_i];
+        }
+        var adm = this.$mobx;
+        adm.spliceWithArray(adm.values.length, 0, items);
+        return adm.values.length;
+    };
+    ObservableArray.prototype.pop = function () {
+        return this.splice(Math.max(this.$mobx.values.length - 1, 0), 1)[0];
+    };
+    ObservableArray.prototype.shift = function () {
+        return this.splice(0, 1)[0];
+    };
+    ObservableArray.prototype.unshift = function () {
+        var items = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            items[_i] = arguments[_i];
+        }
+        var adm = this.$mobx;
+        adm.spliceWithArray(0, 0, items);
+        return adm.values.length;
+    };
+    ObservableArray.prototype.reverse = function () {
+        // reverse by default mutates in place before returning the result
+        // which makes it both a 'derivation' and a 'mutation'.
+        // so we deviate from the default and just make it an dervitation
+        var clone = this.slice();
+        return clone.reverse.apply(clone, arguments);
+    };
+    ObservableArray.prototype.sort = function (compareFn) {
+        // sort by default mutates in place before returning the result
+        // which goes against all good practices. Let's not change the array in place!
+        var clone = this.slice();
+        return clone.sort.apply(clone, arguments);
+    };
+    ObservableArray.prototype.remove = function (value) {
+        var idx = this.$mobx.dehanceValues(this.$mobx.values).indexOf(value);
+        if (idx > -1) {
+            this.splice(idx, 1);
+            return true;
+        }
+        return false;
+    };
+    ObservableArray.prototype.move = function (fromIndex, toIndex) {
+        deprecated("observableArray.move is deprecated, use .slice() & .replace() instead");
+        function checkIndex(index) {
+            if (index < 0) {
+                throw new Error("[mobx.array] Index out of bounds: " + index + " is negative");
+            }
+            var length = this.$mobx.values.length;
+            if (index >= length) {
+                throw new Error("[mobx.array] Index out of bounds: " + index + " is not smaller than " + length);
+            }
+        }
+        checkIndex.call(this, fromIndex);
+        checkIndex.call(this, toIndex);
+        if (fromIndex === toIndex) {
+            return;
+        }
+        var oldItems = this.$mobx.values;
+        var newItems;
+        if (fromIndex < toIndex) {
+            newItems = __spread(oldItems.slice(0, fromIndex), oldItems.slice(fromIndex + 1, toIndex + 1), [
+                oldItems[fromIndex]
+            ], oldItems.slice(toIndex + 1));
+        }
+        else {
+            // toIndex < fromIndex
+            newItems = __spread(oldItems.slice(0, toIndex), [
+                oldItems[fromIndex]
+            ], oldItems.slice(toIndex, fromIndex), oldItems.slice(fromIndex + 1));
+        }
+        this.replace(newItems);
+    };
+    // See #734, in case property accessors are unreliable...
+    ObservableArray.prototype.get = function (index) {
+        var impl = this.$mobx;
+        if (impl) {
+            if (index < impl.values.length) {
+                impl.atom.reportObserved();
+                return impl.dehanceValue(impl.values[index]);
+            }
+            console.warn("[mobx.array] Attempt to read an array index (" + index + ") that is out of bounds (" + impl
+                .values
+                .length + "). Please check length first. Out of bound indices will not be tracked by MobX");
+        }
+        return undefined;
+    };
+    // See #734, in case property accessors are unreliable...
+    ObservableArray.prototype.set = function (index, newValue) {
+        var adm = this.$mobx;
+        var values = adm.values;
+        if (index < values.length) {
+            // update at index in range
+            checkIfStateModificationsAreAllowed(adm.atom);
+            var oldValue = values[index];
+            if (hasInterceptors(adm)) {
+                var change = interceptChange(adm, {
+                    type: "update",
+                    object: this,
+                    index: index,
+                    newValue: newValue
+                });
+                if (!change)
+                    return;
+                newValue = change.newValue;
+            }
+            newValue = adm.enhancer(newValue, oldValue);
+            var changed = newValue !== oldValue;
+            if (changed) {
+                values[index] = newValue;
+                adm.notifyArrayChildUpdate(index, newValue, oldValue);
+            }
+        }
+        else if (index === values.length) {
+            // add a new item
+            adm.spliceWithArray(index, 0, [newValue]);
+        }
+        else {
+            // out of bounds
+            throw new Error("[mobx.array] Index out of bounds, " + index + " is larger than " + values.length);
+        }
+    };
+    return ObservableArray;
+}(StubArray));
+declareIterator(ObservableArray.prototype, function () {
+    
+    this.$mobx.atom.reportObserved();
+    var self = this;
+    var nextIndex = 0;
+    return makeIterable({
+        next: function () {
+            return nextIndex < self.length
+                ? { value: self[nextIndex++], done: false }
+                : { done: true, value: undefined };
+        }
+    });
+});
+Object.defineProperty(ObservableArray.prototype, "length", {
+    enumerable: false,
+    configurable: true,
+    get: function () {
+        return this.$mobx.getArrayLength();
+    },
+    set: function (newLength) {
+        this.$mobx.setArrayLength(newLength);
+    }
+});
+[
+    "every",
+    "filter",
+    "forEach",
+    "indexOf",
+    "join",
+    "lastIndexOf",
+    "map",
+    "reduce",
+    "reduceRight",
+    "slice",
+    "some",
+    "toString",
+    "toLocaleString"
+].forEach(function (funcName) {
+    var baseFunc = Array.prototype[funcName];
+    invariant(typeof baseFunc === "function", "Base function not defined on Array prototype: '" + funcName + "'");
+    addHiddenProp(ObservableArray.prototype, funcName, function () {
+        return baseFunc.apply(this.peek(), arguments);
+    });
+});
+/**
+ * We don't want those to show up in `for (const key in ar)` ...
+ */
+makeNonEnumerable(ObservableArray.prototype, [
+    "constructor",
+    "intercept",
+    "observe",
+    "clear",
+    "concat",
+    "get",
+    "replace",
+    "toJS",
+    "toJSON",
+    "peek",
+    "find",
+    "findIndex",
+    "splice",
+    "spliceWithArray",
+    "push",
+    "pop",
+    "set",
+    "shift",
+    "unshift",
+    "reverse",
+    "sort",
+    "remove",
+    "move",
+    "toString",
+    "toLocaleString"
+]);
+// See #364
+var ENTRY_0 = createArrayEntryDescriptor(0);
+function createArrayEntryDescriptor(index) {
+    return {
+        enumerable: false,
+        configurable: false,
+        get: function () {
+            return this.get(index);
+        },
+        set: function (value) {
+            this.set(index, value);
+        }
+    };
+}
+function createArrayBufferItem(index) {
+    Object.defineProperty(ObservableArray.prototype, "" + index, createArrayEntryDescriptor(index));
+}
+function reserveArrayBuffer(max) {
+    for (var index = OBSERVABLE_ARRAY_BUFFER_SIZE; index < max; index++)
+        createArrayBufferItem(index);
+    OBSERVABLE_ARRAY_BUFFER_SIZE = max;
+}
+reserveArrayBuffer(1000);
+var isObservableArrayAdministration = createInstanceofPredicate("ObservableArrayAdministration", ObservableArrayAdministration);
+function isObservableArray(thing) {
+    return isObject(thing) && isObservableArrayAdministration(thing.$mobx);
+}
+
+var OBFUSCATED_ERROR = "An invariant failed, however the error is obfuscated because this is an production build.";
+var EMPTY_ARRAY = [];
+Object.freeze(EMPTY_ARRAY);
+var EMPTY_OBJECT = {};
+Object.freeze(EMPTY_OBJECT);
+function getGlobal() {
+    return typeof window !== "undefined" ? window : global$1;
+}
+function getNextId() {
+    return ++globalState.mobxGuid;
+}
+function fail$1(message) {
+    invariant(false, message);
+    throw "X"; // unreachable
+}
+function invariant(check, message) {
+    if (!check)
+        throw new Error("[mobx] " + (message || OBFUSCATED_ERROR));
+}
+/**
+ * Prints a deprecation message, but only one time.
+ * Returns false if the deprecated message was already printed before
+ */
+var deprecatedMessages = [];
+function deprecated(msg, thing) {
+    if (thing) {
+        return deprecated("'" + msg + "', use '" + thing + "' instead.");
+    }
+    if (deprecatedMessages.indexOf(msg) !== -1)
+        return false;
+    deprecatedMessages.push(msg);
+    console.error("[mobx] Deprecated: " + msg);
+    return true;
+}
+/**
+ * Makes sure that the provided function is invoked at most once.
+ */
+function once$1(func) {
+    var invoked = false;
+    return function () {
+        if (invoked)
+            return;
+        invoked = true;
+        return func.apply(this, arguments);
+    };
+}
+function unique(list) {
+    var res = [];
+    list.forEach(function (item) {
+        if (res.indexOf(item) === -1)
+            res.push(item);
+    });
+    return res;
+}
+function isObject(value) {
+    return value !== null && typeof value === "object";
+}
+function isPlainObject(value) {
+    if (value === null || typeof value !== "object")
+        return false;
+    var proto = Object.getPrototypeOf(value);
+    return proto === Object.prototype || proto === null;
+}
+
+function makeNonEnumerable(object, propNames) {
+    for (var i = 0; i < propNames.length; i++) {
+        addHiddenProp(object, propNames[i], object[propNames[i]]);
+    }
+}
+function addHiddenProp(object, propName, value) {
+    Object.defineProperty(object, propName, {
+        enumerable: false,
+        writable: true,
+        configurable: true,
+        value: value
+    });
+}
+function addHiddenFinalProp(object, propName, value) {
+    Object.defineProperty(object, propName, {
+        enumerable: false,
+        writable: false,
+        configurable: true,
+        value: value
+    });
+}
+function isPropertyConfigurable(object, prop) {
+    var descriptor = Object.getOwnPropertyDescriptor(object, prop);
+    return !descriptor || (descriptor.configurable !== false && descriptor.writable !== false);
+}
+function assertPropertyConfigurable(object, prop) {
+    if (true && !isPropertyConfigurable(object, prop))
+        fail$1("Cannot make property '" + prop + "' observable, it is not configurable and writable in the target object");
+}
+function createInstanceofPredicate(name, clazz) {
+    var propName = "isMobX" + name;
+    clazz.prototype[propName] = true;
+    return function (x) {
+        return isObject(x) && x[propName] === true;
+    };
+}
+function areBothNaN(a, b) {
+    return typeof a === "number" && typeof b === "number" && isNaN(a) && isNaN(b);
+}
+function isES6Map(thing) {
+    if (getGlobal().Map !== undefined && thing instanceof getGlobal().Map)
+        return true;
+    return false;
+}
+function getMapLikeKeys(map) {
+    if (isPlainObject(map))
+        return Object.keys(map);
+    if (Array.isArray(map))
+        return map.map(function (_a) {
+            var _b = __read(_a, 1), key = _b[0];
+            return key;
+        });
+    if (isES6Map(map) || isObservableMap(map))
+        return iteratorToArray(map.keys());
+    return fail$1("Cannot get keys from '" + map + "'");
+}
+// use Array.from in Mobx 5
+function iteratorToArray(it) {
+    var res = [];
+    while (true) {
+        var r = it.next();
+        if (r.done)
+            break;
+        res.push(r.value);
+    }
+    return res;
+}
+function primitiveSymbol() {
+    return (typeof Symbol === "function" && Symbol.toPrimitive) || "@@toPrimitive";
+}
+function toPrimitive(value) {
+    return value === null ? null : typeof value === "object" ? "" + value : value;
+}
+var MobXGlobals = /** @class */ (function () {
+    function MobXGlobals() {
+        /**
+         * MobXGlobals version.
+         * MobX compatiblity with other versions loaded in memory as long as this version matches.
+         * It indicates that the global state still stores similar information
+         */
+        this.version = 5;
+        /**
+         * Currently running derivation
+         */
+        this.trackingDerivation = null;
+        /**
+         * Are we running a computation currently? (not a reaction)
+         */
+        this.computationDepth = 0;
+        /**
+         * Each time a derivation is tracked, it is assigned a unique run-id
+         */
+        this.runId = 0;
+        /**
+         * 'guid' for general purpose. Will be persisted amongst resets.
+         */
+        this.mobxGuid = 0;
+        /**
+         * Are we in a batch block? (and how many of them)
+         */
+        this.inBatch = 0;
+        /**
+         * Observables that don't have observers anymore, and are about to be
+         * suspended, unless somebody else accesses it in the same batch
+         *
+         * @type {IObservable[]}
+         */
+        this.pendingUnobservations = [];
+        /**
+         * List of scheduled, not yet executed, reactions.
+         */
+        this.pendingReactions = [];
+        /**
+         * Are we currently processing reactions?
+         */
+        this.isRunningReactions = false;
+        /**
+         * Is it allowed to change observables at this point?
+         * In general, MobX doesn't allow that when running computations and React.render.
+         * To ensure that those functions stay pure.
+         */
+        this.allowStateChanges = true;
+        /**
+         * If strict mode is enabled, state changes are by default not allowed
+         */
+        this.enforceActions = false;
+        /**
+         * Spy callbacks
+         */
+        this.spyListeners = [];
+        /**
+         * Globally attached error handlers that react specifically to errors in reactions
+         */
+        this.globalReactionErrorHandlers = [];
+        /**
+         * Warn if computed values are accessed outside a reactive context
+         */
+        this.computedRequiresReaction = false;
+        /*
+         * Don't catch and rethrow exceptions. This is useful for inspecting the state of
+         * the stack when an exception occurs while debugging.
+         */
+        this.disableErrorBoundaries = false;
+    }
+    return MobXGlobals;
+}());
+var globalState = new MobXGlobals();
+var runInIsolationCalled = false;
+{
+    var global_1 = getGlobal();
+    if (!global_1.__mobxInstanceCount) {
+        global_1.__mobxInstanceCount = 1;
+    }
+    else {
+        global_1.__mobxInstanceCount++;
+        setTimeout(function () {
+            if (!runInIsolationCalled) {
+                fail$1(true &&
+                    "There are multiple mobx instances active. This might lead to unexpected results. See https://github.com/mobxjs/mobx/issues/1082 for details.");
+            }
+        }, 1);
+    }
+}
+
+function getDependencyTree(thing, property) {
+    return nodeToDependencyTree(getAtom(thing, property));
+}
+function nodeToDependencyTree(node) {
+    var result = {
+        name: node.name
+    };
+    if (node.observing && node.observing.length > 0)
+        result.dependencies = unique(node.observing).map(nodeToDependencyTree);
+    return result;
+}
+// function invariantObservers(observable: IObservable) {
+//     const list = observable.observers
+//     const map = observable.observersIndexes
+//     const l = list.length
+//     for (let i = 0; i < l; i++) {
+//         const id = list[i].__mapid
+//         if (i) {
+//             invariant(map[id] === i, "INTERNAL ERROR maps derivation.__mapid to index in list") // for performance
+//         } else {
+//             invariant(!(id in map), "INTERNAL ERROR observer on index 0 shouldn't be held in map.") // for performance
+//         }
+//     }
+//     invariant(
+//         list.length === 0 || Object.keys(map).length === list.length - 1,
+//         "INTERNAL ERROR there is no junk in map"
+//     )
+// }
+function addObserver(observable, node) {
+    // invariant(node.dependenciesState !== -1, "INTERNAL ERROR, can add only dependenciesState !== -1");
+    // invariant(observable._observers.indexOf(node) === -1, "INTERNAL ERROR add already added node");
+    // invariantObservers(observable);
+    var l = observable.observers.length;
+    if (l) {
+        // because object assignment is relatively expensive, let's not store data about index 0.
+        observable.observersIndexes[node.__mapid] = l;
+    }
+    observable.observers[l] = node;
+    if (observable.lowestObserverState > node.dependenciesState)
+        observable.lowestObserverState = node.dependenciesState;
+    // invariantObservers(observable);
+    // invariant(observable._observers.indexOf(node) !== -1, "INTERNAL ERROR didn't add node");
+}
+function removeObserver(observable, node) {
+    // invariant(globalState.inBatch > 0, "INTERNAL ERROR, remove should be called only inside batch");
+    // invariant(observable._observers.indexOf(node) !== -1, "INTERNAL ERROR remove already removed node");
+    // invariantObservers(observable);
+    if (observable.observers.length === 1) {
+        // deleting last observer
+        observable.observers.length = 0;
+        queueForUnobservation(observable);
+    }
+    else {
+        // deleting from _observersIndexes is straight forward, to delete from _observers, let's swap `node` with last element
+        var list = observable.observers;
+        var map = observable.observersIndexes;
+        var filler = list.pop(); // get last element, which should fill the place of `node`, so the array doesn't have holes
+        if (filler !== node) {
+            // otherwise node was the last element, which already got removed from array
+            var index = map[node.__mapid] || 0; // getting index of `node`. this is the only place we actually use map.
+            if (index) {
+                // map store all indexes but 0, see comment in `addObserver`
+                map[filler.__mapid] = index;
+            }
+            else {
+                delete map[filler.__mapid];
+            }
+            list[index] = filler;
+        }
+        delete map[node.__mapid];
+    }
+    // invariantObservers(observable);
+    // invariant(observable._observers.indexOf(node) === -1, "INTERNAL ERROR remove already removed node2");
+}
+function queueForUnobservation(observable) {
+    if (observable.isPendingUnobservation === false) {
+        // invariant(observable._observers.length === 0, "INTERNAL ERROR, should only queue for unobservation unobserved observables");
+        observable.isPendingUnobservation = true;
+        globalState.pendingUnobservations.push(observable);
+    }
+}
+/**
+ * Batch starts a transaction, at least for purposes of memoizing ComputedValues when nothing else does.
+ * During a batch `onBecomeUnobserved` will be called at most once per observable.
+ * Avoids unnecessary recalculations.
+ */
+function startBatch() {
+    globalState.inBatch++;
+}
+function endBatch() {
+    if (--globalState.inBatch === 0) {
+        runReactions();
+        // the batch is actually about to finish, all unobserving should happen here.
+        var list = globalState.pendingUnobservations;
+        for (var i = 0; i < list.length; i++) {
+            var observable = list[i];
+            observable.isPendingUnobservation = false;
+            if (observable.observers.length === 0) {
+                if (observable.isBeingObserved) {
+                    // if this observable had reactive observers, trigger the hooks
+                    observable.isBeingObserved = false;
+                    observable.onBecomeUnobserved();
+                }
+                if (observable instanceof ComputedValue) {
+                    // computed values are automatically teared down when the last observer leaves
+                    // this process happens recursively, this computed might be the last observabe of another, etc..
+                    observable.suspend();
+                }
+            }
+        }
+        globalState.pendingUnobservations = [];
+    }
+}
+function reportObserved(observable) {
+    var derivation = globalState.trackingDerivation;
+    if (derivation !== null) {
+        /**
+         * Simple optimization, give each derivation run an unique id (runId)
+         * Check if last time this observable was accessed the same runId is used
+         * if this is the case, the relation is already known
+         */
+        if (derivation.runId !== observable.lastAccessedBy) {
+            observable.lastAccessedBy = derivation.runId;
+            derivation.newObserving[derivation.unboundDepsCount++] = observable;
+            if (!observable.isBeingObserved) {
+                observable.isBeingObserved = true;
+                observable.onBecomeObserved();
+            }
+        }
+        return true;
+    }
+    else if (observable.observers.length === 0 && globalState.inBatch > 0) {
+        queueForUnobservation(observable);
+    }
+    return false;
+}
+// function invariantLOS(observable: IObservable, msg: string) {
+//     // it's expensive so better not run it in produciton. but temporarily helpful for testing
+//     const min = getObservers(observable).reduce((a, b) => Math.min(a, b.dependenciesState), 2)
+//     if (min >= observable.lowestObserverState) return // <- the only assumption about `lowestObserverState`
+//     throw new Error(
+//         "lowestObserverState is wrong for " +
+//             msg +
+//             " because " +
+//             min +
+//             " < " +
+//             observable.lowestObserverState
+//     )
+// }
+/**
+ * NOTE: current propagation mechanism will in case of self reruning autoruns behave unexpectedly
+ * It will propagate changes to observers from previous run
+ * It's hard or maybe impossible (with reasonable perf) to get it right with current approach
+ * Hopefully self reruning autoruns aren't a feature people should depend on
+ * Also most basic use cases should be ok
+ */
+// Called by Atom when its value changes
+function propagateChanged(observable) {
+    // invariantLOS(observable, "changed start");
+    if (observable.lowestObserverState === IDerivationState.STALE)
+        return;
+    observable.lowestObserverState = IDerivationState.STALE;
+    var observers = observable.observers;
+    var i = observers.length;
+    while (i--) {
+        var d = observers[i];
+        if (d.dependenciesState === IDerivationState.UP_TO_DATE) {
+            if (d.isTracing !== TraceMode.NONE) {
+                logTraceInfo(d, observable);
+            }
+            d.onBecomeStale();
+        }
+        d.dependenciesState = IDerivationState.STALE;
+    }
+    // invariantLOS(observable, "changed end");
+}
+// Called by ComputedValue when it recalculate and its value changed
+function propagateChangeConfirmed(observable) {
+    // invariantLOS(observable, "confirmed start");
+    if (observable.lowestObserverState === IDerivationState.STALE)
+        return;
+    observable.lowestObserverState = IDerivationState.STALE;
+    var observers = observable.observers;
+    var i = observers.length;
+    while (i--) {
+        var d = observers[i];
+        if (d.dependenciesState === IDerivationState.POSSIBLY_STALE)
+            d.dependenciesState = IDerivationState.STALE;
+        else if (d.dependenciesState === IDerivationState.UP_TO_DATE // this happens during computing of `d`, just keep lowestObserverState up to date.
+        )
+            observable.lowestObserverState = IDerivationState.UP_TO_DATE;
+    }
+    // invariantLOS(observable, "confirmed end");
+}
+// Used by computed when its dependency changed, but we don't wan't to immediately recompute.
+function propagateMaybeChanged(observable) {
+    // invariantLOS(observable, "maybe start");
+    if (observable.lowestObserverState !== IDerivationState.UP_TO_DATE)
+        return;
+    observable.lowestObserverState = IDerivationState.POSSIBLY_STALE;
+    var observers = observable.observers;
+    var i = observers.length;
+    while (i--) {
+        var d = observers[i];
+        if (d.dependenciesState === IDerivationState.UP_TO_DATE) {
+            d.dependenciesState = IDerivationState.POSSIBLY_STALE;
+            if (d.isTracing !== TraceMode.NONE) {
+                logTraceInfo(d, observable);
+            }
+            d.onBecomeStale();
+        }
+    }
+    // invariantLOS(observable, "maybe end");
+}
+function logTraceInfo(derivation, observable) {
+    console.log("[mobx.trace] '" + derivation.name + "' is invalidated due to a change in: '" + observable.name + "'");
+    if (derivation.isTracing === TraceMode.BREAK) {
+        var lines = [];
+        printDepTree(getDependencyTree(derivation), lines, 1);
+        // prettier-ignore
+        new Function("debugger;\n/*\nTracing '" + derivation.name + "'\n\nYou are entering this break point because derivation '" + derivation.name + "' is being traced and '" + observable.name + "' is now forcing it to update.\nJust follow the stacktrace you should now see in the devtools to see precisely what piece of your code is causing this update\nThe stackframe you are looking for is at least ~6-8 stack-frames up.\n\n" + (derivation instanceof ComputedValue ? derivation.derivation.toString() : "") + "\n\nThe dependencies for this derivation are:\n\n" + lines.join("\n") + "\n*/\n    ")();
+    }
+}
+function printDepTree(tree, lines, depth) {
+    if (lines.length >= 1000) {
+        lines.push("(and many more)");
+        return;
+    }
+    lines.push("" + new Array(depth).join("\t") + tree.name); // MWE: not the fastest, but the easiest way :)
+    if (tree.dependencies)
+        tree.dependencies.forEach(function (child) { return printDepTree(child, lines, depth + 1); });
+}
+
+var IDerivationState;
+(function (IDerivationState) {
+    // before being run or (outside batch and not being observed)
+    // at this point derivation is not holding any data about dependency tree
+    IDerivationState[IDerivationState["NOT_TRACKING"] = -1] = "NOT_TRACKING";
+    // no shallow dependency changed since last computation
+    // won't recalculate derivation
+    // this is what makes mobx fast
+    IDerivationState[IDerivationState["UP_TO_DATE"] = 0] = "UP_TO_DATE";
+    // some deep dependency changed, but don't know if shallow dependency changed
+    // will require to check first if UP_TO_DATE or POSSIBLY_STALE
+    // currently only ComputedValue will propagate POSSIBLY_STALE
+    //
+    // having this state is second big optimization:
+    // don't have to recompute on every dependency change, but only when it's needed
+    IDerivationState[IDerivationState["POSSIBLY_STALE"] = 1] = "POSSIBLY_STALE";
+    // A shallow dependency has changed since last computation and the derivation
+    // will need to recompute when it's needed next.
+    IDerivationState[IDerivationState["STALE"] = 2] = "STALE";
+})(IDerivationState || (IDerivationState = {}));
+var TraceMode;
+(function (TraceMode) {
+    TraceMode[TraceMode["NONE"] = 0] = "NONE";
+    TraceMode[TraceMode["LOG"] = 1] = "LOG";
+    TraceMode[TraceMode["BREAK"] = 2] = "BREAK";
+})(TraceMode || (TraceMode = {}));
+var CaughtException = /** @class */ (function () {
+    function CaughtException(cause) {
+        this.cause = cause;
+        // Empty
+    }
+    return CaughtException;
+}());
+function isCaughtException(e) {
+    return e instanceof CaughtException;
+}
+/**
+ * Finds out whether any dependency of the derivation has actually changed.
+ * If dependenciesState is 1 then it will recalculate dependencies,
+ * if any dependency changed it will propagate it by changing dependenciesState to 2.
+ *
+ * By iterating over the dependencies in the same order that they were reported and
+ * stopping on the first change, all the recalculations are only called for ComputedValues
+ * that will be tracked by derivation. That is because we assume that if the first x
+ * dependencies of the derivation doesn't change then the derivation should run the same way
+ * up until accessing x-th dependency.
+ */
+function shouldCompute(derivation) {
+    switch (derivation.dependenciesState) {
+        case IDerivationState.UP_TO_DATE:
+            return false;
+        case IDerivationState.NOT_TRACKING:
+        case IDerivationState.STALE:
+            return true;
+        case IDerivationState.POSSIBLY_STALE: {
+            var prevUntracked = untrackedStart(); // no need for those computeds to be reported, they will be picked up in trackDerivedFunction.
+            var obs = derivation.observing, l = obs.length;
+            for (var i = 0; i < l; i++) {
+                var obj = obs[i];
+                if (isComputedValue(obj)) {
+                    if (globalState.disableErrorBoundaries) {
+                        obj.get();
+                    }
+                    else {
+                        try {
+                            obj.get();
+                        }
+                        catch (e) {
+                            // we are not interested in the value *or* exception at this moment, but if there is one, notify all
+                            untrackedEnd(prevUntracked);
+                            return true;
+                        }
+                    }
+                    // if ComputedValue `obj` actually changed it will be computed and propagated to its observers.
+                    // and `derivation` is an observer of `obj`
+                    if (derivation.dependenciesState === IDerivationState.STALE) {
+                        untrackedEnd(prevUntracked);
+                        return true;
+                    }
+                }
+            }
+            changeDependenciesStateTo0(derivation);
+            untrackedEnd(prevUntracked);
+            return false;
+        }
+    }
+}
+function checkIfStateModificationsAreAllowed(atom) {
+    var hasObservers$$1 = atom.observers.length > 0;
+    // Should never be possible to change an observed observable from inside computed, see #798
+    if (globalState.computationDepth > 0 && hasObservers$$1)
+        fail$1(true &&
+            "Computed values are not allowed to cause side effects by changing observables that are already being observed. Tried to modify: " + atom.name);
+    // Should not be possible to change observed state outside strict mode, except during initialization, see #563
+    if (!globalState.allowStateChanges && hasObservers$$1)
+        fail$1(true &&
+            (globalState.enforceActions
+                ? "Since strict-mode is enabled, changing observed observable values outside actions is not allowed. Please wrap the code in an `action` if this change is intended. Tried to modify: "
+                : "Side effects like changing state are not allowed at this point. Are you trying to modify state from, for example, the render function of a React component? Tried to modify: ") +
+                atom.name);
+}
+/**
+ * Executes the provided function `f` and tracks which observables are being accessed.
+ * The tracking information is stored on the `derivation` object and the derivation is registered
+ * as observer of any of the accessed observables.
+ */
+function trackDerivedFunction(derivation, f, context) {
+    // pre allocate array allocation + room for variation in deps
+    // array will be trimmed by bindDependencies
+    changeDependenciesStateTo0(derivation);
+    derivation.newObserving = new Array(derivation.observing.length + 100);
+    derivation.unboundDepsCount = 0;
+    derivation.runId = ++globalState.runId;
+    var prevTracking = globalState.trackingDerivation;
+    globalState.trackingDerivation = derivation;
+    var result;
+    if (globalState.disableErrorBoundaries === true) {
+        result = f.call(context);
+    }
+    else {
+        try {
+            result = f.call(context);
+        }
+        catch (e) {
+            result = new CaughtException(e);
+        }
+    }
+    globalState.trackingDerivation = prevTracking;
+    bindDependencies(derivation);
+    return result;
+}
+/**
+ * diffs newObserving with observing.
+ * update observing to be newObserving with unique observables
+ * notify observers that become observed/unobserved
+ */
+function bindDependencies(derivation) {
+    // invariant(derivation.dependenciesState !== IDerivationState.NOT_TRACKING, "INTERNAL ERROR bindDependencies expects derivation.dependenciesState !== -1");
+    var prevObserving = derivation.observing;
+    var observing = (derivation.observing = derivation.newObserving);
+    var lowestNewObservingDerivationState = IDerivationState.UP_TO_DATE;
+    // Go through all new observables and check diffValue: (this list can contain duplicates):
+    //   0: first occurrence, change to 1 and keep it
+    //   1: extra occurrence, drop it
+    var i0 = 0, l = derivation.unboundDepsCount;
+    for (var i = 0; i < l; i++) {
+        var dep = observing[i];
+        if (dep.diffValue === 0) {
+            dep.diffValue = 1;
+            if (i0 !== i)
+                observing[i0] = dep;
+            i0++;
+        }
+        // Upcast is 'safe' here, because if dep is IObservable, `dependenciesState` will be undefined,
+        // not hitting the condition
+        if (dep.dependenciesState > lowestNewObservingDerivationState) {
+            lowestNewObservingDerivationState = dep.dependenciesState;
+        }
+    }
+    observing.length = i0;
+    derivation.newObserving = null; // newObserving shouldn't be needed outside tracking (statement moved down to work around FF bug, see #614)
+    // Go through all old observables and check diffValue: (it is unique after last bindDependencies)
+    //   0: it's not in new observables, unobserve it
+    //   1: it keeps being observed, don't want to notify it. change to 0
+    l = prevObserving.length;
+    while (l--) {
+        var dep = prevObserving[l];
+        if (dep.diffValue === 0) {
+            removeObserver(dep, derivation);
+        }
+        dep.diffValue = 0;
+    }
+    // Go through all new observables and check diffValue: (now it should be unique)
+    //   0: it was set to 0 in last loop. don't need to do anything.
+    //   1: it wasn't observed, let's observe it. set back to 0
+    while (i0--) {
+        var dep = observing[i0];
+        if (dep.diffValue === 1) {
+            dep.diffValue = 0;
+            addObserver(dep, derivation);
+        }
+    }
+    // Some new observed derivations may become stale during this derivation computation
+    // so they have had no chance to propagate staleness (#916)
+    if (lowestNewObservingDerivationState !== IDerivationState.UP_TO_DATE) {
+        derivation.dependenciesState = lowestNewObservingDerivationState;
+        derivation.onBecomeStale();
+    }
+}
+function clearObserving(derivation) {
+    // invariant(globalState.inBatch > 0, "INTERNAL ERROR clearObserving should be called only inside batch");
+    var obs = derivation.observing;
+    derivation.observing = [];
+    var i = obs.length;
+    while (i--)
+        removeObserver(obs[i], derivation);
+    derivation.dependenciesState = IDerivationState.NOT_TRACKING;
+}
+function untracked(action) {
+    var prev = untrackedStart();
+    var res = action();
+    untrackedEnd(prev);
+    return res;
+}
+function untrackedStart() {
+    var prev = globalState.trackingDerivation;
+    globalState.trackingDerivation = null;
+    return prev;
+}
+function untrackedEnd(prev) {
+    globalState.trackingDerivation = prev;
+}
+/**
+ * needed to keep `lowestObserverState` correct. when changing from (2 or 1) to 0
+ *
+ */
+function changeDependenciesStateTo0(derivation) {
+    if (derivation.dependenciesState === IDerivationState.UP_TO_DATE)
+        return;
+    derivation.dependenciesState = IDerivationState.UP_TO_DATE;
+    var obs = derivation.observing;
+    var i = obs.length;
+    while (i--)
+        obs[i].lowestObserverState = IDerivationState.UP_TO_DATE;
+}
+
+function trace() {
+    var args = [];
+    for (var _i = 0; _i < arguments.length; _i++) {
+        args[_i] = arguments[_i];
+    }
+    var enterBreakPoint = false;
+    if (typeof args[args.length - 1] === "boolean")
+        enterBreakPoint = args.pop();
+    var derivation = getAtomFromArgs(args);
+    if (!derivation) {
+        return fail$1(true &&
+            "'trace(break?)' can only be used inside a tracked computed value or a Reaction. Consider passing in the computed value or reaction explicitly");
+    }
+    if (derivation.isTracing === TraceMode.NONE) {
+        console.log("[mobx.trace] '" + derivation.name + "' tracing enabled");
+    }
+    derivation.isTracing = enterBreakPoint ? TraceMode.BREAK : TraceMode.LOG;
+}
+function getAtomFromArgs(args) {
+    switch (args.length) {
+        case 0:
+            return globalState.trackingDerivation;
+        case 1:
+            return getAtom(args[0]);
+        case 2:
+            return getAtom(args[0], args[1]);
+    }
+}
+
+var Reaction = /** @class */ (function () {
+    function Reaction(name, onInvalidate, errorHandler) {
+        if (name === void 0) { name = "Reaction@" + getNextId(); }
+        this.name = name;
+        this.onInvalidate = onInvalidate;
+        this.errorHandler = errorHandler;
+        this.observing = []; // nodes we are looking at. Our value depends on these nodes
+        this.newObserving = [];
+        this.dependenciesState = IDerivationState.NOT_TRACKING;
+        this.diffValue = 0;
+        this.runId = 0;
+        this.unboundDepsCount = 0;
+        this.__mapid = "#" + getNextId();
+        this.isDisposed = false;
+        this._isScheduled = false;
+        this._isTrackPending = false;
+        this._isRunning = false;
+        this.isTracing = TraceMode.NONE;
+    }
+    Reaction.prototype.onBecomeStale = function () {
+        this.schedule();
+    };
+    Reaction.prototype.schedule = function () {
+        if (!this._isScheduled) {
+            this._isScheduled = true;
+            globalState.pendingReactions.push(this);
+            runReactions();
+        }
+    };
+    Reaction.prototype.isScheduled = function () {
+        return this._isScheduled;
+    };
+    /**
+     * internal, use schedule() if you intend to kick off a reaction
+     */
+    Reaction.prototype.runReaction = function () {
+        if (!this.isDisposed) {
+            startBatch();
+            this._isScheduled = false;
+            if (shouldCompute(this)) {
+                this._isTrackPending = true;
+                this.onInvalidate();
+                if (this._isTrackPending && isSpyEnabled()) {
+                    // onInvalidate didn't trigger track right away..
+                    spyReport({
+                        name: this.name,
+                        type: "scheduled-reaction"
+                    });
+                }
+            }
+            endBatch();
+        }
+    };
+    Reaction.prototype.track = function (fn) {
+        startBatch();
+        var notify = isSpyEnabled();
+        var startTime;
+        if (notify) {
+            startTime = Date.now();
+            spyReportStart({
+                name: this.name,
+                type: "reaction"
+            });
+        }
+        this._isRunning = true;
+        var result = trackDerivedFunction(this, fn, undefined);
+        this._isRunning = false;
+        this._isTrackPending = false;
+        if (this.isDisposed) {
+            // disposed during last run. Clean up everything that was bound after the dispose call.
+            clearObserving(this);
+        }
+        if (isCaughtException(result))
+            this.reportExceptionInDerivation(result.cause);
+        if (notify) {
+            spyReportEnd({
+                time: Date.now() - startTime
+            });
+        }
+        endBatch();
+    };
+    Reaction.prototype.reportExceptionInDerivation = function (error) {
+        var _this = this;
+        if (this.errorHandler) {
+            this.errorHandler(error, this);
+            return;
+        }
+        var message = "[mobx] Encountered an uncaught exception that was thrown by a reaction or observer component, in: '" + this;
+        console.error(message, error);
+        /** If debugging brought you here, please, read the above message :-). Tnx! */
+        if (isSpyEnabled()) {
+            spyReport({
+                type: "error",
+                name: this.name,
+                message: message,
+                error: "" + error
+            });
+        }
+        globalState.globalReactionErrorHandlers.forEach(function (f) { return f(error, _this); });
+    };
+    Reaction.prototype.dispose = function () {
+        if (!this.isDisposed) {
+            this.isDisposed = true;
+            if (!this._isRunning) {
+                // if disposed while running, clean up later. Maybe not optimal, but rare case
+                startBatch();
+                clearObserving(this);
+                endBatch();
+            }
+        }
+    };
+    Reaction.prototype.getDisposer = function () {
+        var r = this.dispose.bind(this);
+        r.$mobx = this;
+        return r;
+    };
+    Reaction.prototype.toString = function () {
+        return "Reaction[" + this.name + "]";
+    };
+    Reaction.prototype.trace = function (enterBreakPoint) {
+        if (enterBreakPoint === void 0) { enterBreakPoint = false; }
+        trace(this, enterBreakPoint);
+    };
+    return Reaction;
+}());
+/**
+ * Magic number alert!
+ * Defines within how many times a reaction is allowed to re-trigger itself
+ * until it is assumed that this is gonna be a never ending loop...
+ */
+var MAX_REACTION_ITERATIONS = 100;
+var reactionScheduler = function (f) { return f(); };
+function runReactions() {
+    // Trampolining, if runReactions are already running, new reactions will be picked up
+    if (globalState.inBatch > 0 || globalState.isRunningReactions)
+        return;
+    reactionScheduler(runReactionsHelper);
+}
+function runReactionsHelper() {
+    globalState.isRunningReactions = true;
+    var allReactions = globalState.pendingReactions;
+    var iterations = 0;
+    // While running reactions, new reactions might be triggered.
+    // Hence we work with two variables and check whether
+    // we converge to no remaining reactions after a while.
+    while (allReactions.length > 0) {
+        if (++iterations === MAX_REACTION_ITERATIONS) {
+            console.error("Reaction doesn't converge to a stable state after " + MAX_REACTION_ITERATIONS + " iterations." +
+                (" Probably there is a cycle in the reactive function: " + allReactions[0]));
+            allReactions.splice(0); // clear reactions
+        }
+        var remainingReactions = allReactions.splice(0);
+        for (var i = 0, l = remainingReactions.length; i < l; i++)
+            remainingReactions[i].runReaction();
+    }
+    globalState.isRunningReactions = false;
+}
+var isReaction = createInstanceofPredicate("Reaction", Reaction);
+
+function keys(obj) {
+    if (isObservableObject(obj)) {
+        return obj.$mobx.getKeys();
+    }
+    if (isObservableMap(obj)) {
+        return obj._keys.slice();
+    }
+    return fail$1(true &&
+        "'keys()' can only be used on observable objects and maps");
+}
+
+var defaultOptions = {
+    detectCycles: true,
+    exportMapsAsObjects: true
+};
+function toJS(source, options, __alreadySeen) {
+    if (__alreadySeen === void 0) { __alreadySeen = []; }
+    // backward compatibility
+    if (typeof options === "boolean")
+        options = { detectCycles: options };
+    if (!options)
+        options = defaultOptions;
+    var detectCycles = options.detectCycles === true;
+    // optimization: using ES6 map would be more efficient!
+    // optimization: lift this function outside toJS, this makes recursion expensive
+    function cache(value) {
+        if (detectCycles)
+            __alreadySeen.push([source, value]);
+        return value;
+    }
+    if (isObservable(source)) {
+        if (detectCycles && __alreadySeen === null)
+            __alreadySeen = [];
+        if (detectCycles && source !== null && typeof source === "object") {
+            for (var i = 0, l = __alreadySeen.length; i < l; i++)
+                if (__alreadySeen[i][0] === source)
+                    return __alreadySeen[i][1];
+        }
+        if (isObservableArray(source)) {
+            var res = cache([]);
+            var toAdd = source.map(function (value) { return toJS(value, options, __alreadySeen); });
+            res.length = toAdd.length;
+            for (var i = 0, l = toAdd.length; i < l; i++)
+                res[i] = toAdd[i];
+            return res;
+        }
+        if (isObservableObject(source)) {
+            var res = cache({});
+            keys(source); // make sure we track the keys of the object
+            for (var key in source) {
+                res[key] = toJS(source[key], options, __alreadySeen);
+            }
+            return res;
+        }
+        if (isObservableMap(source)) {
+            if (options.exportMapsAsObjects === false) {
+                var res_1 = cache(new Map());
+                source.forEach(function (value, key) {
+                    res_1.set(key, toJS(value, options, __alreadySeen));
+                });
+                return res_1;
+            }
+            else {
+                var res_2 = cache({});
+                source.forEach(function (value, key) {
+                    res_2[key] = toJS(value, options, __alreadySeen);
+                });
+                return res_2;
+            }
+        }
+        if (isObservableValue(source))
+            return toJS(source.get(), options, __alreadySeen);
+    }
+    return source;
+}
+
+/**
+ * (c) Michel Weststrate 2015 - 2016
+ * MIT Licensed
+ *
+ * Welcome to the mobx sources! To get an global overview of how MobX internally works,
+ * this is a good place to start:
+ * https://medium.com/@mweststrate/becoming-fully-reactive-an-in-depth-explanation-of-mobservable-55995262a254#.xvbh6qd74
+ *
+ * Source folders:
+ * ===============
+ *
+ * - api/     Most of the public static methods exposed by the module can be found here.
+ * - core/    Implementation of the MobX algorithm; atoms, derivations, reactions, dependency trees, optimizations. Cool stuff can be found here.
+ * - types/   All the magic that is need to have observable objects, arrays and values is in this folder. Including the modifiers like `asFlat`.
+ * - utils/   Utility stuff.
+ *
+ */
+try {
+}
+catch (e) {
+    var g = typeof window !== "undefined" ? window : global$1;
+    if (typeof process === "undefined")
+        g.process = {};
+    g.process.env = {};
+}
+
+(function () {
+    function testCodeMinification() { }
+    if (testCodeMinification.name !== "testCodeMinification" &&
+        true) {
+        console.warn("[mobx] you are running a minified build, but 'process.env.NODE_ENV' was not set to 'production' in your bundler. This results in an unnecessarily large and slow bundle");
+    }
+})();
+// This line should come after all the imports as well, for the same reason
+// as noted above. I will file a bug with rollupjs - @rossipedia
+// Devtools support
+if (typeof __MOBX_DEVTOOLS_GLOBAL_HOOK__ === "object") {
+    // See: https://github.com/andykog/mobx-devtools/
+    __MOBX_DEVTOOLS_GLOBAL_HOOK__.injectMobx({
+        spy: spy,
+        extras: {
+            getDebugName: getDebugName
+        }
+    });
+}
+// TODO: remove in some future build
+if (true &&
+    typeof module !== "undefined" &&
+    typeof module.exports !== "undefined") {
+    var warnedAboutDefaultExport_1 = false;
+    Object.defineProperty(module.exports, "default", {
+        enumerable: false,
+        get: function () {
+            if (!warnedAboutDefaultExport_1) {
+                warnedAboutDefaultExport_1 = true;
+                console.warn("The MobX package does not have a default export. Use 'import { thing } from \"mobx\"' (recommended) or 'import * as mobx from \"mobx\"' instead.\"");
+            }
+            return undefined;
+        }
+    });
+    [
+        "extras",
+        "Atom",
+        "BaseAtom",
+        "ObservableMap",
+        "asFlat",
+        "asMap",
+        "asReference",
+        "asStructure",
+        "autorunAsync",
+        "createTranformer",
+        "expr",
+        "isModifierDescriptor",
+        "isStrictModeEnabled",
+        "map",
+        "useStrict",
+        "whyRun"
+    ].forEach(function (prop) {
+        Object.defineProperty(module.exports, prop, {
+            enumerable: false,
+            get: function () {
+                fail$1("'" + prop + "' is no longer part of the public MobX api. Please consult the changelog to find out where this functionality went");
+            },
+            set: function () { }
+        });
+    });
+}
+
+var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+// import { CoordinateType } from '../../utils/statics';
+class Store {
+    constructor() {
+        this.changeCoordinates = this.changeCoordinates.bind(this);
+        this.changeMapMode = this.changeMapMode.bind(this);
+        this.DEFAULT_VALUES = this.getDefaultValue();
+        this.state = this.DEFAULT_VALUES;
+        this.mapLayers = this.getDefaultMapLayers();
+        // this.coordinateSystemType = 'gps';
+        // this.distanceUnitType = 'km';
+    }
+    // @observable zoom: number;
+    // @computed get coordinateSystemType(): CoordinateSystemType {
+    //     return this.state.mapConfig.coordinateSystemType;
+    // }
+    // @computed get clusterHeat(): ClusterHeat {
+    //     return this.state.mapConfig.mode;
+    // }
+    /**
+     * Set state to our componrnt
+     * @param _state
+     */
+    initState(_state) {
+        this.state = lodash.cloneDeep(_state);
+    }
+    /**
+     * User update props to our component
+     * @param _state
+     */
+    updateState(_state) {
+        this.state = lodash.merge(toJS(this.state), _state);
+    }
+    changeCoordinates(_currentCoords) {
+        this.state.mapConfig.coordinateSystemType = _currentCoords;
+    }
+    changeMapMode(_mode) {
+        this.state.mapConfig.mode = _mode;
+    }
+    getDefaultMapLayers() {
+        const mapLayers = {
+            baseMaps: {},
+            initialLayers: [],
+            importedLayers: {
+                csv: [],
+                kml: [],
+                zip: []
+            },
+            drawableLayers: []
+        };
+        return mapLayers;
+    }
+    getDefaultValue() {
+        // const protocol = 'http:';
+        const mapConfig = {
+            isZoomToExtentOnNewData: true,
+            isWheelZoomOnlyAfterClick: true,
+            isZoomControl: true,
+            isFlyToBounds: true,
+            // isExport: true,
+            clusterOptions: {
+            // disableClusteringAtZoom: 13,
+            // chunkedLoading: true,
+            // chunkProgress: true,
+            // singleMarkerMode: false
+            },
+            mode: 'cluster',
+            distanceUnitType: 'km',
+            coordinateSystemType: 'gps',
+        };
+        const tileLayers = [
+            {
+                name: 'Online Map',
+                tilesURI: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
+                // zoom: 1,
+                // center: {
+                // 	lat:0,
+                // 	lng: 0
+                // },
+                minZoom: 1,
+                maxZoom: 18,
+                attributionControl: false
+                // zoomControl: false
+            }
+        ];
+        const shapeLayers = [];
+        const layerManagerConfig = {
+            enable: true,
+            isImport: true
+        };
+        const scaleConfig = {
+            enable: true,
+            scaleOptions: {
+                position: 'bottomright'
+            }
+        };
+        const searchConfig = {
+            enable: true,
+            searchOptions: {
+                searchOnLayer: true,
+                queryServerUrl: 'http://nominatim.openstreetmap.org/search?format=json&q={s}' // protocol + '//osm/nominatim?format=json&limit=3&type=administrative&q={s}' // 'http://10.164.39.38/nominatim/search.php?format=json&q={s}' // 'http://nominatim.openstreetmap.org/search?format=json&q={s}' // 'http://nominatim.openstreetmap.org/search?format=json&q={s}'
+            }
+        };
+        const miniMapConfig = {
+            enable: true,
+            miniMapOptions: {
+                toggleDisplay: true
+            }
+        };
+        // const zoomControlConfig: ZoomConfig = {
+        //   enable: true
+        // };
+        const drawBarConfig = {
+            enable: true,
+            drawBarOptions: {
+                draw: {
+                    polyline: true,
+                    polygon: true,
+                    circle: true,
+                    rectangle: true,
+                    marker: true,
+                },
+                edit: {
+                    remove: true // Turns on remove button
+                }
+            }
+        };
+        const mouseCoordinateConfig = {
+            enable: true,
+        };
+        const measureConfig = {
+            enable: true,
+            measureOptions: {
+            // showMeasurementsClearControl: true,
+            // clearMeasurementsOnStop: false
+            }
+        };
+        const zoomToExtentConfig = {
+            enable: true,
+            zoomToExtentOptions: {
+                position: 'topright'
+            }
+        };
+        const unitsChangerConfig = {
+            enable: true
+        };
+        const fullScreenConfig = {
+            enable: true
+        };
+        const toolbarConfig = {
+            isExport: true,
+            isSettings: true,
+            toolbarPluginsConfig: {
+                layerManagerConfig, fullScreenConfig, measureConfig,
+                unitsChangerConfig, zoomToExtentConfig,
+                drawBarConfig, searchConfig
+            }
+        };
+        const mapPluginsConfig = {
+            miniMapConfig, scaleConfig, mouseCoordinateConfig
+        };
+        return {
+            tileLayers,
+            mapConfig,
+            shapeLayers,
+            toolbarConfig,
+            mapPluginsConfig,
+        };
+    }
+}
+__decorate([
+    observable
+], Store.prototype, "state", void 0);
+__decorate([
+    observable
+], Store.prototype, "mapLayers", void 0);
+__decorate([
+    action
+], Store.prototype, "initState", null);
+__decorate([
+    action
+], Store.prototype, "updateState", null);
+__decorate([
+    action
+], Store.prototype, "changeCoordinates", null);
+__decorate([
+    action
+], Store.prototype, "changeMapMode", null);
+var store = new Store();
+// state = {
+//     toolbar: {
+//         coordinateSystemType: CoordinateSystemType = 'gps'
+//     }
+// }
+// get drawbarConfig() {
+//     return this.state
+// }
+// @action add(_title: string) {
+//     this.todos.push({title: _title, done: false});
+// }
+// constructor() {
+//     const todos2 = observable([
+//         {
+//             title: "Make coffee",
+//             done: true,
+//         },
+//         {
+//             title: "Find biscuit",
+//             done: false
+//         }
+//     ]);
+// }
+// class TodoList {
+//     [x: string]: any;
+//     @observable todos: any[] = [];
+//     @action removeTodo(_todo: Todo) {
+//         this.todos = this.todos.slice().filter(p => p.id !== _todo.id);
+//     }
+//     @action add(_title: string) {
+//         this.todos.push(new Todo(_title))
+//     }
+//     @computed get unfinishedTodoCount() {
+//         return this.todos.slice().filter((_todo: Todo) => !_todo.finished).length
+//     }
+// }
+// class Todo {
+//     @observable id: any = Math.random();
+//     @observable createdOn: any = new Date().getTime()
+//     @observable completedOn: any
+//     @observable title: any;
+//     @observable finished: boolean;
+//     @action toggleState() {
+//         this.finished = !this.finished
+//         this.completedOn = this.finished ? new Date().getTime() : undefined
+//     }
+//     constructor(_title: string) {
+//         this.title = _title;
+//         this.finished = false;
+//     }
+// }
+// this.distanceUnitTypeState = _.get(this, 'gisViewerProps.mapConfig.distanceUnitType', 'km');
+// this.coordinateSystemTypeState = _.get(this, 'gisViewerProps.mapConfig.coordinateSystemType', 'gps');
+
+class LayersFactory {
+    static createHeatAndClusterLayer(shapeLayerDef) {
+        // Utils.doNothing(context)
+        const layerContainer = {
+            layerDefinition: shapeLayerDef,
+            leafletHeatLayer: null,
+            leafletClusterLayer: null,
+            isDisplay: lodash.get(shapeLayerDef, 'isDisplay', true)
+        };
+        if (!lodash.get(shapeLayerDef, 'shapes.length')) {
+            return layerContainer;
+        }
+        layerContainer.leafletHeatLayer = LayersFactory.createHeatLayer(shapeLayerDef); // will be added later
+        layerContainer.leafletClusterLayer = LayersFactory.createClusterLayer(shapeLayerDef, layerContainer.isDisplay); // will be added later
+        return layerContainer;
+    }
+    static createHeatLayer(layer) {
+        let heatLayerGroup = null;
+        const coordinateList = [];
+        for (const shapeDef of layer.shapes) {
+            // Iterate all shapes in this layer (some object types)
+            const manager = ShapeManagerRepository.getManagerByShapeDefinition(shapeDef);
+            if (manager) {
+                // Fix missing wkt flow
+                if (shapeDef.shapeObject && !shapeDef.shapeWkt) {
+                    shapeDef.shapeWkt = manager.shapeObjectToWkt(shapeDef.shapeObject, shapeDef.options);
+                }
+                // Fix missing shapeObject flow
+                if (!shapeDef.shapeObject && shapeDef.shapeWkt) {
+                    shapeDef.shapeObject = manager.shapeWktToObject(shapeDef.shapeWkt);
+                }
+                const coords = manager.getHeatLayerPoints(shapeDef.shapeObject);
+                if (coords) {
+                    coordinateList.push(coords);
+                }
+            }
+        }
+        if (coordinateList.length) {
+            heatLayerGroup = _createHeatLayerByCoordinates(coordinateList);
+        }
+        return heatLayerGroup;
+        function _createHeatLayerByCoordinates(heatData) {
+            return new leafletSrc.HeatLayer(heatData, { minOpacity: MIN_OPACITY });
+        }
+    }
+    static createClusterLayer(layer, isDisplay) {
+        let clusterLayer = null;
+        const clusterOptions = lodash.get(store, 'state.mapConfig.clusterOptions', {});
+        const { singleMarkerMode, 
+        // disableClusteringAtZoom,
+        chunkedLoading, chunkProgress } = clusterOptions;
+        const clusterOptions_Dev = {
+            singleMarkerMode: singleMarkerMode || LayersFactory.defaultClusterOptions.singleMarkerMode,
+            // disableClusteringAtZoom: disableClusteringAtZoom || LayersCreatorComp.defaultClusterOptions.disableClusteringAtZoom,
+            chunkedLoading: chunkedLoading || LayersFactory.defaultClusterOptions.chunkedLoading,
+            iconCreateFunction: LayersFactory.defaultClusterOptions.iconCreateFunction
+        };
+        // clusterOptions_Dev.disableClusteringAtZoom = LayersCreatorComp.defaultClusterOptions.disableClusteringAtZoom;
+        if (chunkProgress) {
+            lodash.assign(clusterOptions_Dev, { chunkProgress: LayersFactory.defaultClusterOptions.chunkProgress });
+        }
+        // Create cluster layer
+        clusterLayer = new leafletSrc.MarkerClusterGroup(clusterOptions_Dev);
+        // Copy shapes
+        const layerShapesCloned = layer.shapes;
+        for (const shapeDef of layerShapesCloned) {
+            shapeDef.options = shapeDef.options || {};
+            // Iterate all shapes in this layer (some object types)
+            const manager = ShapeManagerRepository.getManagerByShapeDefinition(shapeDef);
+            if (manager) {
+                console.log(isDisplay);
+                // const managerType = manager.getType();
+                // const { id/* , groupId */ } = shapeDef.data;
+                const leafletObject = manager.addShapeToLayer(shapeDef, clusterLayer);
+                console.log(leafletObject);
+                // clusterLayer.addLayer()
+                // Utils.setEventsOnLeafletLayer(leafletObject, {
+                // 	click: Utils.shapeOnClickHandler.bind(this, manager, context),
+                // 	mouseover: context.props.onFetchDataByShapeId ? (e) => { this.onHoverShapeHandler(e, context, id, groupId, leafletObject); } :  (e) => {this.shapeHoverTooltipHandler(e); },
+                // 	mouseout: () => { this.onOutShape(leafletObject, managerType); },
+                // });	// Add events
+                // if (isDisplay) {
+                // 	// Layer should be displayed
+                // 	const isSelected: boolean = _.get(shapeDef, 'data.isSelected');
+                // 	const layerId: string = String(L.Util.stamp(leafletObject));	// Get leaflet layer id
+                // 	if (isSelected) {
+                // 		// Selected Object
+                // 		// Add leaflet id to selected object list
+                // 		context.selectedLeafletObjects[layerId] = leafletObject;
+                // 		// Select layer if need
+                // 		manager.updateIsSelectedView(leafletObject);
+                // 	} else {
+                // 		delete context.selectedLeafletObjects[layerId] ;
+                // 	}
+                // }
+                // // Create bubble
+                // Utils.createBubble(leafletObject, BUBBLE_TYPE.TOOLTIP);
+                // leafletObject.layerName = layer.layerName;	// For Exporting layer name of this object
+            }
+        }
+        // clusterLayer.on('animationend', (e: any) => {
+        // 	// fix for selected cluters that don't need to be selected;
+        // 	const currentClusterLayers = e.target._featureGroup.getLayers();
+        // 	const clusters: any = context.map.getContainer().querySelectorAll('.selected-cluster') || [];
+        // 	clusters.forEach((cluster: any) => cluster.classList.remove('selected-cluster'));
+        // 	Utils.selectClustersBySelectedLeafletObjects(context.selectedLeafletObjects);
+        // 	// update shapes select view
+        // 	_.forEach(currentClusterLayers, (layer: any) => {
+        // 		if (layer.shapeDef) {
+        // 			const shapeType: ShapeType = _.get(layer, 'shapeDef.shapeObject.type');
+        // 			const manager: ShapeManagerInterface = ShapeManagerRepository.getManagerByType(shapeType);
+        // 			manager.updateIsSelectedView(layer);
+        // 		}
+        // 	});
+        // });
+        // clusterLayer.on('clusterclick', (e: any) => {
+        // 	if (!e.originalEvent.ctrlKey || context.props.isSelectionDisable === true) { return; }
+        // 	// Update isSelected view
+        // 	const selectedLayersShapeDef: ShapeDefinition[] = [];
+        // 	const isClusterSelected = e.layer.options.icon._icon.classList.contains('selected-cluster');
+        // 	// if (e.originalEvent.ctrlKey) {
+        // 	const markersInsideCluster: any = e.layer.getAllChildMarkers();
+        // 	markersInsideCluster.forEach((layer: any) => {
+        // 		const manager: ShapeManagerInterface = ShapeManagerRepository.getManagerByType(layer.shapeDef.shapeObject.type);
+        // 		if (!isClusterSelected) {
+        // 			layer.shapeDef.data.isSelected = true;
+        // 			selectedLayersShapeDef.push(layer.shapeDef);
+        // 		} else {
+        // 			if (layer.shapeDef.data.isSelected) {
+        // 				layer.shapeDef.data.isSelected = false;
+        // 				layer.shapeDef.data.isSelectedFade = false;
+        // 				selectedLayersShapeDef.push(layer.shapeDef);
+        // 			}
+        // 		}
+        // 		manager.selectShape(context, layer);
+        // 		// Utils.updateBubble(layer);
+        // 		setTimeout(()=> {
+        // 			manager.updateIsSelectedView(layer);
+        // 		}, 0);
+        // 	});
+        // 	// }
+        // 	context.props.onSelectionDone(selectedLayersShapeDef);
+        // });
+        return clusterLayer;
+    }
+    // public static updateProgressBar(processed: number, total: number, elapsed: number, layersArray?: any[]) {
+    // 	var progress = document.getElementById('progress');
+    // 	var progressBar = document.getElementById('progress-bar');
+    // 	if (!progress || !progressBar) { return; }
+    // 	if (elapsed > 1000) {
+    // 		// if it takes more than a second to load, display the progress bar:
+    // 		progress.style.display = 'block';
+    // 		progressBar.style.width = Math.round(processed / total * 100) + '%';
+    // 	}
+    // 	if (processed === total) {
+    // 		// all markers processed - hide the progress bar:
+    // 		progress.style.display = 'none';
+    // 	}
+    // }
+    static iconCreateFunction(cluster) {
+        const numberWithCommas = (x) => {
+            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        };
+        // iterate all markers and count
+        const childrenList = cluster.getAllChildMarkers();
+        let weight = 0;
+        let isClusterSelected = false;
+        childrenList.forEach((leafletLayer) => {
+            const isSelected = leafletLayer.shapeDef.data.isSelected;
+            if (!isClusterSelected && isSelected) {
+                isClusterSelected = isSelected;
+            }
+            const count = lodash.get(leafletLayer, 'shapeDef.data.count');
+            weight += (count || 1);
+        });
+        // const size: string = (weight < 10) ? 'small' : ((weight < 100)
+        // 	? 'medium'
+        // 	: 'large');
+        const selectedClusterClass = isClusterSelected ? 'selected-cluster' : '';
+        // create the icon with the "weight" count, instead of marker count
+        return leafletSrc.divIcon({
+            html: `<div><span>${numberWithCommas(weight)}</span></div>`,
+            className: `marker-cluster ${selectedClusterClass}`,
+            iconSize: new leafletSrc.Point(32, 32)
+        });
+    }
+}
+LayersFactory.defaultClusterOptions = {
+    singleMarkerMode: false,
+    // disableClusteringAtZoom: 13,
+    chunkedLoading: true,
+    // chunkProgress: LayersCreatorComp.updateProgressBar,
+    iconCreateFunction: LayersFactory.iconCreateFunction,
+};
+
+class Utils {
+    static log_componentWillLoad(compName) {
+        console.log(`componentWillLoad ${compName}`);
+    }
+    static log_componentDidLoad(compName) {
+        console.log(`componentDidLoad ${compName}`);
+    }
+    static log_componentDidUnload(compName) {
+        console.log(`componentDidUnload ${compName}`);
+    }
+    static doNothing(imports) {
+    }
+    static stopDoubleClickOnPlugin(htmlElement) {
+        // Disable double-click
+        htmlElement.addEventListener("dblclick", (eventData) => {
+            eventData.stopPropagation();
+        });
+    }
+    static fitLayerControllerPosition(LayerControllerMode = '') {
+        const layerControllerButton = document.querySelector('.custom-toolbar-button.layer-controller');
+        const layerControllerPlugin = document.querySelector('.custom-layer-controller');
+        if (!(layerControllerButton && layerControllerPlugin)) {
+            return;
+        }
+        layerControllerPlugin.style.left = layerControllerButton.offsetLeft + 'px';
+        // layerControllerPlugin.className = layerControllerPlugin.className+ ' ' + isShowLayerController;
+        const customLayerController = document.querySelector('.custom-layer-controller');
+        customLayerController.className = layerControllerPlugin.className + ' ' + LayerControllerMode;
+        const styledLayerControllerElement = document.querySelector('.leaflet-control-layers-expanded');
+        styledLayerControllerElement.parentNode.removeChild(styledLayerControllerElement);
+        customLayerController.appendChild(styledLayerControllerElement);
+        // Empty class list for this Form element
+        // styledLayerControllerElement.firstElementChild.firstElementChild.classList = '';
+    }
+    static exportBlobFactory(fileType, selectedLeafletObjects, mapState, callback) {
+        this.doNothing([fileType, selectedLeafletObjects, mapState, callback]);
+        // const relevantExportedLayers: L.Layer[] = Utils.getRelevantExportedLayers(selectedLeafletObjects, mapState, map);
+        // const geoJsonList: L.GeoJSON[] = Utils.shapeListToGeoJson(relevantExportedLayers);
+        // return Utils.getBlobByType(fileType, geoJsonList, callback);
+        return null;
+    }
+    static toggleCustomDropDownMenu(elm) {
+        const toogleState = elm.style.display;
+        Utils.closeAllCustomDropDownMenus();
+        elm.style.display = (toogleState === 'block') ? 'none' : 'block';
+        if (elm.style.display === 'block') {
+            document.querySelector('.custom-toolbar-button.layer-controller').classList.remove('clicked');
+            document.querySelector('.custom-layer-controller').classList.remove('show');
+        }
+    }
+    static closeAllCustomDropDownMenus() {
+        const allDropDownMenus = document.querySelectorAll('.menu');
+        lodash.forEach(allDropDownMenus, (menu) => {
+            menu.style.display = 'none';
+        });
+    }
+    static setRadioButtonsByCheckedValue(customDropDownPluginEl, groupName, checkedValue) {
+        const groupItems = customDropDownPluginEl.getControl().getContainer().querySelectorAll(`.menu li.menu-item.custom-group [name="${groupName}"]`);
+        lodash.forEach(groupItems, (input) => {
+            // Unselect checked element
+            if (input.getAttribute('checked')) {
+                input.removeAttribute('checked');
+            }
+        });
+        lodash.forEach(groupItems, (input) => {
+            // Selecet element
+            if (input.getAttribute('value') === checkedValue) {
+                input.setAttribute('checked', 'true');
+            }
+        });
+    }
+    static initStoreWithMapTiles(tilesLayerList) {
+        const baseMaps = {};
+        if (tilesLayerList && tilesLayerList.length) {
+            tilesLayerList.forEach((t) => {
+                // Add other layers
+                const tileOptions = Object.assign({}, t, { noWrap: true });
+                // Create tile Layer from Uri
+                baseMaps[t.name] = new leafletSrc.TileLayer(t.tilesURI, tileOptions);
+            });
+        }
+        else {
+            const tileOptions = { minZoom: MIN_ZOOM, maxZoom: MAX_ZOOM, attributionControl: false, noWrap: true };
+            baseMaps[DEFAULT_OSM_TILE.name] = new leafletSrc.TileLayer(DEFAULT_OSM_TILE.address, tileOptions);
+        }
+        return baseMaps;
+    }
+    static initiateLayers(shapeLayers) {
+        // if (!_.get(store, 'state.shapeLayers.length')) { return; }
+        // const shapeLayers: ShapeLayerDefinition[] = store.state.shapeLayers;
+        const initialLayersTemp = [];
+        shapeLayers.forEach((item) => {
+            const shapeLayerContainer = LayersFactory.createHeatAndClusterLayer(item);
+            // this.addingNewLayerToLayerController(shapeLayerContainer, LayerNames.INITIAL_LAYERS)
+            initialLayersTemp.push(shapeLayerContainer);
+        });
+        return initialLayersTemp;
+    }
+}
+Utils.appendHtmlWithContext = function (elm, dom, context) {
+    elm.innerHTML = dom;
+    const elements = elm.querySelectorAll("[attachEvent]");
+    lodash.forEach(elements, (element) => {
+        element.getAttribute("attachEvent").split(";").forEach(function (event) {
+            const eventNameAndHandler = event.split(":");
+            const eventName = eventNameAndHandler[0];
+            const eventHandler = eventNameAndHandler[1];
+            if (eventName && eventHandler) {
+                element.addEventListener(eventName, context[eventHandler].bind(context));
+            }
+        });
+    });
+};
+
 export default Utils;
-export { CUSTOM_DROP_DOWN_PLUGIN_TAG, leafletSrc as default$1, lodash as default$2, LayersTypeLabel, CoordinateType, CUSTOM_SETTINGS_TAG, GIS_VIEWER_TAG, FULL_SCREEN_PLUGIN_TAG, MAP_CONTAINER_TAG, ZOOM_TO_EXTENT_PLUGIN_TAG, MAX_NORTH_EAST, MAX_SOUTH_WEST, TOOL_BAR_TAG, DRAW_BAR_PLUGIN_TAG, SEARCH_PLUGIN_TAG, MEASURE_PLUGIN_TAG, LAYER_MANAGER_PLUGIN_TAG, FILE_TYPES, DROP_DOWN_PLUGIN_TAG, ImportFileFormats, leafletSrc as __moduleExports, commonjsGlobal, createCommonjsModule, MINI_MAP_PLUGIN_TAG, MOUSE_COORDINATE_PLUGIN_TAG, SCALE_PLUGIN_TAG };
+export { CUSTOM_DROP_DOWN_PLUGIN_TAG, leafletSrc as default$1, lodash as default$2, DropDownItemType, store as default$3, LayersTypeLabel, CoordinateType, CUSTOM_SETTINGS_TAG, reaction, FILE_TYPES, CUSTOM_EXPORT_TAG, DROP_DOWN_PLUGIN_TAG, GIS_VIEWER_TAG, FULL_SCREEN_PLUGIN_TAG, MAP_CONTAINER_TAG, ZOOM_TO_EXTENT_PLUGIN_TAG, MAX_NORTH_EAST, MAX_SOUTH_WEST, TOOL_BAR_TAG, DRAW_BAR_PLUGIN_TAG, SEARCH_PLUGIN_TAG, MEASURE_PLUGIN_TAG, LAYER_MANAGER_PLUGIN_TAG, ImportFileFormats, LayerNames, leafletSrc as __moduleExports, commonjsGlobal, createCommonjsModule, MINI_MAP_PLUGIN_TAG, MOUSE_COORDINATE_PLUGIN_TAG, SCALE_PLUGIN_TAG };

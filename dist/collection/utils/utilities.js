@@ -1,4 +1,7 @@
 import _ from "lodash";
+import { DEFAULT_OSM_TILE, MIN_ZOOM, MAX_ZOOM } from "./statics";
+import L from "leaflet";
+import LayersFactory from "./LayersFactory";
 export default class Utils {
     static log_componentWillLoad(compName) {
         console.log(`componentWillLoad ${compName}`);
@@ -55,6 +58,48 @@ export default class Utils {
         _.forEach(allDropDownMenus, (menu) => {
             menu.style.display = 'none';
         });
+    }
+    static setRadioButtonsByCheckedValue(customDropDownPluginEl, groupName, checkedValue) {
+        const groupItems = customDropDownPluginEl.getControl().getContainer().querySelectorAll(`.menu li.menu-item.custom-group [name="${groupName}"]`);
+        _.forEach(groupItems, (input) => {
+            // Unselect checked element
+            if (input.getAttribute('checked')) {
+                input.removeAttribute('checked');
+            }
+        });
+        _.forEach(groupItems, (input) => {
+            // Selecet element
+            if (input.getAttribute('value') === checkedValue) {
+                input.setAttribute('checked', 'true');
+            }
+        });
+    }
+    static initStoreWithMapTiles(tilesLayerList) {
+        const baseMaps = {};
+        if (tilesLayerList && tilesLayerList.length) {
+            tilesLayerList.forEach((t) => {
+                // Add other layers
+                const tileOptions = Object.assign({}, t, { noWrap: true });
+                // Create tile Layer from Uri
+                baseMaps[t.name] = new L.TileLayer(t.tilesURI, tileOptions);
+            });
+        }
+        else {
+            const tileOptions = { minZoom: MIN_ZOOM, maxZoom: MAX_ZOOM, attributionControl: false, noWrap: true };
+            baseMaps[DEFAULT_OSM_TILE.name] = new L.TileLayer(DEFAULT_OSM_TILE.address, tileOptions);
+        }
+        return baseMaps;
+    }
+    static initiateLayers(shapeLayers) {
+        // if (!_.get(store, 'state.shapeLayers.length')) { return; }
+        // const shapeLayers: ShapeLayerDefinition[] = store.state.shapeLayers;
+        const initialLayersTemp = [];
+        shapeLayers.forEach((item) => {
+            const shapeLayerContainer = LayersFactory.createHeatAndClusterLayer(item);
+            // this.addingNewLayerToLayerController(shapeLayerContainer, LayerNames.INITIAL_LAYERS)
+            initialLayersTemp.push(shapeLayerContainer);
+        });
+        return initialLayersTemp;
     }
 }
 Utils.appendHtmlWithContext = function (elm, dom, context) {

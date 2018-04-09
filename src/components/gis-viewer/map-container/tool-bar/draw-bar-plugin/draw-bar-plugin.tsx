@@ -2,7 +2,7 @@ import { Component, Prop, State, Method } from "@stencil/core";
 import { DrawBarConfig } from "../../../../../models";
 import * as leafletDraw from 'leaflet-draw';
 import L from "leaflet";
-import { DRAW_BAR_PLUGIN_TAG } from "../../../../../utils/statics";
+import { DRAW_BAR_PLUGIN_TAG, LAYER_MANAGER_PLUGIN_TAG } from "../../../../../utils/statics";
 import Utils from "../../../../../utils/utilities";
 import _ from "lodash";
 import store from "../../../../store/store";
@@ -22,9 +22,10 @@ export class DrawBarPlugin {
 
     @State() control: L.Control;
     @State() drawnLayer: L.FeatureGroup;
+    layerManagerEl: HTMLLayerManagerPluginElement;
 
     @Method()
-    getControl() {
+    getControl(): L.Control {
         return this.control;
     }
 
@@ -35,23 +36,27 @@ export class DrawBarPlugin {
         );
     }
     
-    componentDidLoad() {
-        Utils.log_componentDidLoad(this.compName);
-        if (!this.gisMap) return;
-
-        Utils.doNothing(leafletDraw);
-        
+    componentWillLoad() {
         // Dedicated Draw layer
         this.drawnLayer = new L.FeatureGroup();
-        this.gisMap.addLayer(this.drawnLayer);
-        
+        store.mapLayers.drawableLayers.push(this.drawnLayer);   // can bring leak
+
         let drawBarCloneOptions: any = this.config.drawBarOptions;
         drawBarCloneOptions.edit = {
             featureGroup: this.drawnLayer,
             remove: _.get(this, 'config.drawBarOptions.edit.remove', true)
         }
         this.control = new L.Control.Draw(drawBarCloneOptions);
+    }
+    componentDidLoad() {
+        Utils.log_componentDidLoad(this.compName);
+        this.layerManagerEl = this.gisMap.getContainer().querySelector(LAYER_MANAGER_PLUGIN_TAG);
+        this.layerManagerEl.addingDrawableLayerToLayerController(this.drawnLayer);
+        Utils.doNothing(leafletDraw);
+        
+        this.gisMap.addLayer(this.drawnLayer);
         this.gisMap.addControl(this.control);
+        
 
 
         this.gisMap.on(L.Draw.Event.CREATED, (e: any) => {

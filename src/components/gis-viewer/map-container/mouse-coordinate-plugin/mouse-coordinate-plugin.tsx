@@ -27,7 +27,6 @@ export class MouseCoordinagePlugin {
     @State() controlUtmref: L.Control;
     
     constructor() {
-        // debugger
         reaction(
             () => store.state.mapConfig.coordinateSystemType,
             coordinateSystemType => this.changeCoordinateSystemHandler(coordinateSystemType)
@@ -35,15 +34,11 @@ export class MouseCoordinagePlugin {
     }
     componentWillLoad() {
         Utils.log_componentWillLoad(this.compName);
-    }
-
-    componentDidLoad() {
-        Utils.log_componentDidLoad(this.compName);
         const mouseCoordinateGps: MouseCoordinateOptions = {
             gpsLong: false,
         };
 
-        const mouseCoordinateUtm: MouseCoordinateOptions= {
+        const mouseCoordinateUtm: MouseCoordinateOptions = {
             utm: true,
             gps: false,
         };
@@ -56,14 +51,14 @@ export class MouseCoordinagePlugin {
         this.controlGps = this.createPlugin(mouseCoordinateGps);
         this.controlUtm = this.createPlugin(mouseCoordinateUtm);
         this.controlUtmref = this.createPlugin(mouseCoordinateUtmref);
+    }
 
-        
+    componentDidLoad() {
+        Utils.log_componentDidLoad(this.compName);
         this.gisMap.addControl(this.controlGps);
         this.gisMap.addControl(this.controlUtm);
         this.gisMap.addControl(this.controlUtmref);
-        
         this.changeCoordinateSystemHandler(store.state.mapConfig.coordinateSystemType)
-
         Utils.doNothing(mousecoordinatesystems);
 
     }

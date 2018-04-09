@@ -74,6 +74,15 @@ declare module 'leaflet' {
 
         class StyledLayerControl extends Control {
             constructor(baseLayers: any[], overlays: any[], map: any, options?: any);
+            addBaseLayer(layer: any, name: any, group: any);
+            addOverlay(layer: any, name: any, group: any, className?: string)
+            deleteLayer(layer: any)
+            removeLayer(layer: any)
+            removeGroup(group_Name: string, del: any)
+            removeAllGroups(del: any)
+            selectLayer(layer: any)
+            unSelectLayer(layer: any)
+            changeGroup(group_Name: string, select: any)
         }
 
         // class MiniMap {

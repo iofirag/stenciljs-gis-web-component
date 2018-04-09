@@ -1,5 +1,4 @@
 import { GIS_VIEWER_TAG } from '../../utils/statics';
-import store from '../store/store';
 export class DevComponent {
     //document.querySelector('gis-viewer').addEventListener('drawCreated', (e) => { console.log(e.detail) })
     // @Listen('mapReady') mapReadyEventHandler(e: CustomEvent) {
@@ -38,7 +37,7 @@ export class DevComponent {
                     h("input", { type: 'button', value: 'Zoom To Extend', onClick: e => this.testZoomToExtend(e) }),
                     h("input", { type: 'button', value: 'Change Units distance', onClick: e => this.testChangeDistanceUnits(e) }),
                     h("input", { type: 'button', value: 'Change Coordinate System', onClick: e => this.testChangeCoordinateSystem(e) }),
-                    h("input", { type: 'button', value: 'Change Coordinate System in props', onClick: e => this.testChangeCoordinateSystemInProps(e) })),
+                    h("input", { type: 'button', value: 'Add shape in props', onClick: e => this.testAddShapeInProps(e) })),
                 h("div", { class: 'gisWrapper' },
                     h("gis-viewer", { gisViewerProps: this.gisViewerState }))));
     }
@@ -66,81 +65,110 @@ export class DevComponent {
         console.log('Testing changeCoordinateSystem command', e.type);
         this.gisViewerEl.changeCoordinateSystem();
     }
-    testChangeCoordinateSystemInProps(e) {
+    testAddShapeInProps(e) {
         console.log('Testing testChangeCoordinateSystemInProps command', e.type);
-        const coordinateSystemTypes = ['utm', 'utmref', 'gps'];
-        let index = coordinateSystemTypes.indexOf(store.state.mapConfig.coordinateSystemType);
-        index++;
-        if (index === coordinateSystemTypes.length)
-            index = 0;
-        this.gisViewerState.mapConfig.coordinateSystemType = coordinateSystemTypes[index];
+        this.gisViewerState.shapeLayers[0].shapes.push({
+            shapeWkt: 'POLYGON((-14.765625 17.052584352706003,-12.83203125 15.703433338617463,-15.99609375 15.534142999890243,-14.765625 17.052584352706003))',
+            id: 'polygon99999999',
+            data: {
+                name: '232 (known as polygon1)',
+                id: 'polygon999999'
+            }
+        });
         this.gisViewerState = Object.assign({}, this.gisViewerState);
     }
     createDevState() {
-        const protocol = 'http:';
         const mapConfig = {
             isZoomToExtentOnNewData: true,
             isWheelZoomOnlyAfterClick: true,
             isZoomControl: true,
             isFlyToBounds: true,
             // isExport: true,
-            clusterOptions: {},
+            clusterOptions: {
+            // disableClusteringAtZoom: 13,
+            // chunkedLoading: true,
+            // chunkProgress: true,
+            // singleMarkerMode: false
+            },
             mode: 'cluster',
             distanceUnitType: 'km',
             coordinateSystemType: 'gps',
         };
+        // const protocol = 'http:';
         const tileLayers = [
-            {
-                name: 'Online Map',
-                tilesURI: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
-                // zoom: 1,
-                // center: {
-                // 	lat:0,
-                // 	lng: 0
-                // },
-                minZoom: 1,
-                maxZoom: 18,
-                attributionControl: false
-                // zoomControl: false
-            },
-            {
-                name: 'Verint Map',
-                tilesURI: protocol + '//osm/osm_tiles/{z}/{x}/{y}.png',
-                // zoom: 1,
-                // center: {
-                // 	lat: 32.076304,
-                // 	lng: 35.013960
-                // },
-                minZoom: 1,
-                maxZoom: 20,
-                attributionControl: false
-                // zoomControl: false
-            }
+        // {
+        //   name: 'Verint Map',
+        //   tilesURI: protocol + '//osm/osm_tiles/{z}/{x}/{y}.png', // 'http://{s}.tile.osm.org/{z}/{x}/{y}.png', // 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', // 'http://10.164.39.38/pandonia/{z}/{x}/{y}.png',
+        //   minZoom: 1,
+        //   maxZoom: 20,
+        //   attributionControl: false
+        // }, 
+        // {
+        //   name: 'Rail Ways',
+        //   tilesURI: 'http://www.openptmap.org/tiles/{z}/{x}/{y}.png',
+        //   minZoom: 1,
+        //   maxZoom: 20,
+        //   attributionControl: false
+        // }
         ];
         const shapeLayers = [
             {
                 layerName: 'Test data 1',
-                // isDisplay: false,
+                isDisplay: true,
                 shapes: [
                     {
-                        shapeWkt: 'POLYGON((-14.765625 17.052584352706003,-12.83203125 15.703433338617463,-15.99609375 15.534142999890243,-14.765625 17.052584352706003))',
+                        shapeWkt: 'POINT(35 32)',
+                        id: 'point0',
                         data: {
-                            name: '232 (known as polygon1)',
-                            id: 'polygon1'
+                            name: '232 (known as point0)',
+                            id: 'point00'
                         }
                     },
                     {
                         shapeWkt: 'POLYGON((0 0 0,0 5 0,5 5 0,5 0 0,0 0 0))',
+                        id: 'polygon1',
                         data: {
                             name: '232 (known as polygon1)',
-                            id: 'polygon1'
+                            id: 'polygon11',
+                            count: 10
                         }
                     },
                     {
                         shapeWkt: 'LINESTRING(1 1 1,5 5 5,7 7 5)',
+                        id: 'polygon2',
                         data: {
                             name: '232 (known as polygon1)',
-                            id: 'polygon1'
+                            id: 'polygon22'
+                        }
+                    }
+                ]
+            }, {
+                layerName: 'Test data 2',
+                isDisplay: false,
+                shapes: [
+                    {
+                        shapeWkt: 'POINT(32 35)',
+                        id: 'point0',
+                        data: {
+                            name: '232 (known as point0)',
+                            id: 'point00'
+                        }
+                    },
+                    {
+                        shapeWkt: 'POLYGON((0 0 0,0 5 0,5 5 0,5 0 0,0 0 0))',
+                        id: 'polygon1',
+                        data: {
+                            name: '232 (known as polygon1)',
+                            id: 'polygon11',
+                            count: 20
+                        }
+                    },
+                    {
+                        shapeWkt: 'LINESTRING(1 1 1,5 5 5,7 7 5)',
+                        id: 'polygon2',
+                        data: {
+                            name: '232 (known as polygon1)',
+                            id: 'polygon22'
                         }
                     }
                 ]
@@ -159,7 +187,7 @@ export class DevComponent {
         const searchConfig = {
             enable: true,
             searchOptions: {
-                searchOnLayer: true,
+                // searchOnLayer: true,
                 queryServerUrl: 'http://nominatim.openstreetmap.org/search?format=json&q={s}' // protocol + '//osm/nominatim?format=json&limit=3&type=administrative&q={s}' // 'http://10.164.39.38/nominatim/search.php?format=json&q={s}' // 'http://nominatim.openstreetmap.org/search?format=json&q={s}' // 'http://nominatim.openstreetmap.org/search?format=json&q={s}'
             }
         };
@@ -192,7 +220,10 @@ export class DevComponent {
         };
         const measureConfig = {
             enable: true,
-            measureOptions: {}
+            measureOptions: {
+            // showMeasurementsClearControl: true,
+            // clearMeasurementsOnStop: false
+            }
         };
         const zoomToExtentConfig = {
             enable: true,

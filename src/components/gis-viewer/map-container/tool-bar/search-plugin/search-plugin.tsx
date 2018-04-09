@@ -1,9 +1,9 @@
+import L from "leaflet";
 import { Component, Prop, State, Method } from "@stencil/core";
 import * as search from 'leaflet-search';
 import { SEARCH_PLUGIN_TAG } from "../../../../../utils/statics";
 import { SearchConfig, SearchOptions } from "../../../../../models";
 import Utils from "../../../../../utils/utilities";
-import L from "leaflet";
 
 
 @Component({
@@ -21,25 +21,26 @@ export class SearchPlugin {
     @State() control: L.Control.Search;
     
     @Method()
-    getControl() {
+    getControl(): L.Control {
         return this.control;
     }
     
+    componentWillLoad() {
+        Utils.log_componentWillLoad(this.compName);
+        this.control = this.createPlugin(this.config.searchOptions);
+    }
+
     componentDidLoad() {
         Utils.log_componentDidLoad(this.compName);
-        if (!this.gisMap) return;
-
         Utils.doNothing(search);
-        
-        this.control = this.createPlugin(this.config.searchOptions);
         this.gisMap.addControl(this.control);
         this.fixCss();
     }
 
-//     componentDidUnload() {
-//         console.log(`componentDidUnload - ${this.compName}`);
-//         this.gisMap.removeControl(this.control);
-//     }
+    componentDidUnload() {
+        Utils.log_componentDidUnload(this.compName);
+        this.gisMap.removeControl(this.control);
+    }
     private createPlugin(options: SearchOptions): L.Control.Search {
         Utils.doNothing(options);
 

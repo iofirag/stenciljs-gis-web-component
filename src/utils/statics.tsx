@@ -21,6 +21,7 @@ export const LAYER_MANAGER_PLUGIN_TAG: string = 'layer-manager-plugin'
 export const DROP_DOWN_PLUGIN_TAG: string = 'drop-down-plugin';
 export const CUSTOM_DROP_DOWN_PLUGIN_TAG: string = 'custom-drop-down-plugin';
 export const CUSTOM_SETTINGS_TAG: string = 'custom-settings';
+export const CUSTOM_EXPORT_TAG: string = 'custom-export';
 
 export const MINI_MAP_PLUGIN_TAG: string         = 'mini-map-plugin';
 export const SCALE_PLUGIN_TAG: string            = 'scale-plugin';
@@ -49,3 +50,22 @@ export const LayersTypeLabel: { [key: string]: string } = {
     HEAT: 'heat',
     CLUSTER: 'cluster',
 };
+
+export const MIN_OPACITY: number = 0.1;
+
+export const DEFAULT_OSM_TILE = {
+    name: 'Online map',
+    address: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png'
+};
+
+export const LayerNames: { [key: string]: string } = {
+    BASE_MAPS: 'Base Maps',
+    DRAWABLE_LAYER: 'Drawable Layer',
+    INITIAL_LAYERS: 'Initial Layers',
+    [FILE_TYPES.kml.toUpperCase() + '_Layers']: FILE_TYPES.kml.toUpperCase() + ' Layers',
+    [FILE_TYPES.csv.toUpperCase() + '_Layers']: FILE_TYPES.csv.toUpperCase() + ' Layers',
+    [FILE_TYPES.zip.toUpperCase() + '_Layers']: FILE_TYPES.zip.toUpperCase() + ' Layers',
+};
+
+export const MIN_ZOOM: number = 2;
+export const MAX_ZOOM: number = 20;

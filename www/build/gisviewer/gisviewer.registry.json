@@ -2,11 +2,14 @@
   "namespace": "gisviewer",
   "fsNamespace": "gisviewer",
   "loader": "../gisviewer.js",
-  "core": "gisviewer.core.js",
   "corePolyfilled": "es5-build-disabled.js",
+  "core": "gisviewer.core.js",
   "components": {
     "custom-drop-down-plugin": {
       "$": "custom-drop-down-plugin"
+    },
+    "custom-export": {
+      "$": "custom-export"
     },
     "custom-settings": {
       "$": "custom-drop-down-plugin"
@@ -18,7 +21,7 @@
       "$": "draw-bar-plugin"
     },
     "drop-down-plugin": {
-      "$": "drop-down-plugin"
+      "$": "custom-export"
     },
     "full-screen-plugin": {
       "$": "dev-component"

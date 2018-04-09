@@ -44,6 +44,35 @@
       ]
     },
     {
+      "tag": "custom-export",
+      "dependencies": [
+        "drop-down-plugin"
+      ],
+      "componentClass": "CustomExport",
+      "componentPath": "components/gis-viewer/map-container/tool-bar/custom-export/custom-export.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "components/gis-viewer/map-container/tool-bar/custom-export/custom-export.scss"
+          ]
+        }
+      },
+      "props": [
+        {
+          "name": "gisMap",
+          "attr": "gis-map"
+        }
+      ],
+      "methods": [
+        {
+          "name": "getElement"
+        }
+      ],
+      "hostElement": {
+        "name": "el"
+      }
+    },
+    {
       "tag": "custom-settings",
       "dependencies": [
         "custom-drop-down-plugin"
@@ -211,6 +240,8 @@
       "styles": {
         "$": {
           "stylePaths": [
+            "../node_modules/leaflet.markercluster/dist/MarkerCluster.Default.css",
+            "../node_modules/leaflet.markercluster/dist/MarkerCluster.css",
             "../node_modules/leaflet/dist/leaflet.css",
             "components/gis-viewer/gis-viewer.scss"
           ]
@@ -272,6 +303,9 @@
       ],
       "methods": [
         {
+          "name": "addingDrawableLayerToLayerController"
+        },
+        {
           "name": "getControl"
         },
         {
@@ -292,7 +326,8 @@
       "styles": {
         "$": {
           "stylePaths": [
-            "components/gis-viewer/map-container/map-container.scss"
+            "components/gis-viewer/map-container/map-container.scss",
+            "utils/shapes/ShapeManager.scss"
           ]
         }
       },
@@ -489,9 +524,9 @@
     {
       "tag": "tool-bar",
       "dependencies": [
+        "custom-export",
         "custom-settings",
         "draw-bar-plugin",
-        "drop-down-plugin",
         "full-screen-plugin",
         "layer-manager-plugin",
         "measure-plugin",
@@ -515,10 +550,6 @@
         {
           "name": "gisMap",
           "attr": "gis-map"
-        },
-        {
-          "name": "mouseCoordinateConfig",
-          "attr": "mouse-coordinate-config"
         }
       ],
       "states": [
@@ -581,8 +612,8 @@
   "collections": [],
   "compiler": {
     "name": "@stencil/core",
-    "version": "0.7.5",
-    "typescriptVersion": "2.7.2"
+    "version": "0.7.12",
+    "typescriptVersion": "2.8.1"
   },
   "bundles": [
     {

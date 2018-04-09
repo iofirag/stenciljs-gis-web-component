@@ -1,5 +1,9 @@
 import { observable, action, toJS } from 'mobx';
-import { GisViewerProps, MapConfig, TileLayerDefinition, ShapeLayerDefinition, ScaleConfig, LayerManagerConfig, SearchConfig, MiniMapConfig, DrawBarConfig, MouseCoordinateConfig, MeasureConfig, ZoomToExtentConfig, UnitsChangerConfig, FullScreenConfig, ToolbarConfig, MapPluginsConfig, CoordinateSystemType, ClusterHeat } from '../../models';
+import { GisViewerProps, MapConfig, TileLayerDefinition, ShapeLayerDefinition, 
+    ScaleConfig, LayerManagerConfig, SearchConfig, MiniMapConfig, DrawBarConfig, 
+    MouseCoordinateConfig, MeasureConfig, ZoomToExtentConfig, UnitsChangerConfig, 
+    FullScreenConfig, ToolbarConfig, MapPluginsConfig, CoordinateSystemType, 
+    ClusterHeat, MapLayers } from '../../models';
 import _ from 'lodash';
 // import { CoordinateType } from '../../utils/statics';
 
@@ -9,6 +13,8 @@ class Store {
     
     DEFAULT_VALUES: GisViewerProps;
     @observable state: GisViewerProps;
+    @observable mapLayers: MapLayers;
+    // @observable zoom: number;
     
     // @computed get coordinateSystemType(): CoordinateSystemType {
     //     return this.state.mapConfig.coordinateSystemType;
@@ -22,7 +28,7 @@ class Store {
      * @param _state 
      */
     @action initState(_state: GisViewerProps) {
-        this.state = _state;
+        this.state = _.cloneDeep(_state);
     }
 
     /**
@@ -34,7 +40,6 @@ class Store {
     }
 
     @action changeCoordinates(_currentCoords: CoordinateSystemType) {
-        debugger
         this.state.mapConfig.coordinateSystemType = _currentCoords;
     }
     @action changeMapMode(_mode: ClusterHeat) {
@@ -42,16 +47,31 @@ class Store {
     }
 
 
-    constructor() {   
+    constructor() {
+        this.changeCoordinates = this.changeCoordinates.bind(this);
+        this.changeMapMode = this.changeMapMode.bind(this);
+
         this.DEFAULT_VALUES = this.getDefaultValue();
         this.state = this.DEFAULT_VALUES;
-
+        this.mapLayers = this.getDefaultMapLayers()
         // this.coordinateSystemType = 'gps';
         // this.distanceUnitType = 'km';
         
     }
 
-
+    private getDefaultMapLayers(): MapLayers {
+        const mapLayers: MapLayers = {
+            baseMaps: {},// Check - change to type
+            initialLayers: [],
+            importedLayers: {
+                csv: [],
+                kml: [],
+                zip: []
+            },
+            drawableLayers: []
+        }
+        return mapLayers;
+    }
     private getDefaultValue(): GisViewerProps {
         // const protocol = 'http:';
 

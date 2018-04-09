@@ -1,8 +1,7 @@
 /*! Built with http://stenciljs.com */
 const { h } = window.gisviewer;
 
-import Utils, { default$1 as L$1, SCALE_PLUGIN_TAG, default$2 as _ } from './chunk1.js';
-import store, { reaction } from './chunk2.js';
+import Utils, { default$1 as L$1, SCALE_PLUGIN_TAG, default$2 as _, reaction, default$3 as store } from './chunk1.js';
 
 class ScalePlugin {
     constructor() {
@@ -40,10 +39,6 @@ class ScalePlugin {
     }
     componentWillLoad() {
         Utils.log_componentWillLoad(this.compName);
-    }
-    componentWillUpdate() { }
-    componentDidLoad() {
-        Utils.log_componentDidLoad(this.compName);
         // Create new component
         const options = {
             position: this.config.scaleOptions.position,
@@ -51,6 +46,10 @@ class ScalePlugin {
             imperial: true,
         };
         this.control = L$1.control.scale(options);
+    }
+    componentWillUpdate() { }
+    componentDidLoad() {
+        Utils.log_componentDidLoad(this.compName);
         this.gisMap.addControl(this.control);
         this.initUnitElementsWithClasses();
         this.showScaleUnitsElementByType(store.state.mapConfig.distanceUnitType);
@@ -73,7 +72,7 @@ class ScalePlugin {
     }
     static get is() { return "scale-plugin"; }
     static get properties() { return { "config": { "type": "Any", "attr": "config" }, "control": { "state": true }, "getControl": { "method": true }, "gisMap": { "type": "Any", "attr": "gis-map" } }; }
-    static get style() { return ".leaflet-control-scale-line {\n  text-align: center;\n  border: 2px solid #777 !important;\n  border-top: none !important;\n  margin-top: 0px !important; }\n\n.hidden {\n  display: none; }\n"; }
+    static get style() { return ".leaflet-control-scale-line {\n  text-align: center;\n  border: 2px solid #777 !important;\n  border-top: none !important;\n  margin-top: 0px !important; }\n\n.hidden {\n  display: none; }"; }
 }
 
 export { ScalePlugin };

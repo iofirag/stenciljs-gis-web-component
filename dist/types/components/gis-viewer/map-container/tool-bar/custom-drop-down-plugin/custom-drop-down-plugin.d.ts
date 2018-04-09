@@ -6,7 +6,7 @@ export declare class CustomDropDownPlugin {
     customControlName: string;
     dropDownTitle?: string;
     control: L.Control.CustomDropDownPlugin;
-    getControl(): L.Control.CustomDropDownPlugin;
+    getControl(): L.Control;
     componentWillLoad(): void;
     componentDidLoad(): void;
     componentDidUnload(): void;

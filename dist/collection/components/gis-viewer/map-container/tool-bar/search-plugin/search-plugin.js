@@ -1,7 +1,7 @@
+import L from "leaflet";
 import * as search from 'leaflet-search';
 import { SEARCH_PLUGIN_TAG } from "../../../../../utils/statics";
 import Utils from "../../../../../utils/utilities";
-import L from "leaflet";
 export class SearchPlugin {
     constructor() {
         this.compName = SEARCH_PLUGIN_TAG;
@@ -9,19 +9,20 @@ export class SearchPlugin {
     getControl() {
         return this.control;
     }
+    componentWillLoad() {
+        Utils.log_componentWillLoad(this.compName);
+        this.control = this.createPlugin(this.config.searchOptions);
+    }
     componentDidLoad() {
         Utils.log_componentDidLoad(this.compName);
-        if (!this.gisMap)
-            return;
         Utils.doNothing(search);
-        this.control = this.createPlugin(this.config.searchOptions);
         this.gisMap.addControl(this.control);
         this.fixCss();
     }
-    //     componentDidUnload() {
-    //         console.log(`componentDidUnload - ${this.compName}`);
-    //         this.gisMap.removeControl(this.control);
-    //     }
+    componentDidUnload() {
+        Utils.log_componentDidUnload(this.compName);
+        this.gisMap.removeControl(this.control);
+    }
     createPlugin(options) {
         Utils.doNothing(options);
         const searchController = new L.Control.Search({

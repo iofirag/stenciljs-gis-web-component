@@ -17,6 +17,7 @@ export declare type MapConfig = {
     isWheelZoomOnlyAfterClick?: boolean;
     isFlyToBounds?: boolean;
     isZoomControl?: boolean;
+    initBounds?: MapBounds;
 };
 export declare type DistanceUnitType = 'km' | 'mile' | 'nauticalmiles';
 export declare type CoordinateSystemType = 'utm' | 'utmref' | 'gps';
@@ -174,6 +175,7 @@ export declare enum DropDownItemType {
     CHECK_BOX = 2,
 }
 export declare type ShapeDefinition = {
+    id?: string;
     data?: ShapeData;
     shapeWkt?: string;
     shapeObject?: ShapeObject;
@@ -246,9 +248,21 @@ export declare type BasePluginConfig = {
 export declare type BaseControlOptions = {
     position?: ControlPosition;
 };
-export declare type ShapeLayerContainer = {
+export declare type ShapeLayerContainer_Dev = {
     layerDefinition: ShapeLayerDefinition;
     leafletHeatLayer: any;
     leafletClusterLayer: any;
     isDisplay: boolean;
 };
+export declare type MapLayers = {
+    baseMaps: BaseMap;
+    initialLayers: ShapeLayerContainer_Dev[];
+    importedLayers: {
+        [key: string]: ShapeLayerContainer_Dev[];
+    };
+    drawableLayers: L.FeatureGroup[];
+};
+export declare type BaseMap = {
+    [key: string]: L.TileLayer;
+};
+export declare type SelectionMode = 'selectLayer' | 'unSelectLayer';

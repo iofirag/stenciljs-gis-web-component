@@ -40,10 +40,6 @@ export class ScalePlugin {
     }
     componentWillLoad() {
         Utils.log_componentWillLoad(this.compName);
-    }
-    componentWillUpdate() { }
-    componentDidLoad() {
-        Utils.log_componentDidLoad(this.compName);
         // Create new component
         const options = {
             position: this.config.scaleOptions.position,
@@ -51,6 +47,10 @@ export class ScalePlugin {
             imperial: true,
         };
         this.control = L.control.scale(options);
+    }
+    componentWillUpdate() { }
+    componentDidLoad() {
+        Utils.log_componentDidLoad(this.compName);
         this.gisMap.addControl(this.control);
         this.initUnitElementsWithClasses();
         this.showScaleUnitsElementByType(store.state.mapConfig.distanceUnitType);

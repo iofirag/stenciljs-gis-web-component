@@ -6,8 +6,10 @@ export declare class DrawBarPlugin {
     gisMap: L.Map;
     control: L.Control;
     drawnLayer: L.FeatureGroup;
+    layerManagerEl: HTMLLayerManagerPluginElement;
     getControl(): L.Control;
     constructor();
+    componentWillLoad(): void;
     componentDidLoad(): void;
     componentDidUnload(): void;
 }

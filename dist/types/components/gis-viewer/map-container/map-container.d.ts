@@ -13,5 +13,5 @@ export declare class MapContainer {
     componentWillLoad(): void;
     render(): JSX.Element;
     componentDidLoad(): void;
-    createMap(): L.Map;
+    private createMap();
 }

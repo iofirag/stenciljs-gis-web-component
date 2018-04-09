@@ -1,8 +1,8 @@
 /*! Built with http://stenciljs.com */
 const { h } = window.gisviewer;
 
-import Utils, { commonjsGlobal, createCommonjsModule, SEARCH_PLUGIN_TAG, default$1 as L$1 } from './chunk1.js';
-import require$$0 from './chunk3.js';
+import Utils, { commonjsGlobal, createCommonjsModule, default$1 as L$1, SEARCH_PLUGIN_TAG } from './chunk1.js';
+import require$$0 from './chunk2.js';
 
 var leafletSearch_src = createCommonjsModule(function (module) {
 /* 
@@ -996,19 +996,20 @@ class SearchPlugin {
     getControl() {
         return this.control;
     }
+    componentWillLoad() {
+        Utils.log_componentWillLoad(this.compName);
+        this.control = this.createPlugin(this.config.searchOptions);
+    }
     componentDidLoad() {
         Utils.log_componentDidLoad(this.compName);
-        if (!this.gisMap)
-            return;
         Utils.doNothing(search);
-        this.control = this.createPlugin(this.config.searchOptions);
         this.gisMap.addControl(this.control);
         this.fixCss();
     }
-    //     componentDidUnload() {
-    //         console.log(`componentDidUnload - ${this.compName}`);
-    //         this.gisMap.removeControl(this.control);
-    //     }
+    componentDidUnload() {
+        Utils.log_componentDidUnload(this.compName);
+        this.gisMap.removeControl(this.control);
+    }
     createPlugin(options) {
         Utils.doNothing(options);
         const searchController = new L$1.Control.Search({
@@ -1033,7 +1034,7 @@ class SearchPlugin {
     }
     static get is() { return "search-plugin"; }
     static get properties() { return { "config": { "type": "Any", "attr": "config" }, "control": { "state": true }, "getControl": { "method": true }, "gisMap": { "type": "Any", "attr": "gis-map" } }; }
-    static get style() { return "/* \n * Leaflet Control Search v2.7.2 - 2017-04-08 \n * \n * Copyright 2017 Stefano Cudini \n * stefano.cudini\@gmail.com \n * http://labs.easyblog.it/ \n * \n * Licensed under the MIT license. \n * \n * Demo: \n * http://labs.easyblog.it/maps/leaflet-search/ \n * \n * Source: \n * git\@github.com:stefanocudini/leaflet-search.git \n * \n */\n\n.leaflet-container .leaflet-control-search{position:relative;float:left;background:#fff;color:#1978cf;-moz-border-radius:4px;-webkit-border-radius:4px;border-radius:4px;background-color:rgba(255,255,255,.8);z-index:1000;box-shadow:0 1px 7px rgba(0,0,0,.65);margin-left:10px;margin-top:10px}.leaflet-control-search.search-exp{box-shadow:0 1px 7px #999;background:#fff}.leaflet-control-search .search-input{display:block;float:left;background:#fff;border:1px solid #666;border-radius:2px;height:18px;padding:0 18px 0 2px;margin:3px 0 3px 3px}.leaflet-control-search.search-load .search-input{background:url(../images/loader.gif) no-repeat center right #fff}.leaflet-control-search.search-load .search-cancel{visibility:hidden}.leaflet-control-search .search-cancel{display:block;width:22px;height:18px;position:absolute;right:22px;margin:3px 0;background:url(../images/search-icon.png) no-repeat 0 -46px;text-decoration:none;filter:alpha(opacity=80);opacity:.8}.leaflet-control-search .search-cancel:hover{filter:alpha(opacity=100);opacity:1}.leaflet-control-search .search-cancel span{display:none;font-size:18px;line-height:20px;color:#ccc;font-weight:700}.leaflet-control-search .search-cancel:hover span{color:#aaa}.leaflet-control-search .search-button{display:block;float:left;width:26px;height:26px;background:url(../images/search-icon.png) no-repeat 2px 2px #fff;border-radius:4px}.leaflet-control-search .search-button:hover{background:url(../images/search-icon.png) no-repeat 2px -22px #fafafa}.leaflet-control-search .search-tooltip{position:absolute;top:100%;left:0;float:left;list-style:none;padding-left:0;min-width:120px;max-height:122px;box-shadow:1px 1px 6px rgba(0,0,0,.4);background-color:rgba(0,0,0,.25);z-index:1010;overflow-y:auto;overflow-x:hidden;cursor:pointer}.leaflet-control-search .search-tip{margin:2px;padding:2px 4px;display:block;color:#000;background:#eee;border-radius:.25em;text-decoration:none;white-space:nowrap;vertical-align:center}.leaflet-control-search .search-button:hover{background-color:#f4f4f4}.leaflet-control-search .search-tip-select,.leaflet-control-search .search-tip:hover{background-color:#fff}.leaflet-control-search .search-alert{cursor:pointer;clear:both;font-size:.75em;margin-bottom:5px;padding:0 .25em;color:#e00;font-weight:700;border-radius:.25em}\n\n.leaflet-control-search.leaflet-control.search-exp {\n  background: #fff;\n  box-shadow: 0 1px 7px #999; }\n  .leaflet-control-search.leaflet-control.search-exp .search-cancel:hover {\n    width: 17px;\n    height: 17px;\n    right: 33px;\n    top: 1px; }\n  .leaflet-control-search.leaflet-control.search-exp .search-cancel {\n    width: 17px;\n    height: 18px;\n    border: none;\n    right: 33px; }\n\n.leaflet-control-search.leaflet-control {\n  display: flex;\n  flex-direction: row-reverse;\n  box-shadow: none;\n  background: none; }\n  .leaflet-control-search.leaflet-control .search-button {\n    background-position: 4px 5px !important; }\n\n.leaflet-control-search.leaflet-control.search-exp .search-cancel {\n  right: 3px; }\n\n.search-button.leaflet-bar {\n  width: 30px;\n  height: 30px;\n  border: 2px solid rgba(0, 0, 0, 0.2);\n  background-clip: padding-box; }\n\n.leaflet-control-search .search-input {\n  min-width: 200px;\n  height: 33px;\n  margin: 0px;\n  border: none; }\n\n.leaflet-control-search .search-cancel {\n  top: 4px; }\n\n.leaflet-control-search.leaflet-control.search-exp .search-cancel:hover {\n  right: 3px;\n  top: 4px; }\n"; }
+    static get style() { return "/* \n * Leaflet Control Search v2.7.2 - 2017-04-08 \n * \n * Copyright 2017 Stefano Cudini \n * stefano.cudini\@gmail.com \n * http://labs.easyblog.it/ \n * \n * Licensed under the MIT license. \n * \n * Demo: \n * http://labs.easyblog.it/maps/leaflet-search/ \n * \n * Source: \n * git\@github.com:stefanocudini/leaflet-search.git \n * \n */\n\n.leaflet-container .leaflet-control-search{position:relative;float:left;background:#fff;color:#1978cf;-moz-border-radius:4px;-webkit-border-radius:4px;border-radius:4px;background-color:rgba(255,255,255,.8);z-index:1000;box-shadow:0 1px 7px rgba(0,0,0,.65);margin-left:10px;margin-top:10px}.leaflet-control-search.search-exp{box-shadow:0 1px 7px #999;background:#fff}.leaflet-control-search .search-input{display:block;float:left;background:#fff;border:1px solid #666;border-radius:2px;height:18px;padding:0 18px 0 2px;margin:3px 0 3px 3px}.leaflet-control-search.search-load .search-input{background:url(../images/loader.gif) no-repeat center right #fff}.leaflet-control-search.search-load .search-cancel{visibility:hidden}.leaflet-control-search .search-cancel{display:block;width:22px;height:18px;position:absolute;right:22px;margin:3px 0;background:url(../images/search-icon.png) no-repeat 0 -46px;text-decoration:none;filter:alpha(opacity=80);opacity:.8}.leaflet-control-search .search-cancel:hover{filter:alpha(opacity=100);opacity:1}.leaflet-control-search .search-cancel span{display:none;font-size:18px;line-height:20px;color:#ccc;font-weight:700}.leaflet-control-search .search-cancel:hover span{color:#aaa}.leaflet-control-search .search-button{display:block;float:left;width:26px;height:26px;background:url(../images/search-icon.png) no-repeat 2px 2px #fff;border-radius:4px}.leaflet-control-search .search-button:hover{background:url(../images/search-icon.png) no-repeat 2px -22px #fafafa}.leaflet-control-search .search-tooltip{position:absolute;top:100%;left:0;float:left;list-style:none;padding-left:0;min-width:120px;max-height:122px;box-shadow:1px 1px 6px rgba(0,0,0,.4);background-color:rgba(0,0,0,.25);z-index:1010;overflow-y:auto;overflow-x:hidden;cursor:pointer}.leaflet-control-search .search-tip{margin:2px;padding:2px 4px;display:block;color:#000;background:#eee;border-radius:.25em;text-decoration:none;white-space:nowrap;vertical-align:center}.leaflet-control-search .search-button:hover{background-color:#f4f4f4}.leaflet-control-search .search-tip-select,.leaflet-control-search .search-tip:hover{background-color:#fff}.leaflet-control-search .search-alert{cursor:pointer;clear:both;font-size:.75em;margin-bottom:5px;padding:0 .25em;color:#e00;font-weight:700;border-radius:.25em}\n\n.leaflet-control-search.leaflet-control.search-exp {\n  background: #fff;\n  box-shadow: 0 1px 7px #999; }\n  .leaflet-control-search.leaflet-control.search-exp .search-cancel:hover {\n    width: 17px;\n    height: 17px;\n    right: 33px;\n    top: 1px; }\n  .leaflet-control-search.leaflet-control.search-exp .search-cancel {\n    width: 17px;\n    height: 18px;\n    border: none;\n    right: 33px; }\n\n.leaflet-control-search.leaflet-control {\n  display: flex;\n  flex-direction: row-reverse;\n  box-shadow: none;\n  background: none; }\n  .leaflet-control-search.leaflet-control .search-button {\n    background-position: 4px 5px !important; }\n\n.leaflet-control-search.leaflet-control.search-exp .search-cancel {\n  right: 3px; }\n\n.search-button.leaflet-bar {\n  width: 30px;\n  height: 30px;\n  border: 2px solid rgba(0, 0, 0, 0.2);\n  background-clip: padding-box; }\n\n.leaflet-control-search .search-input {\n  min-width: 200px;\n  height: 33px;\n  margin: 0px;\n  border: none; }\n\n.leaflet-control-search .search-cancel {\n  top: 4px; }\n\n.leaflet-control-search.leaflet-control.search-exp .search-cancel:hover {\n  right: 3px;\n  top: 4px; }"; }
 }
 
 export { SearchPlugin };

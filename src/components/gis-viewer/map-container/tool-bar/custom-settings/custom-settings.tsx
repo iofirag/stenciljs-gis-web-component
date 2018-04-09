@@ -100,12 +100,11 @@ export class CustomSettings {
                     isSelected: false,
                 },
             ]
-        }; console.log(vectorsData);
+        };
 
         const dropDownData = [coordinateSystemToolbarData, toolbarLayerSettingsConfig , vectorsData];
-
         const settingsDropDownData = _.filter(dropDownData, (item) => item !== null);
-        // Utils.doNothing([settingsDropDownData])
+        
         return (
             <custom-drop-down-plugin gisMap={this.gisMap} dropDownData={settingsDropDownData} customControlName={'settings'} dropDownTitle={'Settings'} />
         )
@@ -131,30 +130,14 @@ export class CustomSettings {
 
     private coordinateChangeHandler(coordinateSystemType: CoordinateSystemType) {
         // Update newer check item
-        this.setRadioButtonsByCheckedValue('coordinates', coordinateSystemType);
+        Utils.setRadioButtonsByCheckedValue(this.customDropDownPluginEl, 'coordinates', coordinateSystemType);
     }
     private clusterHeatChangeHandler(mode: ClusterHeat) {
         // Update newer check item
-        this.setRadioButtonsByCheckedValue('layers', mode);
-    }
-    private setRadioButtonsByCheckedValue(groupName: string, checkedValue: any) {
-        const groupItems: NodeListOf<Element> = this.customDropDownPluginEl.getControl().getContainer().querySelectorAll(`.menu li.menu-item.custom-group [name="${groupName}"]`);
-        _.forEach(groupItems, (input: Element) => {
-            // Unselect checked element
-            if (input.getAttribute('checked')) {
-                input.removeAttribute('checked');
-            }
-        });
-        _.forEach(groupItems, (input: Element) => {
-            // Selecet element
-            if (input.getAttribute('value') === checkedValue) {
-                input.setAttribute('checked', 'true');
-            }
-        });
-    }
+        Utils.setRadioButtonsByCheckedValue(this.customDropDownPluginEl, 'layers', mode);
+    }    
 
     componentDidUnload() {
         console.log(`componentDidUnload - ${this.compName}`);
-        // this.gisMap.removeControl(this.control);
     }
 }

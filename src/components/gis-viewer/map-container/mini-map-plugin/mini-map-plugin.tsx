@@ -21,15 +21,14 @@ export class MiniMapPlugin {
 
   componentWillLoad() {
     Utils.log_componentWillLoad(this.compName);
-    if (!this.gisMap) return;
+    // Minimap
+    let osmUrl = "http://{s}.tile.osm.org/{z}/{x}/{y}.png";
+    var minimapLayer = L.tileLayer(osmUrl, { minZoom: 0, maxZoom: 13, attributionControl: false, noWrap: true });    
+    console.log( minimapLayer, osmUrl);
+    this.minimapControl = new MiniMap(minimapLayer, this.config.miniMapOptions);
   }
   componentDidLoad() {
     Utils.log_componentDidLoad(this.compName);
-    // Minimap
-    let osmUrl = "http://{s}.tile.osm.org/{z}/{x}/{y}.png";
-    var minimapLayer = L.tileLayer(osmUrl, { minZoom: 0, maxZoom: 13 });
-    console.log( minimapLayer, osmUrl);
-    this.minimapControl = new MiniMap(minimapLayer, this.config.miniMapOptions);
     this.minimapControl.addTo(this.gisMap);
     this.gisMap.addControl(this.minimapControl);
   }

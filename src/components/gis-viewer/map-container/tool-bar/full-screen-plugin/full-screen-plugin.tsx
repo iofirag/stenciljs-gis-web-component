@@ -22,11 +22,11 @@ export class FullScreenPlugin {
 
   componentWillLoad() {
     Utils.log_componentWillLoad(this.compName);
+    this.control = this.createPlugin();
   }
 
   componentDidLoad() {
     Utils.log_componentDidLoad(this.compName);
-    this.control = this.createPlugin();
     this.gisMap.addControl(this.control);
   }
 

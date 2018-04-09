@@ -16,10 +16,10 @@ class ZoomToExtentPlugin {
     }
     componentWillLoad() {
         Utils.log_componentWillLoad(this.compName);
+        this.control = this.createControl();
     }
     componentDidLoad() {
         Utils.log_componentDidLoad(this.compName);
-        this.control = this.createControl();
         this.gisMap.addControl(this.control);
     }
     componentDidUnload() {
@@ -53,7 +53,7 @@ class ZoomToExtentPlugin {
     static get is() { return "zoom-to-extent-plugin"; }
     static get properties() { return { "config": { "type": "Any", "attr": "config" }, "control": { "state": true }, "getControl": { "method": true }, "gisMap": { "type": "Any", "attr": "gis-map" }, "zoomToExtent": { "method": true } }; }
     static get events() { return [{ "name": "zoomToExtentDoneEm", "method": "zoomToExtentDoneEm", "bubbles": true, "cancelable": true, "composed": true }]; }
-    static get style() { return ".zoom-to-extent-bt {\n  background-image: url(\"./assets/allarga-foto.png\"); }\n"; }
+    static get style() { return ".zoom-to-extent-bt {\n  background-image: url(\"./assets/allarga-foto.png\"); }"; }
 }
 
 export { ZoomToExtentPlugin };

@@ -12,6 +12,25 @@ export class MeasurePlugin {
     getControl() {
         return this.control;
     }
+    componentWillLoad() {
+        Utils.log_componentWillLoad(this.compName);
+        this.control = this.createPlugin(this.config.measureOptions);
+    }
+    componentDidLoad() {
+        Utils.log_componentDidLoad(this.compName);
+        Utils.doNothing(measure);
+        this.gisMap.addControl(this.control);
+    }
+    componentDidUnload() {
+        console.log(`componentDidUnload - ${this.compName}`);
+        this.gisMap.removeControl(this.control);
+    }
+    createPlugin(options) {
+        const clonedOptions = Object.assign({ showUnitControl: true }, { unit: this.fromGlobalUnitToPluginUnit(store.state.mapConfig.distanceUnitType) }, options);
+        options.position = 'bottomleft';
+        let control = new L.Control.PolylineMeasure(clonedOptions);
+        return control;
+    }
     fromGlobalUnitToPluginUnit(globalUnit) {
         switch (globalUnit.toLowerCase()) {
             case 'km':
@@ -44,25 +63,6 @@ export class MeasurePlugin {
         while (unitControlIdElement.innerText !== pluginUnitOptions) {
             unitControlIdElement.click();
         }
-    }
-    componentDidLoad() {
-        Utils.log_componentDidLoad(this.compName);
-        if (!this.gisMap)
-            return;
-        Utils.doNothing(measure);
-        this.control = this.createPlugin(this.config.measureOptions);
-        this.gisMap.addControl(this.control);
-    }
-    componentDidUnload() {
-        console.log(`componentDidUnload - ${this.compName}`);
-        this.gisMap.removeControl(this.control);
-    }
-    createPlugin(options) {
-        Utils.doNothing(options);
-        const clonedOptions = Object.assign({ showUnitControl: true }, { unit: this.fromGlobalUnitToPluginUnit(store.state.mapConfig.distanceUnitType) }, options);
-        options.position = 'bottomleft';
-        let control = new L.Control.PolylineMeasure(clonedOptions);
-        return control;
     }
     static get is() { return "measure-plugin"; }
     static get properties() { return { "config": { "type": "Any", "attr": "config" }, "control": { "state": true }, "getControl": { "method": true }, "gisMap": { "type": "Any", "attr": "gis-map" } }; }

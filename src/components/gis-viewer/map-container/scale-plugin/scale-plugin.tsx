@@ -6,6 +6,7 @@ import { ScaleConfig, DistanceUnitType } from '../../../../models';
 import _ from 'lodash';
 import { reaction } from 'mobx';
 import store from '../../../store/store';
+import { Control } from 'leaflet';
 
 @Component({
   tag: "scale-plugin",
@@ -18,10 +19,10 @@ export class ScalePlugin {
   @Prop() gisMap: L.Map;
   @Prop() config: ScaleConfig;
 
-  @State() control: L.Control;
+  @State() control: L.Control.Scale;
 
   @Method()
-  getControl() {
+  getControl(): Control {
     return this.control;
   }
 
@@ -57,11 +58,6 @@ export class ScalePlugin {
   }
   componentWillLoad() {
     Utils.log_componentWillLoad(this.compName);
-  }
-  componentWillUpdate() { }
-
-  componentDidLoad() {
-    Utils.log_componentDidLoad(this.compName);
     // Create new component
     const options: L.Control.ScaleOptions = {
       position: this.config.scaleOptions.position,
@@ -69,8 +65,12 @@ export class ScalePlugin {
       imperial: true,
     };
     this.control = L.control.scale(options);
+  }
+  componentWillUpdate() { }
+
+  componentDidLoad() {
+    Utils.log_componentDidLoad(this.compName);
     this.gisMap.addControl(this.control);
-    
     this.initUnitElementsWithClasses();
     this.showScaleUnitsElementByType(store.state.mapConfig.distanceUnitType);
   }

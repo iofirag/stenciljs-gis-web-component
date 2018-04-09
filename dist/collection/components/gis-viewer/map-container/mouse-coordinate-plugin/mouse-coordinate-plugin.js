@@ -9,14 +9,10 @@ import { reaction } from "mobx";
 export class MouseCoordinagePlugin {
     constructor() {
         this.compName = MOUSE_COORDINATE_PLUGIN_TAG;
-        // debugger
         reaction(() => store.state.mapConfig.coordinateSystemType, coordinateSystemType => this.changeCoordinateSystemHandler(coordinateSystemType));
     }
     componentWillLoad() {
         Utils.log_componentWillLoad(this.compName);
-    }
-    componentDidLoad() {
-        Utils.log_componentDidLoad(this.compName);
         const mouseCoordinateGps = {
             gpsLong: false,
         };
@@ -32,6 +28,9 @@ export class MouseCoordinagePlugin {
         this.controlGps = this.createPlugin(mouseCoordinateGps);
         this.controlUtm = this.createPlugin(mouseCoordinateUtm);
         this.controlUtmref = this.createPlugin(mouseCoordinateUtmref);
+    }
+    componentDidLoad() {
+        Utils.log_componentDidLoad(this.compName);
         this.gisMap.addControl(this.controlGps);
         this.gisMap.addControl(this.controlUtm);
         this.gisMap.addControl(this.controlUtmref);

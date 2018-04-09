@@ -3,42 +3,10 @@
 s=document.querySelector("script[data-namespace='gisviewer']");if(s){resourcesUrl=s.getAttribute('data-resources-url');}
 (function(window, document, Context, namespace) {
   'use strict';
-  function assignHostContentSlots(plt, domApi, elm, childNodes, childNode, slotName, defaultSlot, namedSlots, i) {
-    // so let's loop through each of the childNodes to the host element
-    // and pick out the ones that have a slot attribute
-    // if it doesn't have a slot attribute, than it's a default slot
-    elm.$defaultHolder || 
-    // create a comment to represent where the original
-    // content was first placed, which is useful later on
-    domApi.$insertBefore(elm, elm.$defaultHolder = domApi.$createComment(''), childNodes[0]);
-    for (i = 0; i < childNodes.length; i++) {
-      childNode = childNodes[i];
-      if (1 /* ElementNode */ === domApi.$nodeType(childNode) && null != (slotName = domApi.$getAttribute(childNode, 'slot'))) {
-        // is element node
-        // this element has a slot name attribute
-        // so this element will end up getting relocated into
-        // the component's named slot once it renders
-        namedSlots = namedSlots || {};
-        namedSlots[slotName] ? namedSlots[slotName].push(childNode) : namedSlots[slotName] = [ childNode ];
-      } else {
-        // this is a text node
-        // or it's an element node that doesn't have a slot attribute
-        // let's add this node to our collection for the default slot
-        defaultSlot ? defaultSlot.push(childNode) : defaultSlot = [ childNode ];
-      }
-    }
-    // keep a reference to all of the initial nodes
-    // found as immediate childNodes to the host element
-    // elm._hostContentNodes = {
-    //   defaultSlot: defaultSlot,
-    //   namedSlots: namedSlots
-    // };
-        plt.defaultSlotsMap.set(elm, defaultSlot);
-    plt.namedSlotsMap.set(elm, namedSlots);
-  }
   /**
      * SSR Attribute Names
-     */  const SSR_VNODE_ID = 'data-ssrv';
+     */
+  const SSR_VNODE_ID = 'data-ssrv';
   const SSR_CHILD_ID = 'data-ssrc';
   /**
      * Default style mode id
@@ -139,8 +107,7 @@ s=document.querySelector("script[data-namespace='gisviewer']");if(s){resourcesUr
       }
     }
   }
-  const isDef = v => void 0 !== v && null !== v;
-  const isUndef = v => void 0 === v || null === v;
+  const isDef = v => null != v;
   const toLowerCase = str => str.toLowerCase();
   const dashToPascalCase = str => toLowerCase(str).split('-').map(segment => segment.charAt(0).toUpperCase() + segment.slice(1)).join('');
   const noop = () => {};
@@ -505,15 +472,14 @@ s=document.querySelector("script[data-namespace='gisviewer']");if(s){resourcesUr
      * Modified for Stencil's compiler and vdom
      */
   const stack = [];
-  class VNode {}
   function h(nodeName, vnodeData, child) {
-    let children;
+    let children = null;
     let lastSimple = false;
     let simple = false;
     for (var i = arguments.length; i-- > 2; ) {
       stack.push(arguments[i]);
     }
-    while (stack.length) {
+    while (stack.length > 0) {
       if ((child = stack.pop()) && void 0 !== child.pop) {
         for (i = child.length; i--; ) {
           stack.push(child[i]);
@@ -521,19 +487,18 @@ s=document.querySelector("script[data-namespace='gisviewer']");if(s){resourcesUr
       } else {
         'boolean' === typeof child && (child = null);
         (simple = 'function' !== typeof nodeName) && (null == child ? child = '' : 'number' === typeof child ? child = String(child) : 'string' !== typeof child && (simple = false));
-        simple && lastSimple ? children[children.length - 1].vtext += child : void 0 === children ? children = [ simple ? t(child) : child ] : children.push(simple ? t(child) : child);
+        simple && lastSimple ? children[children.length - 1].vtext += child : null === children ? children = [ simple ? {
+          vtext: child
+        } : child ] : children.push(simple ? {
+          vtext: child
+        } : child);
         lastSimple = simple;
       }
     }
-    const vnode = new VNode();
-    vnode.vtag = nodeName;
-    vnode.vchildren = children;
-    if (vnodeData) {
-      vnode.vattrs = vnodeData;
-      vnode.vkey = vnodeData.key;
-      vnode.vref = vnodeData.ref;
+    let vkey;
+    if (null != vnodeData) {
       // normalize class / classname attributes
-            vnodeData.className && (vnodeData.class = vnodeData.className);
+      vnodeData.className && (vnodeData.class = vnodeData.className);
       if ('object' === typeof vnodeData.class) {
         for (i in vnodeData.class) {
           vnodeData.class[i] && stack.push(i);
@@ -541,13 +506,23 @@ s=document.querySelector("script[data-namespace='gisviewer']");if(s){resourcesUr
         vnodeData.class = stack.join(' ');
         stack.length = 0;
       }
+      null != vnodeData.key && (vkey = vnodeData.key);
     }
-    return vnode;
-  }
-  function t(textValue) {
-    const vnode = new VNode();
-    vnode.vtext = textValue;
-    return vnode;
+    if ('function' === typeof nodeName) {
+      // nodeName is a functional component
+      return nodeName(Object.assign({}, vnodeData, {
+        children: children
+      }));
+    }
+    return {
+      vtag: nodeName,
+      vchildren: children,
+      vtext: void 0,
+      vattrs: vnodeData,
+      vkey: vkey,
+      elm: void 0,
+      ishost: false
+    };
   }
   function render(plt, cmpMeta, elm, instance, isUpdateRender) {
     try {
@@ -574,14 +549,15 @@ s=document.querySelector("script[data-namespace='gisviewer']");if(s){resourcesUr
         // or we need to update the css class/attrs on the host element
         // if we haven't already created a vnode, then we give the renderer the actual element
         // if this is a re-render, then give the renderer the last vnode we already created
-        const oldVNode = plt.vnodeMap.get(elm) || new VNode();
+        const oldVNode = plt.vnodeMap.get(elm) || {};
         oldVNode.elm = elm;
         const hostVNode = h(null, vnodeHostData, vnodeChildren);
         false;
         // each patch always gets a new vnode
         // the host element itself isn't patched because it already exists
         // kick off the actual render and any DOM updates
-        plt.vnodeMap.set(elm, plt.render(oldVNode, hostVNode, isUpdateRender, plt.defaultSlotsMap.get(elm), plt.namedSlotsMap.get(elm), cmpMeta.componentConstructor.encapsulation));
+        const vnode = plt.render(oldVNode, hostVNode, isUpdateRender, cmpMeta.componentConstructor.encapsulation, {});
+        plt.vnodeMap.set(elm, vnode);
       }
       true;
       // attach the styles this component needs, if any
@@ -839,22 +815,6 @@ s=document.querySelector("script[data-namespace='gisviewer']");if(s){resourcesUr
     'spellcheck': 1
   };
   const XLINK_NS$1 = 'http://www.w3.org/1999/xlink';
-  function updateElement(plt, oldVnode, newVnode, isSvgMode, memberName) {
-    // if the element passed in is a shadow root, which is a document fragment
-    // then we want to be adding attrs/props to the shadow root's "host" element
-    // if it's not a shadow root, then we add attrs/props to the same element
-    const elm = 11 /* DocumentFragment */ === newVnode.elm.nodeType && newVnode.elm.host ? newVnode.elm.host : newVnode.elm;
-    const oldVnodeAttrs = oldVnode && oldVnode.vattrs || EMPTY_OBJ;
-    const newVnodeAttrs = newVnode.vattrs || EMPTY_OBJ;
-    // remove attributes no longer present on the vnode by setting them to undefined
-        for (memberName in oldVnodeAttrs) {
-      newVnodeAttrs && null != newVnodeAttrs[memberName] || null == oldVnodeAttrs[memberName] || setAccessor(plt, elm, memberName, oldVnodeAttrs[memberName], void 0, isSvgMode, newVnode.isHostElement);
-    }
-    // add new & update changed attributes
-        for (memberName in newVnodeAttrs) {
-      memberName in oldVnodeAttrs && newVnodeAttrs[memberName] === ('value' === memberName || 'checked' === memberName ? elm[memberName] : oldVnodeAttrs[memberName]) || setAccessor(plt, elm, memberName, oldVnodeAttrs[memberName], newVnodeAttrs[memberName], isSvgMode, newVnode.isHostElement);
-    }
-  }
   function setAccessor(plt, elm, memberName, oldValue, newValue, isSvg, isHostElement, i, ilen) {
     if ('class' !== memberName || isSvg) {
       if ('style' === memberName) {
@@ -867,7 +827,7 @@ s=document.querySelector("script[data-namespace='gisviewer']");if(s){resourcesUr
         for (i in newValue) {
           newValue[i] !== oldValue[i] && (elm.style[i] = newValue[i]);
         }
-      } else if ('o' !== memberName[0] || 'n' !== memberName[1] || memberName in elm) {
+      } else if ('o' !== memberName[0] || 'n' !== memberName[1] || !/[A-Z]/.test(memberName[2]) || memberName in elm) {
         if ('list' !== memberName && 'type' !== memberName && !isSvg && (memberName in elm || -1 !== [ 'object', 'function' ].indexOf(typeof newValue) && null !== newValue) || false) {
           // Properties
           // - list and type are attributes that get applied as values on the element
@@ -895,8 +855,14 @@ s=document.querySelector("script[data-namespace='gisviewer']");if(s){resourcesUr
         }
       } else {
         // Event Handlers
-        // adding an standard event listener, like <button onClick=...> or something
-        memberName = toLowerCase(memberName.substring(2));
+        // so if the member name starts with "on" and the 3rd characters is
+        // a capital letter, and it's not already a member on the element,
+        // then we're assuming it's an event listener
+        // standard event
+        // the JSX attribute could have been "onMouseOver" and the
+        // member name "onmouseover" is on the element's prototype
+        // so let's add the listener "mouseover", which is all lowercased
+        memberName = toLowerCase(memberName) in elm ? toLowerCase(memberName.substring(2)) : toLowerCase(memberName[2]) + memberName.substring(3);
         newValue ? newValue !== oldValue && 
         // add listener
         plt.domApi.$addEventListener(elm, memberName, newValue) : 
@@ -926,62 +892,29 @@ s=document.querySelector("script[data-namespace='gisviewer']");if(s){resourcesUr
       elm[name] = value;
     } catch (e) {}
   }
-  /**
-     * Virtual DOM patching algorithm based on Snabbdom by
-     * Simon Friis Vindum (@paldepind)
-     * Licensed under the MIT License
-     * https://github.com/snabbdom/snabbdom/blob/master/LICENSE
-     *
-     * Modified for Stencil's renderer and slot projection
-     */  let isSvgMode = false;
+  function updateElement(plt, oldVnode, newVnode, isSvgMode, memberName) {
+    // if the element passed in is a shadow root, which is a document fragment
+    // then we want to be adding attrs/props to the shadow root's "host" element
+    // if it's not a shadow root, then we add attrs/props to the same element
+    const elm = 11 /* DocumentFragment */ === newVnode.elm.nodeType && newVnode.elm.host ? newVnode.elm.host : newVnode.elm;
+    const oldVnodeAttrs = oldVnode && oldVnode.vattrs || EMPTY_OBJ;
+    const newVnodeAttrs = newVnode.vattrs || EMPTY_OBJ;
+    // remove attributes no longer present on the vnode by setting them to undefined
+        for (memberName in oldVnodeAttrs) {
+      newVnodeAttrs && null != newVnodeAttrs[memberName] || null == oldVnodeAttrs[memberName] || setAccessor(plt, elm, memberName, oldVnodeAttrs[memberName], void 0, isSvgMode, newVnode.ishost);
+    }
+    // add new & update changed attributes
+        for (memberName in newVnodeAttrs) {
+      memberName in oldVnodeAttrs && newVnodeAttrs[memberName] === ('value' === memberName || 'checked' === memberName ? elm[memberName] : oldVnodeAttrs[memberName]) || setAccessor(plt, elm, memberName, oldVnodeAttrs[memberName], newVnodeAttrs[memberName], isSvgMode, newVnode.ishost);
+    }
+  }
+  let isSvgMode = false;
   function createRendererPatch(plt, domApi) {
     // createRenderer() is only created once per app
     // the patch() function which createRenderer() returned is the function
     // which gets called numerous times by each component
     function createElm(vnode, parentElm, childIndex, i, elm, childNode, namedSlot, slotNodes, hasLightDom) {
-      if ('function' === typeof vnode.vtag) {
-        vnode = vnode.vtag(Object.assign({}, vnode.vattrs, {
-          children: vnode.vchildren
-        }));
-        if (!vnode) {
-          return null;
-        }
-      }
-      if (!useNativeShadowDom && 'slot' === vnode.vtag) {
-        if (defaultSlot || namedSlots) {
-          scopeId && domApi.$setAttribute(parentElm, scopeId + '-slot', '');
-          // special case for manually relocating host content nodes
-          // to their new home in either a named slot or the default slot
-                    namedSlot = vnode.vattrs && vnode.vattrs.name;
-          // this vnode is a named slot
-          slotNodes = isDef(namedSlot) ? namedSlots && namedSlots[namedSlot] : defaultSlot;
-          if (isDef(slotNodes)) {
-            // the host element has some nodes that need to be moved around
-            // we have a slot for the user's vnode to go into
-            // while we're moving nodes around, temporarily disable
-            // the disconnectCallback from working
-            plt.tmpDisconnected = true;
-            for (i = 0; i < slotNodes.length; i++) {
-              childNode = slotNodes[i];
-              // remove the host content node from it's original parent node
-              // then relocate the host content node to its new slotted home
-                            domApi.$remove(childNode);
-              domApi.$appendChild(parentElm, childNode);
-              8 /* CommentNode */ !== childNode.nodeType && (hasLightDom = true);
-            }
-            !hasLightDom && vnode.vchildren && 
-            // the user did not provide light-dom content
-            // and this vnode does come with it's own default content
-            updateChildren(parentElm, [], vnode.vchildren);
-            // done moving nodes around
-            // allow the disconnect callback to work again
-                        plt.tmpDisconnected = false;
-          }
-        }
-        // this was a slot node, we do not create slot elements, our work here is done
-        // no need to return any element to be added to the dom
-                return null;
-      }
+      false;
       if (isDef(vnode.vtext)) {
         // create text node
         vnode.elm = domApi.$createTextNode(vnode.vtext);
@@ -991,7 +924,7 @@ s=document.querySelector("script[data-namespace='gisviewer']");if(s){resourcesUr
         false;
         // add css classes, attrs, props, listeners, etc.
         updateElement(plt, null, vnode, isSvgMode);
-        null !== scopeId && elm._scopeId !== scopeId && 
+        isDef(scopeId) && elm._scopeId !== scopeId && 
         // if there is a scopeId and this is the initial render
         // then let's add the scopeId as an attribute
         domApi.$setAttribute(elm, elm._scopeId = scopeId, '');
@@ -1014,13 +947,13 @@ s=document.querySelector("script[data-namespace='gisviewer']");if(s){resourcesUr
       }
       return vnode.elm;
     }
-    function addVnodes(parentElm, before, vnodes, startIdx, endIdx, childNode, vnodeChild) {
-      const containerElm = parentElm.$defaultHolder && domApi.$parentNode(parentElm.$defaultHolder) || parentElm;
+    function addVnodes(parentElm, before, vnodes, startIdx, endIdx, containerElm, childNode, vnodeChild) {
+      containerElm = parentElm.$defaultHolder && domApi.$parentNode(parentElm.$defaultHolder) || parentElm;
       for (;startIdx <= endIdx; ++startIdx) {
         vnodeChild = vnodes[startIdx];
-        if (isDef(vnodeChild)) {
+        if (vnodeChild) {
           childNode = isDef(vnodeChild.vtext) ? domApi.$createTextNode(vnodeChild.vtext) : createElm(vnodeChild, parentElm, startIdx);
-          if (isDef(childNode)) {
+          if (childNode) {
             vnodeChild.elm = childNode;
             domApi.$insertBefore(containerElm, childNode, before);
           }
@@ -1046,9 +979,9 @@ s=document.querySelector("script[data-namespace='gisviewer']");if(s){resourcesUr
       let node;
       while (oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx) {
         if (null == oldStartVnode) {
+          // Vnode might have been moved left
           oldStartVnode = oldCh[++oldStartIdx];
- // Vnode might have been moved left
-                } else if (null == oldEndVnode) {
+        } else if (null == oldEndVnode) {
           oldEndVnode = oldCh[--oldEndIdx];
         } else if (null == newStartVnode) {
           newStartVnode = newCh[++newStartIdx];
@@ -1063,23 +996,21 @@ s=document.querySelector("script[data-namespace='gisviewer']");if(s){resourcesUr
           oldEndVnode = oldCh[--oldEndIdx];
           newEndVnode = newCh[--newEndIdx];
         } else if (isSameVnode(oldStartVnode, newEndVnode)) {
+          // Vnode moved right
           patchVNode(oldStartVnode, newEndVnode);
           domApi.$insertBefore(parentElm, oldStartVnode.elm, domApi.$nextSibling(oldEndVnode.elm));
           oldStartVnode = oldCh[++oldStartIdx];
           newEndVnode = newCh[--newEndIdx];
         } else if (isSameVnode(oldEndVnode, newStartVnode)) {
+          // Vnode moved left
           patchVNode(oldEndVnode, newStartVnode);
           domApi.$insertBefore(parentElm, oldEndVnode.elm, oldStartVnode.elm);
           oldEndVnode = oldCh[--oldEndIdx];
           newStartVnode = newCh[++newStartIdx];
         } else {
-          isUndef(oldKeyToIdx) && (oldKeyToIdx = createKeyToOldIdx(oldCh, oldStartIdx, oldEndIdx));
+          isDef(oldKeyToIdx) || (oldKeyToIdx = createKeyToOldIdx(oldCh, oldStartIdx, oldEndIdx));
           idxInOld = oldKeyToIdx[newStartVnode.vkey];
-          if (isUndef(idxInOld)) {
-            // new element
-            node = createElm(newStartVnode, parentElm, newStartIdx);
-            newStartVnode = newCh[++newStartIdx];
-          } else {
+          if (isDef(idxInOld)) {
             elmToMove = oldCh[idxInOld];
             if (elmToMove.vtag !== newStartVnode.vtag) {
               node = createElm(newStartVnode, parentElm, idxInOld);
@@ -1088,6 +1019,10 @@ s=document.querySelector("script[data-namespace='gisviewer']");if(s){resourcesUr
               oldCh[idxInOld] = void 0;
               node = elmToMove.elm;
             }
+            newStartVnode = newCh[++newStartIdx];
+          } else {
+            // new element
+            node = createElm(newStartVnode, parentElm, newStartIdx);
             newStartVnode = newCh[++newStartIdx];
           }
           node && domApi.$insertBefore(oldStartVnode.elm && oldStartVnode.elm.parentNode || parentElm, node, oldStartVnode.elm);
@@ -1112,15 +1047,20 @@ s=document.querySelector("script[data-namespace='gisviewer']");if(s){resourcesUr
       }
       return map;
     }
-    function patchVNode(oldVNode, newVNode) {
+    function patchVNode(oldVNode, newVNode, defaultHolder) {
       const elm = newVNode.elm = oldVNode.elm;
       const oldChildren = oldVNode.vchildren;
       const newChildren = newVNode.vchildren;
-      let defaultSlot;
       false;
-      if (isUndef(newVNode.vtext)) {
+      if (isDef(newVNode.vtext)) {
+        false;
+        oldVNode.vtext !== newVNode.vtext && 
+        // update the text content for the text only vnode
+        // and also only if the text is different than before
+        domApi.$setTextContent(elm, newVNode.vtext);
+      } else {
         // element node
-        'slot' !== newVNode.vtag && 'function' !== typeof newVNode.vtag && 
+        'slot' !== newVNode.vtag && 
         // either this is the first render of an element OR it's an update
         // AND we already know it's possible it could have changed
         // this updates the element's css classes, attrs, props, listeners, etc.
@@ -1140,37 +1080,22 @@ s=document.querySelector("script[data-namespace='gisviewer']");if(s){resourcesUr
           // no new child vnodes, but there are old child vnodes to remove
           removeVnodes(oldChildren, 0, oldChildren.length - 1);
         }
-      } else if (defaultSlot = plt.defaultSlotsMap.get(elm)) {
-        // this element has slotted content
-        const parentElement = defaultSlot[0].parentElement;
-        domApi.$setTextContent(parentElement, newVNode.vtext);
-        plt.defaultSlotsMap.set(elm, [ parentElement.childNodes[0] ]);
-      } else {
-        oldVNode.vtext !== newVNode.vtext && 
-        // update the text content for the text only vnode
-        // and also only if the text is different than before
-        domApi.$setTextContent(elm, newVNode.vtext);
       }
       false;
     }
     // internal variables to be reused per patch() call
-        let isUpdate, defaultSlot, namedSlots, useNativeShadowDom, scopeId;
-    return function patch(oldVNode, newVNode, isUpdatePatch, elmDefaultSlot, elmNamedSlots, encapsulation, ssrPatchId) {
+        let hostContent, scopeId;
+    return function patch(oldVNode, newVNode, isUpdate, encapsulation, hostElmContent, ssrPatchId) {
       // patchVNode() is synchronous
       // so it is safe to set these variables and internally
       // the same patch() call will reference the same data
-      isUpdate = isUpdatePatch;
-      defaultSlot = elmDefaultSlot;
-      namedSlots = elmNamedSlots;
+      hostContent = hostElmContent;
       false;
-      scopeId = 'scoped' === encapsulation || 'shadow' === encapsulation && !domApi.$supportsShadowDom ? 'data-' + domApi.$tagName(oldVNode.elm) : null;
+      false;
       false;
       if (!isUpdate) {
         false;
-        scopeId && 
-        // this host element should use scoped css
-        // add the scope attribute to the host
-        domApi.$setAttribute(oldVNode.elm, scopeId + '-host', '');
+        false;
       }
       // synchronous patch
             patchVNode(oldVNode, newVNode);
@@ -1181,7 +1106,7 @@ s=document.querySelector("script[data-namespace='gisviewer']");if(s){resourcesUr
   }
   function callNodeRefs(vNode, isDestroy) {
     if (vNode) {
-      vNode.vref && vNode.vref(isDestroy ? null : vNode.elm);
+      vNode.vattrs && vNode.vattrs.ref && vNode.vattrs.ref(isDestroy ? null : vNode.elm);
       vNode.vchildren && vNode.vchildren.forEach(vChild => {
         callNodeRefs(vChild, isDestroy);
       });
@@ -1196,7 +1121,7 @@ s=document.querySelector("script[data-namespace='gisviewer']");if(s){resourcesUr
       for (i = 0; i < ilen; i++) {
         elm = allSsrElms[i];
         ssrVNodeId = domApi.$getAttribute(elm, SSR_VNODE_ID);
-        ssrVNode = new VNode();
+        ssrVNode = {};
         ssrVNode.vtag = domApi.$tagName(ssrVNode.elm = elm);
         plt.vnodeMap.set(elm, ssrVNode);
         for (j = 0, jlen = elm.childNodes.length; j < jlen; j++) {
@@ -1217,7 +1142,7 @@ s=document.querySelector("script[data-namespace='gisviewer']");if(s){resourcesUr
         // ensure this this element is a child element of the ssr vnode
                 if (childVNodeSplt[0] === ssrVNodeId) {
           // cool, this element is a child to the parent vnode
-          childVNode = new VNode();
+          childVNode = {};
           childVNode.vtag = domApi.$tagName(childVNode.elm = node);
           // this is a new child vnode
           // so ensure its parent vnode has the vchildren array
@@ -1243,7 +1168,9 @@ s=document.querySelector("script[data-namespace='gisviewer']");if(s){resourcesUr
       // which should start with an "s" and delimited by periods
             if ('s' === childVNodeSplt[0] && childVNodeSplt[1] === ssrVNodeId) {
         // cool, this is a text node and it's got a start comment
-        childVNode = t(domApi.$getTextContent(node));
+        childVNode = {
+          vtext: domApi.$getTextContent(node)
+        };
         childVNode.elm = node;
         // this is a new child vnode
         // so ensure its parent vnode has the vchildren array
@@ -1449,6 +1376,26 @@ s=document.querySelector("script[data-namespace='gisviewer']");if(s){resourcesUr
   function getComponentInstance(plt, elm) {
     return Promise.resolve(plt.instanceMap.get(elm));
   }
+  function initCoreComponentOnReady(plt, App) {
+    // create the function the HTMLElement.prototype.componentOnReady will end up calling
+    App.componentOnReady = ((elm, resolve) => {
+      if (plt.getComponentMeta(elm) && !plt.hasLoadedMap.has(elm)) {
+        // this is a known component and the
+        // host element hasn't finished loading yet
+        const onReadyCallbacks = plt.onReadyCallbacksMap.get(elm) || [];
+        onReadyCallbacks.push(resolve);
+        plt.onReadyCallbacksMap.set(elm, onReadyCallbacks);
+      } else {
+        // either the host element has already loaded
+        // or it's not even a component
+        resolve(elm);
+      }
+    });
+    // drain the queue that could have been filled up before the core fully loaded
+        App.$r && App.$r.forEach(r => App.componentOnReady(r[0], r[1]));
+    // remove the queue now that the core file has initialized
+        App.$r = null;
+  }
   function attributeChangedCallback(membersMeta, elm, attribName, oldVal, newVal, propName, memberMeta) {
     // only react if the attribute values actually changed
     if (membersMeta && oldVal !== newVal) {
@@ -1472,8 +1419,6 @@ s=document.querySelector("script[data-namespace='gisviewer']");if(s){resourcesUr
     if (!plt.hasConnectedMap.has(elm)) {
       // first time we've connected
       plt.hasConnectedMap.set(elm, true);
-      // if somehow this node was reused, ensure we've removed this property
-      // elm._hasDestroyed = null;
       // register this component as an actively
       // loading child to its parent component
             registerWithParentComponent(plt, elm);
@@ -1594,11 +1539,6 @@ s=document.querySelector("script[data-namespace='gisviewer']");if(s){resourcesUr
       // the element has left the builing
       disconnectedCallback(plt, this);
     };
-    HostElementConstructor.componentOnReady = function(cb, promise) {
-      cb || (promise = new Promise(resolve => cb = resolve));
-      componentOnReady(plt, this, cb);
-      return promise;
-    };
     HostElementConstructor.$initLoad = function() {
       initComponentLoaded(plt, this, hydratedCssClass);
     };
@@ -1609,17 +1549,6 @@ s=document.querySelector("script[data-namespace='gisviewer']");if(s){resourcesUr
     // these would come from the @Prop and @Method decorators that
     // should create the public API to this component
         proxyHostElementPrototype(plt, cmpMeta.membersMeta, HostElementConstructor);
-  }
-  function componentOnReady(plt, elm, cb, onReadyCallbacks) {
-    if (!plt.isDisconnectedMap.has(elm)) {
-      if (plt.hasLoadedMap.has(elm)) {
-        cb(elm);
-      } else {
-        onReadyCallbacks = plt.onReadyCallbacksMap.get(elm) || [];
-        onReadyCallbacks.push(cb);
-        plt.onReadyCallbacksMap.set(elm, onReadyCallbacks);
-      }
-    }
   }
   function proxyController(domApi, controllerComponents, ctrlTag) {
     return {
@@ -1643,9 +1572,6 @@ s=document.querySelector("script[data-namespace='gisviewer']");if(s){resourcesUr
       }
       ctrlElm.componentOnReady(resolve);
     });
-  }
-  function useShadowDom(supportsNativeShadowDom, cmpMeta) {
-    return supportsNativeShadowDom && 1 /* ShadowDom */ === cmpMeta.encapsulation;
   }
   function useScopedCss(supportsNativeShadowDom, cmpMeta) {
     if (2 /* ScopedCss */ === cmpMeta.encapsulation) {
@@ -1693,7 +1619,6 @@ s=document.querySelector("script[data-namespace='gisviewer']");if(s){resourcesUr
       queue: createQueueClient(App, win),
       ancestorHostElementMap: new WeakMap(),
       componentAppliedStyles: new WeakMap(),
-      defaultSlotsMap: new WeakMap(),
       hasConnectedMap: new WeakMap(),
       hasListenersMap: new WeakMap(),
       hasLoadedMap: new WeakMap(),
@@ -1701,7 +1626,6 @@ s=document.querySelector("script[data-namespace='gisviewer']");if(s){resourcesUr
       instanceMap: new WeakMap(),
       isDisconnectedMap: new WeakMap(),
       isQueuedForUpdate: new WeakMap(),
-      namedSlotsMap: new WeakMap(),
       onReadyCallbacksMap: new WeakMap(),
       queuedEvents: new WeakMap(),
       vnodeMap: new WeakMap(),
@@ -1733,17 +1657,7 @@ s=document.querySelector("script[data-namespace='gisviewer']");if(s){resourcesUr
       // first check if there's an attribute
       // next check the app's global
       elm.mode = domApi.$getAttribute(elm, 'mode') || Context.mode);
-      // host element has been connected to the DOM
-            domApi.$getAttribute(elm, SSR_VNODE_ID) || useShadowDom(domApi.$supportsShadowDom, cmpMeta) || 
-      // only required when we're NOT using native shadow dom (slot)
-      // this host element was NOT created with SSR
-      // let's pick out the inner content for slot projection
-      assignHostContentSlots(plt, domApi, elm, elm.childNodes);
-      domApi.$supportsShadowDom || 1 /* ShadowDom */ !== cmpMeta.encapsulation || (
-      // this component should use shadow dom
-      // but this browser doesn't support it
-      // so let's polyfill a few things for the user
-      elm.shadowRoot = elm);
+      false;
     }
     function defineComponent(cmpMeta, HostElementConstructor) {
       if (!globalDefined[cmpMeta.tagNameMeta]) {
@@ -1806,6 +1720,8 @@ s=document.querySelector("script[data-namespace='gisviewer']");if(s){resourcesUr
     // register all the components now that everything's ready
     // standard es2015 class extends HTMLElement
     (App.components || []).map(data => parseComponentLoader(data, cmpRegistry)).forEach(cmpMeta => plt.defineComponent(cmpMeta, class extends HTMLElement {}));
+    // create the componentOnReady fn
+        initCoreComponentOnReady(plt, App);
     // notify that the app has initialized and the core script is ready
     // but note that the components have not fully loaded yet, that's the "appload" event
         App.initialized = true;

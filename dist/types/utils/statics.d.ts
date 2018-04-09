@@ -12,6 +12,7 @@ export declare const LAYER_MANAGER_PLUGIN_TAG: string;
 export declare const DROP_DOWN_PLUGIN_TAG: string;
 export declare const CUSTOM_DROP_DOWN_PLUGIN_TAG: string;
 export declare const CUSTOM_SETTINGS_TAG: string;
+export declare const CUSTOM_EXPORT_TAG: string;
 export declare const MINI_MAP_PLUGIN_TAG: string;
 export declare const SCALE_PLUGIN_TAG: string;
 export declare const MOUSE_COORDINATE_PLUGIN_TAG: string;
@@ -28,3 +29,13 @@ export declare const CoordinateType: {
 export declare const LayersTypeLabel: {
     [key: string]: string;
 };
+export declare const MIN_OPACITY: number;
+export declare const DEFAULT_OSM_TILE: {
+    name: string;
+    address: string;
+};
+export declare const LayerNames: {
+    [key: string]: string;
+};
+export declare const MIN_ZOOM: number;
+export declare const MAX_ZOOM: number;

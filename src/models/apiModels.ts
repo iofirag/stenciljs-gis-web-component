@@ -37,6 +37,7 @@ export type MapConfig = {
     isWheelZoomOnlyAfterClick?: boolean
     isFlyToBounds?: boolean
     isZoomControl?: boolean
+    initBounds?: MapBounds
     // isExport?: boolean
 }
 export type DistanceUnitType = 'km' | 'mile' | 'nauticalmiles'
@@ -253,6 +254,7 @@ export enum DropDownItemType {
 }
 
 export type ShapeDefinition = {
+    id?: string
     data?: ShapeData
     shapeWkt?: string
     shapeObject?: ShapeObject
@@ -359,10 +361,22 @@ export type BaseControlOptions = {
 // import L from 'leaflet'
 // info on shape layer for internal use of Gis conponent
 // contains ApiModels.ShapeLayerDefinition, which was received from props from external application
-export type ShapeLayerContainer = {
+export type ShapeLayerContainer_Dev = {
     layerDefinition: ShapeLayerDefinition
     leafletHeatLayer: any //HeatLayer //O.A
     leafletClusterLayer: any //L.MarkerClusterGroup // O.A */
     isDisplay: boolean
     // type: LayerType // TODO
 }
+
+export type MapLayers = {
+    baseMaps: BaseMap; // Check - change to type
+    initialLayers: ShapeLayerContainer_Dev[];
+    importedLayers: {
+        [key: string]: ShapeLayerContainer_Dev[];
+    };
+    drawableLayers: L.FeatureGroup[];
+};
+export type BaseMap = { [key: string]: L.TileLayer };
+
+export type SelectionMode = 'selectLayer' | 'unSelectLayer';

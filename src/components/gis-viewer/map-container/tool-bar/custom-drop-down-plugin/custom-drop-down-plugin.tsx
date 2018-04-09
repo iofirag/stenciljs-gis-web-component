@@ -27,7 +27,7 @@ export class CustomDropDownPlugin {
 
 
     @Method()
-    getControl(): L.Control.CustomDropDownPlugin {
+    getControl(): L.Control {
         return this.control;
     }
 
@@ -37,7 +37,6 @@ export class CustomDropDownPlugin {
         Utils.log_componentWillLoad(this.compName);
     }
     // componentWillUpdate() {
-    //     // debugger
     //     // this.control.customUpdate();
     // }
 
@@ -127,8 +126,8 @@ export class CustomDropDownPlugin {
                     input.setAttribute('checked', 'true');
                 }
                 // Set on click function
-                gItem.addEventListener('click', () => {
-                    dropDownDataItem.changeAction.bind(dropDownDataItem.value.toLowerCase())
+                gItem.addEventListener('click', (e: any) => {
+                    dropDownDataItem.changeAction(e.target.textContent.toLowerCase())
                 });
 
                 label.innerText = dropDownDataItem.label.replace(/-/g, ' ');

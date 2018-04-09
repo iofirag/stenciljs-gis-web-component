@@ -19,12 +19,11 @@ export class CustomDropDownPlugin {
         Utils.log_componentWillLoad(this.compName);
     }
     // componentWillUpdate() {
-    //     // debugger
     //     // this.control.customUpdate();
     // }
     componentDidLoad() {
         Utils.log_componentDidLoad(this.compName);
-        const customControllerName = this.customControlName;
+        const customControllerName = /* CUSTOM_DROP_DOWN_PLUGIN_TAG + '_' +  */ this.customControlName;
         this.control = this.createCustomControl(this.dropDownData, customControllerName, this.dropDownTitle);
         this.gisMap.addControl(this.control);
     }
@@ -95,8 +94,8 @@ export class CustomDropDownPlugin {
                     input.setAttribute('checked', 'true');
                 }
                 // Set on click function
-                gItem.addEventListener('click', () => {
-                    dropDownDataItem.changeAction.bind(dropDownDataItem.value.toLowerCase());
+                gItem.addEventListener('click', (e) => {
+                    dropDownDataItem.changeAction(e.target.textContent.toLowerCase());
                 });
                 label.innerText = dropDownDataItem.label.replace(/-/g, ' ');
                 return gItem;

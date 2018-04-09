@@ -1,5 +1,8 @@
 import _ from "lodash";
-import { FILE_TYPES } from "./statics";
+import { FILE_TYPES, DEFAULT_OSM_TILE, MIN_ZOOM, MAX_ZOOM } from "./statics";
+import { TileLayerDefinition, BaseMap, ShapeLayerContainer_Dev, ShapeLayerDefinition } from "../models";
+import L from "leaflet";
+import LayersFactory from "./LayersFactory";
 
 export default class Utils {
     public static log_componentWillLoad(compName: string) {
@@ -79,5 +82,47 @@ export default class Utils {
         _.forEach(allDropDownMenus, (menu: HTMLElement) => {
             menu.style.display = 'none';
         });
+    }
+    public static setRadioButtonsByCheckedValue(customDropDownPluginEl: HTMLCustomDropDownPluginElement, groupName: string, checkedValue: any) {
+        const groupItems: NodeListOf<Element> = customDropDownPluginEl.getControl().getContainer().querySelectorAll(`.menu li.menu-item.custom-group [name="${groupName}"]`);
+        _.forEach(groupItems, (input: Element) => {
+            // Unselect checked element
+            if (input.getAttribute('checked')) {
+                input.removeAttribute('checked');
+            }
+        });
+        _.forEach(groupItems, (input: Element) => {
+            // Selecet element
+            if (input.getAttribute('value') === checkedValue) {
+                input.setAttribute('checked', 'true');
+            }
+        });
+    }
+    static initStoreWithMapTiles(tilesLayerList: TileLayerDefinition[]): BaseMap {
+        const baseMaps: BaseMap = {};
+        if (tilesLayerList && tilesLayerList.length) {
+            tilesLayerList.forEach((t: L.TileLayerOptions) => {
+                // Add other layers
+                const tileOptions: L.TileLayerOptions = { ...t, noWrap: true };
+                // Create tile Layer from Uri
+                baseMaps[t.name] = new L.TileLayer(t.tilesURI, tileOptions);
+            });
+        } else {
+            const tileOptions: L.TileLayerOptions = { minZoom: MIN_ZOOM, maxZoom: MAX_ZOOM, attributionControl: false, noWrap: true };
+            baseMaps[DEFAULT_OSM_TILE.name] = new L.TileLayer(DEFAULT_OSM_TILE.address, tileOptions);
+        }
+        return baseMaps;
+    }
+    static initiateLayers(shapeLayers: ShapeLayerDefinition[]) {
+        // if (!_.get(store, 'state.shapeLayers.length')) { return; }
+
+        // const shapeLayers: ShapeLayerDefinition[] = store.state.shapeLayers;
+        const initialLayersTemp: ShapeLayerContainer_Dev[] = [];
+        shapeLayers.forEach((item: ShapeLayerDefinition) => {
+            const shapeLayerContainer: ShapeLayerContainer_Dev = LayersFactory.createHeatAndClusterLayer(item);
+            // this.addingNewLayerToLayerController(shapeLayerContainer, LayerNames.INITIAL_LAYERS)
+            initialLayersTemp.push(shapeLayerContainer);
+        });
+        return initialLayersTemp;
     }
 }

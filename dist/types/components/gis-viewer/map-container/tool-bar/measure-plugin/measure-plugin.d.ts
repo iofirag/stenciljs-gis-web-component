@@ -7,12 +7,13 @@ export declare class MeasurePlugin {
     control: L.Control;
     getControl(): L.Control;
     constructor();
-    private fromGlobalUnitToPluginUnit(globalUnit);
-    private fromGlobalUnitToButtonUnit(globalUnit);
-    private changePluginUnits(globalUnit);
+    componentWillLoad(): void;
     componentDidLoad(): void;
     componentDidUnload(): void;
     private createPlugin(options);
+    private fromGlobalUnitToPluginUnit(globalUnit);
+    private fromGlobalUnitToButtonUnit(globalUnit);
+    private changePluginUnits(globalUnit);
 }
 export declare type PolylineMeasureOptions_Dev = MeasureOptions & {
     showUnitControl: boolean;
