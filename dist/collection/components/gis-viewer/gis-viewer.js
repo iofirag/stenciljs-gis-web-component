@@ -9,10 +9,10 @@ export class GisViewer {
     }
     getVersion() {
         // Include version number in compile
-        fetch('package.json').then((res) => {
-            const toJsonPromise = res.json();
-            toJsonPromise.then(pkgjson => console.log(`GIS v${pkgjson.version}`));
-        });
+        // fetch('package.json').then((res)=> {
+        //   const toJsonPromise: Promise<any> = res.json();
+        //   toJsonPromise.then(pkgjson => console.log(`GIS v${pkgjson.version}`));
+        // })
         // var pkgjson = require('../../../package.json');
         // console.log(`GIS v${pkgjson.version}`);
         // console.log(version)

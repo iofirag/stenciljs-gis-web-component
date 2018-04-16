@@ -6,18 +6,6 @@ import Utils from '../../utilities';
 
 export class PolylineShapeManager extends ShapeManagerBase {
 
-	// getCoordinateAsString(shapeObject: ShapeObject): string {
-	// 	const polyline:          PolylineShape = shapeObject.shape as PolylineShape;
-	// 	const coordinatesStrArr: string[] = [];
-
-	// 	// Iterate coordinates
-	// 	polyline.coordinates.forEach((coordinate: Coordinate) => {
-	// 		Utils.doNothing(coordinate)
-	// 		// coordinatesStrArr.push(Utils.getCoordinageStrByCoordinate(coordinate));
-	// 	});
-
-	// 	return coordinatesStrArr.join(',');
-	// }
 	getCoordinateList(shapeObject: ShapeObject): Coordinate[] {
 		const polyline: PolylineShape = shapeObject.shape as PolylineShape;
 		return polyline.coordinates;
@@ -61,7 +49,7 @@ export class PolylineShapeManager extends ShapeManagerBase {
 		return polylineObj;
 	}
 
-	addShapeToLayer(shapeDef: ShapeDefinition, container: L.LayerGroup, eventHandlers: ShapeEventHandlers): L.FeatureGroup {
+	createShape(shapeDef: ShapeDefinition, eventHandlers: ShapeEventHandlers): L.FeatureGroup {
 		Utils.doNothing(eventHandlers)
 		if (shapeDef.shapeObject) {
 			// Create Circle from shape values
@@ -86,15 +74,15 @@ export class PolylineShapeManager extends ShapeManagerBase {
 
 			const leafletObject: L.FeatureGroup = <any>new ClusterablePolyline(coordinates, polylineShapeOptions);
 
-			leafletObject.shapeDef = _.merge(shapeDef, {
+			/* leafletObject.shapeDef = _.merge(shapeDef, { O.A
 				data: {
 					isSelected: _.get(shapeDef, 'data.isSelected', false),
 					count: _.get(shapeDef, 'data.count', 1),
 				}
-			});
+			}); */
 
 			// Utils.setEventsOnLeafletLayer(leafletObject, eventHandlers);	// Add events
-			container.addLayer(leafletObject);	// Add to layerGroup
+			// container.addLayer(leafletObject);	// Add to layerGroup
 			return leafletObject;
 		} else {
 			console.error('shapeDef.shapeObject.shape is missing for creating the polyline');
@@ -104,7 +92,7 @@ export class PolylineShapeManager extends ShapeManagerBase {
 
 	getShapeObjectFromDrawingLayer(layer: L.Polyline): ShapeObject {
 		const polyline: PolylineShape = {
-			coordinates: layer.getLatLngs()
+			coordinates: layer.getLatLngs() as Coordinate[]
 		};
 
 		const polylineObj: ShapeObject = {

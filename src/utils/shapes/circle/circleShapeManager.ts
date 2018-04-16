@@ -1,16 +1,10 @@
 import { ShapeEventHandlers, ShapeManagerBase } from "../ShapeManager";
-import _ from 'lodash';
+// import _ from 'lodash';
 import L from 'leaflet';
 import { ShapeDefinition, CircleShape, CircleShapeOptions, ShapeType, ShapeObject, ShapeObjectOptions, Coordinate } from '../../../models';
 import Utils from "../../utilities";
 
 export class CircleShapeManager extends ShapeManagerBase {
-
-	// getCoordinateAsString(shapeObject: ShapeObject): string {
-	// 	const circle = <CircleShape>shapeObject.shape;
-	// 	Utils.doNothing(circle);
-	// 	return null // Utils.getCoordinageStrByCoordinate(circle.coordinate);
-	// }
 
 	getType(): ShapeType {
 		return ShapeType.CIRCLE;
@@ -78,7 +72,7 @@ export class CircleShapeManager extends ShapeManagerBase {
 		return (wkt.indexOf('CIRCULARSTRING(') > -1);
 	}
 
-	addShapeToLayer(shapeDef: ShapeDefinition, container: L.LayerGroup, eventHandlers: ShapeEventHandlers): L.Layer {
+	createShape(shapeDef: ShapeDefinition, eventHandlers: ShapeEventHandlers): L.Layer {
 		Utils.doNothing(eventHandlers)
 		if (shapeDef.shapeObject) {
 			// Create Circle from shape values
@@ -97,15 +91,15 @@ export class CircleShapeManager extends ShapeManagerBase {
 			});
 
 			const leafletObject: L.Layer = <any> new ClusterableCircle(circleShape.coordinate, circleShapeOptionsExtended);
-			leafletObject.shapeDef = _.merge(shapeDef,{
+			/* leafletObject.shapeDef = _.merge(shapeDef,{ O.A
 				data: {
 					isSelected: _.get(shapeDef, 'data.isSelected', false),
 					count: _.get(shapeDef, 'data.count', 1),
 				}
-			});
+			}); */
 
 			// Utils.setEventsOnLeafletLayer(leafletObject, eventHandlers);	// Add events
-			container.addLayer(leafletObject);	// Add to layerGroup
+			// container.addLayer(leafletObject);	// Add to layerGroup
 			return leafletObject;
 		} else {
 			console.error('shapeDef.shapeObject.shape is missing for creating the circle');

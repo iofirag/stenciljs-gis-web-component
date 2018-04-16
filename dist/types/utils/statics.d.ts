@@ -23,6 +23,7 @@ export declare enum FILE_TYPES {
     csv = "csv",
     zip = "zip",
 }
+export declare const FILE_TYPES_ARRAY: FILE_TYPES[];
 export declare const CoordinateType: {
     [key: string]: CoordinateSystemType;
 };
@@ -39,3 +40,12 @@ export declare const LayerNames: {
 };
 export declare const MIN_ZOOM: number;
 export declare const MAX_ZOOM: number;
+export declare const BUBBLE_TYPE: {
+    POPUP: string;
+    TOOLTIP: string;
+};
+export declare const GENERATED_ID: {
+    SHAPE_ID: string;
+    DRAW_LAYER_GROUP_ID: string;
+    DEFAULT_GROUP: string;
+};

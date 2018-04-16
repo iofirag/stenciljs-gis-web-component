@@ -6,18 +6,6 @@ import Utils from '../../utilities';
 
 export class PolygonShapeManager extends ShapeManagerBase {
 
-  // getCoordinateAsString(shapeObject: ShapeObject): string {
-  //   const polygon: PolygonShape = shapeObject.shape as PolygonShape;
-  //   const coordinatesStrArr: string[] = [];
-
-  //   polygon.coordinates.forEach((coordinate: Coordinate) => {
-  //     Utils.doNothing(coordinate)
-  //     // Iterate coordinates
-  //     // coordinatesStrArr.push(Utils.getCoordinageStrByCoordinate(coordinate));
-  //   });
-  //   return coordinatesStrArr.join(',');
-  // }
-
   getCoordinateList(shapeObject: ShapeObject): Coordinate[] {
     const polygon: PolygonShape = shapeObject.shape as PolygonShape;
     return polygon.coordinates;
@@ -86,7 +74,7 @@ export class PolygonShapeManager extends ShapeManagerBase {
     // return true; // tbd, start with circle
   }
 
-  addShapeToLayer(shapeDef: ShapeDefinition, container: L.LayerGroup, eventHandlers: ShapeEventHandlers): L.FeatureGroup {
+  createShape(shapeDef: ShapeDefinition, eventHandlers: ShapeEventHandlers): L.FeatureGroup {
     Utils.doNothing(eventHandlers)
     if (shapeDef.shapeObject) {
       // Create Circle from shape values
@@ -111,15 +99,15 @@ export class PolygonShapeManager extends ShapeManagerBase {
 
       const leafletObject: L.FeatureGroup = <any>new ClusterablePolygon(coordinates, polygonShapeOptions);
 
-      leafletObject.shapeDef = _.merge(shapeDef, {
+      /* leafletObject.shapeDef = _.merge(shapeDef, { O.A
         data: {
           isSelected: _.get(shapeDef, 'data.isSelected', false),
           count: _.get(shapeDef, 'data.count', 1),
         }
-      });
+      }); */
 
       // Utils.setEventsOnLeafletLayer(leafletObject, eventHandlers);	// Add events
-      container.addLayer(leafletObject);	// Add to layerGroup
+      // container.addLayer(leafletObject);	// Add to layerGroup
       return leafletObject;
     } else {
       console.error('shapeDef.shapeObject.shape is missing for creating the circle');

@@ -37,7 +37,7 @@ exports.config = {
     { dest: "images", src: "../node_modules/leaflet-minimap/dist/images" },
     { dest: "images", src: "../node_modules/leaflet-fullscreen/dist" },
     { dest: 'images', src: '../node_modules/leaflet-search/images' },
-    { dest: 'package.json', src: '../package.json'},
+    // { dest: 'package.json', src: '../package.json'},
     // { dest: '/', src: '../src/components/gis-viewer/map-container/tool-bar/zoom-to-extent-plugin/allarga-foto.png' },
     // { dest: 'css', src: 'styles'}
   ]

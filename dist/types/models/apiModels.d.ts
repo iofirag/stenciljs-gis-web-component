@@ -1,4 +1,7 @@
 import { ControlPosition } from "leaflet";
+import { Layer } from "leaflet";
+import { FeatureGroup } from "leaflet";
+import { TileLayer } from "leaflet";
 export declare type GisViewerProps = {
     tileLayers?: TileLayerDefinition[];
     mapConfig?: MapConfig;
@@ -17,6 +20,7 @@ export declare type MapConfig = {
     isWheelZoomOnlyAfterClick?: boolean;
     isFlyToBounds?: boolean;
     isZoomControl?: boolean;
+    isSelectionDisable?: boolean;
     initBounds?: MapBounds;
 };
 export declare type DistanceUnitType = 'km' | 'mile' | 'nauticalmiles';
@@ -175,20 +179,22 @@ export declare enum DropDownItemType {
     CHECK_BOX = 2,
 }
 export declare type ShapeDefinition = {
-    id?: string;
     data?: ShapeData;
     shapeWkt?: string;
     shapeObject?: ShapeObject;
     options?: ShapeObjectOptions;
 };
 export declare type ShapeData = {
+    id?: string;
+    groupId?: string;
+    type?: string;
     name?: string;
     description?: string;
     count?: number;
     dateTime?: number;
     tag?: any;
     isSelected?: boolean;
-    id?: string;
+    isSelectedFade?: boolean;
 };
 export declare type ShapeEntities = CircleShape | PolygonShape | MarkerShape | PolylineShape | LabelShape | MultiPolygonShape;
 export declare type ShapeObject = {
@@ -260,9 +266,26 @@ export declare type MapLayers = {
     importedLayers: {
         [key: string]: ShapeLayerContainer_Dev[];
     };
-    drawableLayers: L.FeatureGroup[];
+    drawableLayers: FeatureGroup[];
 };
 export declare type BaseMap = {
-    [key: string]: L.TileLayer;
+    [key: string]: TileLayer;
 };
 export declare type SelectionMode = 'selectLayer' | 'unSelectLayer';
+export declare type GroupIdToShapeIdMap = {
+    [groupId: string]: GroupData;
+};
+export declare type GroupData = {
+    [id: string]: ShapeStore;
+};
+export declare type SelectedObjects = {
+    [shapeId: string]: ShapeIds;
+};
+export declare type ShapeStore = {
+    leafletRef: Layer | FeatureGroup;
+    shapeDef: ShapeDefinition;
+};
+export declare type ShapeIds = {
+    groupId: string;
+    shapeId: string;
+};

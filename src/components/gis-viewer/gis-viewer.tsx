@@ -3,6 +3,7 @@ import { GIS_VIEWER_TAG } from '../../utils/statics';
 import Utils from '../../utils/utilities';
 import { GisViewerProps } from '../../models';
 import store from '../store/store';
+
 // import '../../../package';
 // import {version} from '../../../../../stencil.config'
 
@@ -12,7 +13,7 @@ import store from '../store/store';
     "../../../node_modules/leaflet/dist/leaflet.css",
     '../../../node_modules/leaflet.markercluster/dist/MarkerCluster.css',
     '../../../node_modules/leaflet.markercluster/dist/MarkerCluster.Default.css',
-    "gis-viewer.scss",
+    'gis-viewer.scss',
   ]
 })
 export class GisViewer {
@@ -21,13 +22,14 @@ export class GisViewer {
   // @Element() el: HTMLElement;
   @Prop() gisViewerProps: GisViewerProps;
 
+
   @Method()
   getVersion() {
     // Include version number in compile
-    fetch('package.json').then((res)=> {
-      const toJsonPromise: Promise<any> = res.json();
-      toJsonPromise.then(pkgjson => console.log(`GIS v${pkgjson.version}`));
-    })
+    // fetch('package.json').then((res)=> {
+    //   const toJsonPromise: Promise<any> = res.json();
+    //   toJsonPromise.then(pkgjson => console.log(`GIS v${pkgjson.version}`));
+    // })
     // var pkgjson = require('../../../package.json');
     // console.log(`GIS v${pkgjson.version}`);
     // console.log(version)

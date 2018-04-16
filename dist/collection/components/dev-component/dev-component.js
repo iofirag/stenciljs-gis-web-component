@@ -69,7 +69,6 @@ export class DevComponent {
         console.log('Testing testChangeCoordinateSystemInProps command', e.type);
         this.gisViewerState.shapeLayers[0].shapes.push({
             shapeWkt: 'POLYGON((-14.765625 17.052584352706003,-12.83203125 15.703433338617463,-15.99609375 15.534142999890243,-14.765625 17.052584352706003))',
-            id: 'polygon99999999',
             data: {
                 name: '232 (known as polygon1)',
                 id: 'polygon999999'
@@ -83,6 +82,7 @@ export class DevComponent {
             isWheelZoomOnlyAfterClick: true,
             isZoomControl: true,
             isFlyToBounds: true,
+            isSelectionDisable: false,
             // isExport: true,
             clusterOptions: {
             // disableClusteringAtZoom: 13,
@@ -118,61 +118,77 @@ export class DevComponent {
                 shapes: [
                     {
                         shapeWkt: 'POINT(35 32)',
-                        id: 'point0',
                         data: {
-                            name: '232 (known as point0)',
-                            id: 'point00'
+                            name: '232',
+                            groupId: 'group0',
+                            // id: 'specialId1',
+                            type: 'intercept',
+                        }
+                    },
+                    {
+                        shapeWkt: 'POINT(35 33)',
+                        data: {
+                            name: '233',
+                            groupId: 'group0',
+                            id: 'specialId2',
+                            type: 'intercept',
+                        }
+                    },
+                    {
+                        shapeWkt: 'POINT(30 30)',
+                        data: {
+                            name: '234',
+                            // groupId: 'group0',
+                            id: 'specialId3',
+                            type: 'intercept',
+                        }
+                    },
+                    {
+                        shapeWkt: 'POINT(37 32)',
+                        data: {
+                            name: '235',
+                            // groupId: 'group0',
+                            id: 'specialId4'
                         }
                     },
                     {
                         shapeWkt: 'POLYGON((0 0 0,0 5 0,5 5 0,5 0 0,0 0 0))',
-                        id: 'polygon1',
                         data: {
-                            name: '232 (known as polygon1)',
-                            id: 'polygon11',
+                            name: 'cell1 coverage',
+                            groupId: 'cell1',
+                            id: 'cell1coverage',
                             count: 10
                         }
                     },
                     {
-                        shapeWkt: 'LINESTRING(1 1 1,5 5 5,7 7 5)',
-                        id: 'polygon2',
+                        shapeWkt: 'POINT(1.40 6.285)',
                         data: {
-                            name: '232 (known as polygon1)',
-                            id: 'polygon22'
-                        }
-                    }
-                ]
-            }, {
-                layerName: 'Test data 2',
-                isDisplay: false,
-                shapes: [
-                    {
-                        shapeWkt: 'POINT(32 35)',
-                        id: 'point0',
-                        data: {
-                            name: '232 (known as point0)',
-                            id: 'point00'
+                            name: 'cell1 point',
+                            groupId: 'cell1',
+                            id: 'cell1point',
+                            type: 'intercept',
                         }
                     },
                     {
-                        shapeWkt: 'POLYGON((0 0 0,0 5 0,5 5 0,5 0 0,0 0 0))',
-                        id: 'polygon1',
+                        shapeWkt: 'POINT(42 42)',
                         data: {
-                            name: '232 (known as polygon1)',
-                            id: 'polygon11',
-                            count: 20
+                            name: 'samepoint',
+                            groupId: 'samepoint1',
+                            id: 'samepoint1a',
+                            type: 'intercept',
                         }
                     },
                     {
-                        shapeWkt: 'LINESTRING(1 1 1,5 5 5,7 7 5)',
-                        id: 'polygon2',
+                        shapeWkt: 'POINT(42 42)',
                         data: {
-                            name: '232 (known as polygon1)',
-                            id: 'polygon22'
+                            name: '233',
+                            groupId: 'samepoint1',
+                            id: 'samepoint1b',
+                            type: 'intercept',
                         }
-                    }
+                    },
                 ]
-            }
+            },
         ];
         const layerManagerConfig = {
             enable: true,

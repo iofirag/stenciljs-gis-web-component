@@ -1,11 +1,9 @@
 import '../../../stencil.core';
 import { GisViewerProps, CoordinateSystemType } from '../../../models';
-import L from 'leaflet';
 export declare class MapContainer {
     compName: string;
     gisViewerProps: GisViewerProps;
     el: HTMLElement;
-    gisMap: L.Map;
     zoomToExtent(): void;
     changeDistanceUnits(): void;
     changeCoordinateSystem(unit?: CoordinateSystemType): void;
@@ -13,5 +11,16 @@ export declare class MapContainer {
     componentWillLoad(): void;
     render(): JSX.Element;
     componentDidLoad(): void;
+    /**
+       * Map Events:
+       * ----------
+       * layerremove / layeradd
+       * baselayerchange
+       * overlayadd / overlayremove
+       * boxzoomstart / boxzoomend
+       * movestart / moveend - (check those)
+       */
+    private createEvents();
     private createMap();
+    private areaSelection(event);
 }

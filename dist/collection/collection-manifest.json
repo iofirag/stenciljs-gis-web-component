@@ -337,11 +337,6 @@
           "attr": "gis-viewer-props"
         }
       ],
-      "states": [
-        {
-          "name": "gisMap"
-        }
-      ],
       "methods": [
         {
           "name": "changeCoordinateSystem"
@@ -612,7 +607,7 @@
   "collections": [],
   "compiler": {
     "name": "@stencil/core",
-    "version": "0.7.12",
+    "version": "0.7.24",
     "typescriptVersion": "2.8.1"
   },
   "bundles": [

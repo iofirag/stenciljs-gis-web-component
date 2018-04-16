@@ -44,9 +44,15 @@ import {
 } from 'leaflet';
 
 declare global {
-  interface HTMLDevComponentElement extends HTMLStencilElement {
 
+  namespace StencilComponents {
+    interface DevComponent {
+
+    }
   }
+
+  interface HTMLDevComponentElement extends StencilComponents.DevComponent, HTMLStencilElement {}
+
   var HTMLDevComponentElement: {
     prototype: HTMLDevComponentElement;
     new (): HTMLDevComponentElement;
@@ -71,13 +77,19 @@ declare global {
 
 
 declare global {
-  interface HTMLGisViewerElement extends HTMLStencilElement {
-    'changeCoordinateSystem': () => void;
-    'changeDistanceUnits': () => void;
-    'getVersion': () => void;
-    'gisViewerProps': GisViewerProps;
-    'zoomToExtent': () => void;
+
+  namespace StencilComponents {
+    interface GisViewer {
+      'changeCoordinateSystem': () => void;
+      'changeDistanceUnits': () => void;
+      'getVersion': () => void;
+      'gisViewerProps': GisViewerProps;
+      'zoomToExtent': () => void;
+    }
   }
+
+  interface HTMLGisViewerElement extends StencilComponents.GisViewer, HTMLStencilElement {}
+
   var HTMLGisViewerElement: {
     prototype: HTMLGisViewerElement;
     new (): HTMLGisViewerElement;
@@ -102,12 +114,18 @@ declare global {
 
 
 declare global {
-  interface HTMLMapContainerElement extends HTMLStencilElement {
-    'changeCoordinateSystem': (unit?: CoordinateSystemType) => void;
-    'changeDistanceUnits': () => void;
-    'gisViewerProps': GisViewerProps;
-    'zoomToExtent': () => void;
+
+  namespace StencilComponents {
+    interface MapContainer {
+      'changeCoordinateSystem': (unit?: CoordinateSystemType) => void;
+      'changeDistanceUnits': () => void;
+      'gisViewerProps': GisViewerProps;
+      'zoomToExtent': () => void;
+    }
   }
+
+  interface HTMLMapContainerElement extends StencilComponents.MapContainer, HTMLStencilElement {}
+
   var HTMLMapContainerElement: {
     prototype: HTMLMapContainerElement;
     new (): HTMLMapContainerElement;
@@ -132,10 +150,16 @@ declare global {
 
 
 declare global {
-  interface HTMLMiniMapPluginElement extends HTMLStencilElement {
-    'config': MiniMapConfig;
-    'gisMap': L.Map;
+
+  namespace StencilComponents {
+    interface MiniMapPlugin {
+      'config': MiniMapConfig;
+      'gisMap': L.Map;
+    }
   }
+
+  interface HTMLMiniMapPluginElement extends StencilComponents.MiniMapPlugin, HTMLStencilElement {}
+
   var HTMLMiniMapPluginElement: {
     prototype: HTMLMiniMapPluginElement;
     new (): HTMLMiniMapPluginElement;
@@ -161,10 +185,16 @@ declare global {
 
 
 declare global {
-  interface HTMLMouseCoordinatePluginElement extends HTMLStencilElement {
-    'config': MouseCoordinateConfig;
-    'gisMap': L.Map;
+
+  namespace StencilComponents {
+    interface MouseCoordinatePlugin {
+      'config': MouseCoordinateConfig;
+      'gisMap': L.Map;
+    }
   }
+
+  interface HTMLMouseCoordinatePluginElement extends StencilComponents.MouseCoordinatePlugin, HTMLStencilElement {}
+
   var HTMLMouseCoordinatePluginElement: {
     prototype: HTMLMouseCoordinatePluginElement;
     new (): HTMLMouseCoordinatePluginElement;
@@ -190,11 +220,17 @@ declare global {
 
 
 declare global {
-  interface HTMLScalePluginElement extends HTMLStencilElement {
-    'config': ScaleConfig;
-    'getControl': () => Control;
-    'gisMap': L.Map;
+
+  namespace StencilComponents {
+    interface ScalePlugin {
+      'config': ScaleConfig;
+      'getControl': () => Control;
+      'gisMap': L.Map;
+    }
   }
+
+  interface HTMLScalePluginElement extends StencilComponents.ScalePlugin, HTMLStencilElement {}
+
   var HTMLScalePluginElement: {
     prototype: HTMLScalePluginElement;
     new (): HTMLScalePluginElement;
@@ -220,13 +256,19 @@ declare global {
 
 
 declare global {
-  interface HTMLCustomDropDownPluginElement extends HTMLStencilElement {
-    'customControlName': string;
-    'dropDownData': any[];
-    'dropDownTitle': string;
-    'getControl': () => Control;
-    'gisMap': L.Map;
+
+  namespace StencilComponents {
+    interface CustomDropDownPlugin {
+      'customControlName': string;
+      'dropDownData': any[];
+      'dropDownTitle': string;
+      'getControl': () => Control;
+      'gisMap': L.Map;
+    }
   }
+
+  interface HTMLCustomDropDownPluginElement extends StencilComponents.CustomDropDownPlugin, HTMLStencilElement {}
+
   var HTMLCustomDropDownPluginElement: {
     prototype: HTMLCustomDropDownPluginElement;
     new (): HTMLCustomDropDownPluginElement;
@@ -254,10 +296,16 @@ declare global {
 
 
 declare global {
-  interface HTMLCustomExportElement extends HTMLStencilElement {
-    'getElement': () => HTMLElement;
-    'gisMap': L.Map;
+
+  namespace StencilComponents {
+    interface CustomExport {
+      'getElement': () => HTMLElement;
+      'gisMap': L.Map;
+    }
   }
+
+  interface HTMLCustomExportElement extends StencilComponents.CustomExport, HTMLStencilElement {}
+
   var HTMLCustomExportElement: {
     prototype: HTMLCustomExportElement;
     new (): HTMLCustomExportElement;
@@ -282,10 +330,16 @@ declare global {
 
 
 declare global {
-  interface HTMLCustomSettingsElement extends HTMLStencilElement {
-    'getElement': () => HTMLElement;
-    'gisMap': L.Map;
+
+  namespace StencilComponents {
+    interface CustomSettings {
+      'getElement': () => HTMLElement;
+      'gisMap': L.Map;
+    }
   }
+
+  interface HTMLCustomSettingsElement extends StencilComponents.CustomSettings, HTMLStencilElement {}
+
   var HTMLCustomSettingsElement: {
     prototype: HTMLCustomSettingsElement;
     new (): HTMLCustomSettingsElement;
@@ -310,11 +364,17 @@ declare global {
 
 
 declare global {
-  interface HTMLDrawBarPluginElement extends HTMLStencilElement {
-    'config': DrawBarConfig;
-    'getControl': () => Control;
-    'gisMap': L.Map;
+
+  namespace StencilComponents {
+    interface DrawBarPlugin {
+      'config': DrawBarConfig;
+      'getControl': () => Control;
+      'gisMap': L.Map;
+    }
   }
+
+  interface HTMLDrawBarPluginElement extends StencilComponents.DrawBarPlugin, HTMLStencilElement {}
+
   var HTMLDrawBarPluginElement: {
     prototype: HTMLDrawBarPluginElement;
     new (): HTMLDrawBarPluginElement;
@@ -340,12 +400,18 @@ declare global {
 
 
 declare global {
-  interface HTMLDropDownPluginElement extends HTMLStencilElement {
-    'dropDownData': any[];
-    'dropDownTitle': string;
-    'getControl': () => Control;
-    'gisMap': L.Map;
+
+  namespace StencilComponents {
+    interface DropDownPlugin {
+      'dropDownData': any[];
+      'dropDownTitle': string;
+      'getControl': () => Control;
+      'gisMap': L.Map;
+    }
   }
+
+  interface HTMLDropDownPluginElement extends StencilComponents.DropDownPlugin, HTMLStencilElement {}
+
   var HTMLDropDownPluginElement: {
     prototype: HTMLDropDownPluginElement;
     new (): HTMLDropDownPluginElement;
@@ -372,11 +438,17 @@ declare global {
 
 
 declare global {
-  interface HTMLFullScreenPluginElement extends HTMLStencilElement {
-    'config': FullScreenConfig;
-    'getControl': () => Control;
-    'gisMap': L.Map;
+
+  namespace StencilComponents {
+    interface FullScreenPlugin {
+      'config': FullScreenConfig;
+      'getControl': () => Control;
+      'gisMap': L.Map;
+    }
   }
+
+  interface HTMLFullScreenPluginElement extends StencilComponents.FullScreenPlugin, HTMLStencilElement {}
+
   var HTMLFullScreenPluginElement: {
     prototype: HTMLFullScreenPluginElement;
     new (): HTMLFullScreenPluginElement;
@@ -402,13 +474,19 @@ declare global {
 
 
 declare global {
-  interface HTMLLayerManagerPluginElement extends HTMLStencilElement {
-    'addingDrawableLayerToLayerController': (drawableLayer: FeatureGroup<any>) => void;
-    'config': LayerManagerConfig;
-    'getControl': () => Control;
-    'getHtmlBtEl': () => HTMLElement;
-    'gisMap': L.Map;
+
+  namespace StencilComponents {
+    interface LayerManagerPlugin {
+      'addingDrawableLayerToLayerController': (drawableLayer: FeatureGroup<any>) => void;
+      'config': LayerManagerConfig;
+      'getControl': () => Control;
+      'getHtmlBtEl': () => HTMLElement;
+      'gisMap': L.Map;
+    }
   }
+
+  interface HTMLLayerManagerPluginElement extends StencilComponents.LayerManagerPlugin, HTMLStencilElement {}
+
   var HTMLLayerManagerPluginElement: {
     prototype: HTMLLayerManagerPluginElement;
     new (): HTMLLayerManagerPluginElement;
@@ -434,11 +512,17 @@ declare global {
 
 
 declare global {
-  interface HTMLMeasurePluginElement extends HTMLStencilElement {
-    'config': MeasureConfig;
-    'getControl': () => Control;
-    'gisMap': L.Map;
+
+  namespace StencilComponents {
+    interface MeasurePlugin {
+      'config': MeasureConfig;
+      'getControl': () => Control;
+      'gisMap': L.Map;
+    }
   }
+
+  interface HTMLMeasurePluginElement extends StencilComponents.MeasurePlugin, HTMLStencilElement {}
+
   var HTMLMeasurePluginElement: {
     prototype: HTMLMeasurePluginElement;
     new (): HTMLMeasurePluginElement;
@@ -464,11 +548,17 @@ declare global {
 
 
 declare global {
-  interface HTMLSearchPluginElement extends HTMLStencilElement {
-    'config': SearchConfig;
-    'getControl': () => Control;
-    'gisMap': L.Map;
+
+  namespace StencilComponents {
+    interface SearchPlugin {
+      'config': SearchConfig;
+      'getControl': () => Control;
+      'gisMap': L.Map;
+    }
   }
+
+  interface HTMLSearchPluginElement extends StencilComponents.SearchPlugin, HTMLStencilElement {}
+
   var HTMLSearchPluginElement: {
     prototype: HTMLSearchPluginElement;
     new (): HTMLSearchPluginElement;
@@ -494,10 +584,16 @@ declare global {
 
 
 declare global {
-  interface HTMLToolBarElement extends HTMLStencilElement {
-    'config': ToolbarConfig;
-    'gisMap': L.Map;
+
+  namespace StencilComponents {
+    interface ToolBar {
+      'config': ToolbarConfig;
+      'gisMap': L.Map;
+    }
   }
+
+  interface HTMLToolBarElement extends StencilComponents.ToolBar, HTMLStencilElement {}
+
   var HTMLToolBarElement: {
     prototype: HTMLToolBarElement;
     new (): HTMLToolBarElement;
@@ -523,12 +619,18 @@ declare global {
 
 
 declare global {
-  interface HTMLZoomToExtentPluginElement extends HTMLStencilElement {
-    'config': ZoomToExtentConfig;
-    'getControl': () => Control;
-    'gisMap': L.Map;
-    'zoomToExtent': () => void;
+
+  namespace StencilComponents {
+    interface ZoomToExtentPlugin {
+      'config': ZoomToExtentConfig;
+      'getControl': () => Control;
+      'gisMap': L.Map;
+      'zoomToExtent': () => void;
+    }
   }
+
+  interface HTMLZoomToExtentPluginElement extends StencilComponents.ZoomToExtentPlugin, HTMLStencilElement {}
+
   var HTMLZoomToExtentPluginElement: {
     prototype: HTMLZoomToExtentPluginElement;
     new (): HTMLZoomToExtentPluginElement;

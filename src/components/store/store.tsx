@@ -3,7 +3,8 @@ import { GisViewerProps, MapConfig, TileLayerDefinition, ShapeLayerDefinition,
     ScaleConfig, LayerManagerConfig, SearchConfig, MiniMapConfig, DrawBarConfig, 
     MouseCoordinateConfig, MeasureConfig, ZoomToExtentConfig, UnitsChangerConfig, 
     FullScreenConfig, ToolbarConfig, MapPluginsConfig, CoordinateSystemType, 
-    ClusterHeat, MapLayers } from '../../models';
+    ClusterHeat, MapLayers, ShapeStore, GroupIdToShapeIdMap, ShapeIds, 
+    SelectedObjects } from '../../models';
 import _ from 'lodash';
 // import { CoordinateType } from '../../utils/statics';
 
@@ -14,21 +15,44 @@ class Store {
     DEFAULT_VALUES: GisViewerProps;
     @observable state: GisViewerProps;
     @observable mapLayers: MapLayers;
+
+    @observable groupIdToShapeIdMap: GroupIdToShapeIdMap;
+    @observable selectedObjects: SelectedObjects;
+
     // @observable zoom: number;
-    
+    @observable gisMap: L.Map;
+
+    @action 
+    toggleSelectionMode(shapeIds: ShapeIds) {
+        // Toggle shape selection
+        this.groupIdToShapeIdMap[shapeIds.groupId][shapeIds.shapeId].shapeDef.data.isSelected = 
+        !this.groupIdToShapeIdMap[shapeIds.groupId][shapeIds.shapeId].shapeDef.data.isSelected;
+        
+        if (this.groupIdToShapeIdMap[shapeIds.groupId][shapeIds.shapeId].shapeDef.data.isSelected) {
+            // Add shape to selected list
+            this.selectedObjects[shapeIds.shapeId] = shapeIds
+        } else {
+            // Remove shape from selected
+            delete this.selectedObjects[shapeIds.shapeId];
+        }
+        // Importent - Destracture the object for set new reference.
+        this.selectedObjects = { ...this.selectedObjects };
+    }
+
     // @computed get coordinateSystemType(): CoordinateSystemType {
     //     return this.state.mapConfig.coordinateSystemType;
     // }
     // @computed get clusterHeat(): ClusterHeat {
     //     return this.state.mapConfig.mode;
     // }
-
+    
     /**
      * Set state to our componrnt
      * @param _state 
      */
-    @action initState(_state: GisViewerProps) {
-        this.state = _.cloneDeep(_state);
+    @action initState(_props: GisViewerProps) {
+        this.state = _.cloneDeep(_props);
+
     }
 
     /**
@@ -45,7 +69,25 @@ class Store {
     @action changeMapMode(_mode: ClusterHeat) {
         this.state.mapConfig.mode = _mode;
     }
+    @action addShape(shapeStore: ShapeStore): void {
+        // Set group-id and shape-id on layer
+        shapeStore.leafletRef.groupId = shapeStore.shapeDef.data.groupId;
+        shapeStore.leafletRef.id = shapeStore.shapeDef.data.id;
+        
+        const shapeIds: ShapeIds = {
+            groupId: shapeStore.leafletRef.groupId,
+            shapeId: shapeStore.leafletRef.id
+        }
+        if (!_.has(this, `groupIdToShapeIdMap[${shapeIds.groupId}]`)) {
+            this.groupIdToShapeIdMap[shapeIds.groupId] = {};
+        }
+        this.groupIdToShapeIdMap[shapeIds.groupId][shapeIds.shapeId] = shapeStore;
 
+        // Set shape selection
+        if (shapeStore.shapeDef.data.isSelected) {
+            this.selectedObjects[shapeIds.shapeId] = shapeIds;
+        }
+    }
 
     constructor() {
         this.changeCoordinates = this.changeCoordinates.bind(this);
@@ -54,6 +96,8 @@ class Store {
         this.DEFAULT_VALUES = this.getDefaultValue();
         this.state = this.DEFAULT_VALUES;
         this.mapLayers = this.getDefaultMapLayers()
+        this.groupIdToShapeIdMap = {};
+        this.selectedObjects = {};
         // this.coordinateSystemType = 'gps';
         // this.distanceUnitType = 'km';
         

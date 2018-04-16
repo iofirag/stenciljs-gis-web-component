@@ -170,7 +170,9 @@ declare module 'leaflet' {
     }
 
     interface Layer {
-        shapeDef?: ShapeDef_Dev;
+        groupId?: string;
+        id?: string;
+        // shapeDef?: ShapeDef_Dev;
         __parent?: any;
         layerName?: string;
         _latlng?: any;
@@ -182,11 +184,13 @@ declare module 'leaflet' {
     }
 
     interface FeatureGroup {
+        groupId?: string;
+        id?: string;
         __parent?: any;
         // _layers: any;
         // _latlng?: any;
         // _latlngs?: any[];
-        shapeDef?: ShapeDef_Dev;
+        // shapeDef?: ShapeDef_Dev;
         layerName?: string;
     }
 }
@@ -195,10 +199,10 @@ declare module 'leaflet' {
 //     lat: number
 //     lng: number
 // };
-export type ShapeDef_Dev = {
-    data?: any
-    shapeObject?: ShapeObject_Dev;
-};
-export type ShapeObject_Dev = {
-    type?: number
-};
+// export type ShapeDef_Dev = {
+//     data?: any
+//     shapeObject?: ShapeObject_Dev;
+// };
+// export type ShapeObject_Dev = {
+//     type?: number
+// };

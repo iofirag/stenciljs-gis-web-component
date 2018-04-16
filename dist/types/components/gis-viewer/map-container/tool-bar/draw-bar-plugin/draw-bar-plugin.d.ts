@@ -12,4 +12,6 @@ export declare class DrawBarPlugin {
     componentWillLoad(): void;
     componentDidLoad(): void;
     componentDidUnload(): void;
+    private onDrawCreated(e);
+    private createShapeDefFromDrawLayer(layer, shapeType);
 }

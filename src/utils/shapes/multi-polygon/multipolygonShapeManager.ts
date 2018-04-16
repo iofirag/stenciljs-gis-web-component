@@ -5,28 +5,6 @@ import { ShapeEventHandlers, ShapeManagerBase } from "../ShapeManager";
 import Utils from '../../utilities';
 
 export class MultiPolygonShapeManager extends ShapeManagerBase {
-  // getCoordinateAsString(shapeObject: ShapeObject): string {
-  //   const polygonsStrArr: string[] = [];
-  //   const multipolygon = shapeObject.shape as MultiPolygonShape;
-  //   const allPolygons: PolygonShape[] = multipolygon.polygons || [];
-
-  //   allPolygons.forEach((polygon: PolygonShape) => {
-  //     // Iterate all polygons
-  //     const coordinatesStrArr: string[] = [];
-
-  //     polygon.coordinates.forEach((coordinate: Coordinate) => {
-  //       Utils.doNothing(coordinate)
-  //       // Iterate coordinates
-  //       // coordinatesStrArr.push(Utils.getCoordinageStrByCoordinate(coordinate));
-  //     });
-
-  //     const stringifiedPointsOfPolygon = coordinatesStrArr.join(",");
-
-  //     polygonsStrArr.push(stringifiedPointsOfPolygon);
-  //   });
-
-  //   return polygonsStrArr.join(",");
-  // }
 
   getType(): ShapeType {
     return ShapeType.MULTIPOLYGON;
@@ -92,8 +70,7 @@ export class MultiPolygonShapeManager extends ShapeManagerBase {
     // return true; // tbd, start with circle
   }
 
-  addShapeToLayer(shapeDef: ShapeDefinition, container: L.LayerGroup, 
-    eventHandlers: ShapeEventHandlers): L.FeatureGroup {
+  createShape(shapeDef: ShapeDefinition, eventHandlers: ShapeEventHandlers): L.FeatureGroup {
       Utils.doNothing(eventHandlers)
     if (shapeDef.shapeObject) {
       // Create Circle from shape values
@@ -120,7 +97,7 @@ export class MultiPolygonShapeManager extends ShapeManagerBase {
       });
 
       // Utils.setEventsOnLeafletLayer(leafletObject, eventHandlers);	// Add events
-      container.addLayer(leafletObject);	// Add to layerGroup
+      // container.addLayer(leafletObject);	// Add to layerGroup
       return leafletObject;
     } else {
       console.error(

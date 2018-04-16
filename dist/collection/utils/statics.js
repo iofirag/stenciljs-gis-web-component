@@ -33,6 +33,8 @@ export var FILE_TYPES;
     FILE_TYPES["csv"] = "csv";
     FILE_TYPES["zip"] = "zip"; // (shp file)
 })(FILE_TYPES || (FILE_TYPES = {}));
+;
+export const FILE_TYPES_ARRAY = Object.values(FILE_TYPES);
 export const CoordinateType = {
     MGRS: 'utmref',
     UTM: 'utm',
@@ -57,3 +59,12 @@ export const LayerNames = {
 };
 export const MIN_ZOOM = 2;
 export const MAX_ZOOM = 20;
+export const BUBBLE_TYPE = {
+    POPUP: 'Popup',
+    TOOLTIP: 'Tooltip'
+};
+export const GENERATED_ID = {
+    SHAPE_ID: 'shapeId',
+    DRAW_LAYER_GROUP_ID: 'draw_layer_groupId',
+    DEFAULT_GROUP: 'default_group'
+};

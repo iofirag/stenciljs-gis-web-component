@@ -1,6 +1,6 @@
 import * as styledLayerControl from 'leaflet.styledlayercontrol';
 // import * as materialDesign from 'material-design-lite'
-import { LAYER_MANAGER_PLUGIN_TAG, ImportFileFormats, FILE_TYPES, LayerNames } from "../../../../../utils/statics";
+import { LAYER_MANAGER_PLUGIN_TAG, ImportFileFormats, FILE_TYPES, LayerNames, LayersTypeLabel } from "../../../../../utils/statics";
 import Utils from "../../../../../utils/utilities";
 import L from "leaflet";
 import _ from "lodash";
@@ -9,20 +9,23 @@ import { reaction } from "mobx";
 export class layerManagerPlugin {
     constructor() {
         this.compName = LAYER_MANAGER_PLUGIN_TAG;
-        reaction(() => store.mapLayers.baseMaps, baseLayer => {
-            console.log(baseLayer);
-        });
+        // reaction(
+        //     () => store.mapLayers.baseMaps,
+        //     baseLayer => {
+        //         console.log(baseLayer)
+        //     }
+        // )
         reaction(() => store.state.mapConfig.mode, (mode) => {
             // Select or unselect layers regarding to map mode changes
             _.forEach(store.mapLayers.initialLayers, (shapeLayerContainer) => {
                 let layerToSelect;
                 let layerToUnSelect;
                 switch (mode) {
-                    case 'cluster':
+                    case LayersTypeLabel.CLUSTER:
                         layerToSelect = shapeLayerContainer.leafletClusterLayer;
                         layerToUnSelect = shapeLayerContainer.leafletHeatLayer;
                         break;
-                    case 'heat':
+                    case LayersTypeLabel.HEAT:
                         layerToSelect = shapeLayerContainer.leafletHeatLayer;
                         layerToUnSelect = shapeLayerContainer.leafletClusterLayer;
                         break;
@@ -82,8 +85,8 @@ export class layerManagerPlugin {
         // Set first base map as working tile, set min zoom, max zoom
         const tileName = Object.keys(store.mapLayers.baseMaps)[0];
         this.control.selectLayer(store.mapLayers.baseMaps[tileName]); // turn on layer
-        this.gisMap.setMinZoom(store.mapLayers.baseMaps[tileName].options.minZoom); // set min zoom
-        this.gisMap.setMaxZoom(store.mapLayers.baseMaps[tileName].options.maxZoom); // set MAX zoom
+        // this.gisMap.setMinZoom(store.mapLayers.baseMaps[tileName].options.minZoom); // set min zoom
+        // this.gisMap.setMaxZoom(store.mapLayers.baseMaps[tileName].options.maxZoom); // set MAX zoom
         // Init Layers
         _.forEach(store.mapLayers.initialLayers, (shapeLayerContainer) => {
             this.addingNewLayerToLayerManager(shapeLayerContainer, LayerNames.INITIAL_LAYERS);

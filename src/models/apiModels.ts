@@ -1,4 +1,7 @@
 import { ControlPosition } from "leaflet"
+import { Layer } from "leaflet";
+import { FeatureGroup } from "leaflet";
+import { TileLayer } from "leaflet";
 // import { Coordinate } from "../typePatches/L"
 
 /* GisViewerProps and it children goes here */
@@ -37,6 +40,7 @@ export type MapConfig = {
     isWheelZoomOnlyAfterClick?: boolean
     isFlyToBounds?: boolean
     isZoomControl?: boolean
+    isSelectionDisable?: boolean
     initBounds?: MapBounds
     // isExport?: boolean
 }
@@ -254,7 +258,7 @@ export enum DropDownItemType {
 }
 
 export type ShapeDefinition = {
-    id?: string
+    // id?: string
     data?: ShapeData
     shapeWkt?: string
     shapeObject?: ShapeObject
@@ -262,19 +266,22 @@ export type ShapeDefinition = {
 }
 
 export type ShapeData = {
-    name?: string,
-    description?: string,
-    count?: number,
-    dateTime?: number,
-    tag?: any,
-    isSelected?: boolean,
     id?: string
+    groupId?: string
+    type?: string
+    name?: string
+    description?: string
+    count?: number
+    dateTime?: number
+    tag?: any
+    isSelected?: boolean
+    isSelectedFade?: boolean
 }
 
 export type ShapeEntities = CircleShape | PolygonShape | MarkerShape | PolylineShape | LabelShape | MultiPolygonShape // PointShape
 
 export type ShapeObject = {
-    type: ShapeType,
+    type: ShapeType
     shape: ShapeEntities
 }
 
@@ -370,13 +377,25 @@ export type ShapeLayerContainer_Dev = {
 }
 
 export type MapLayers = {
-    baseMaps: BaseMap; // Check - change to type
-    initialLayers: ShapeLayerContainer_Dev[];
+    baseMaps: BaseMap // Check - change to type
+    initialLayers: ShapeLayerContainer_Dev[]
     importedLayers: {
-        [key: string]: ShapeLayerContainer_Dev[];
-    };
-    drawableLayers: L.FeatureGroup[];
-};
-export type BaseMap = { [key: string]: L.TileLayer };
+        [key: string]: ShapeLayerContainer_Dev[]
+    }
+    drawableLayers: FeatureGroup[]
+}
+export type BaseMap = { [key: string]: TileLayer }
 
-export type SelectionMode = 'selectLayer' | 'unSelectLayer';
+export type SelectionMode = 'selectLayer' | 'unSelectLayer'
+
+export type GroupIdToShapeIdMap = { [groupId: string]: GroupData }
+export type GroupData = { [id: string]: ShapeStore }
+export type SelectedObjects = { [shapeId: string]: ShapeIds }
+export type ShapeStore = {
+    leafletRef: Layer | FeatureGroup
+    shapeDef: ShapeDefinition
+}
+export type ShapeIds = {
+    groupId: string, 
+    shapeId: string
+}

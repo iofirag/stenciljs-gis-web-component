@@ -4,8 +4,10 @@
 // import { GisPluginContext } from '../pluginBase';
 // import Utils from '../utils';
 import _ from 'lodash';
-import { ShapeType, ShapeObject, ShapeDefinition, Coordinate, ShapeObjectOptions } from '../../models';
+import { ShapeType, ShapeObject, ShapeDefinition, Coordinate, ShapeObjectOptions, GroupData, ShapeStore, ShapeIds } from '../../models';
 import Utils from '../utilities';
+import store from '../../components/store/store';
+import { ShapeManagerRepository } from './ShapeManagerRepository';
 
 export interface ShapeManagerInterface {
 	getName(): string;
@@ -15,19 +17,18 @@ export interface ShapeManagerInterface {
 	isWktOfType(wkt: string): boolean;
 	shapeObjectToWkt(shapeObject: ShapeObject, shapeObjectOptions?: ShapeObjectOptions): string;
 	updateIsSelectedView(leafletObject: any): void;
-	toggleHighlight(element: any,context: any /*GisPluginContext*/): void;
+	toggleHighlight(element: any): void;
 	shapeWktToObject(shapeWkt: string): ShapeObject;
-	toggleSelectShape(context: any /*GisPluginContext*/, leafletObject: any): void;
-	selectShape(context: any /*GisPluginContext*/, leafletObject: any): void;
+	toggleSelectShape(leafletObject: any): void;
+	selectShape(leafletObject: any): void;
 
 	// data layer
-	addShapeToLayer(shapeDef: ShapeDefinition, container: L.LayerGroup, eventHandlers?: ShapeEventHandlers): L.Layer | L.FeatureGroup;
+	createShape(shapeDef: ShapeDefinition, eventHandlers?: ShapeEventHandlers): L.Layer | L.FeatureGroup;
 
 	// draw layer
 	getShapeObjectFromDrawingLayer(layer: L.Layer): ShapeObject;
 
 	getHeatLayerPoints(shapeObject: ShapeObject): Coordinate;
-	// getCoordinateAsString(shapeObject: ShapeObject): string;
 	getCoordinateList(shapeObject: ShapeObject): Coordinate[];
 	getMiddleCoordinate(shapeObject: ShapeObject): Coordinate;
 
@@ -55,8 +56,8 @@ export abstract class ShapeManagerBase implements ShapeManagerInterface {
 	abstract shapeWktToObject(shapeWkt: string): ShapeObject;
 
 	// data layer
-	abstract addShapeToLayer(shapeDef: ShapeDefinition, container: L.LayerGroup, eventHandlers?: any): L.Layer | L.FeatureGroup;
-	// abstract getCoordinateAsString(shapeObject: ShapeObject): string;
+	abstract createShape(shapeDef: ShapeDefinition, eventHandlers?: any): L.Layer | L.FeatureGroup;
+
 	abstract getShapeObjectFromDrawingLayer(layer: L.Layer): ShapeObject;
 	abstract getAreaSize(shapeObject: ShapeObject): number;
 	abstract isLayerOfThisShapeType(leafletLayer: any): boolean;
@@ -70,18 +71,33 @@ export abstract class ShapeManagerBase implements ShapeManagerInterface {
 		return null;
 	}
 
-	toggleSelectShape(context: any /*GisPluginContext*/, leafletObject: L.FeatureGroup | L.Layer): void {
-		Utils.doNothing(context);
-		// Change isSelected state
-		leafletObject.shapeDef.data.isSelected = !leafletObject.shapeDef.data.isSelected;
-		if(leafletObject.shapeDef.data.isSelectedFade) {
-			leafletObject.shapeDef.data.isSelectedFade = false;
+	toggleSelectShape(leafletObject: L.FeatureGroup | L.Layer): void {
+		const groupId: string = leafletObject.groupId;
+		const groupIdData: GroupData = store.groupIdToShapeIdMap[groupId];
+		if (groupIdData) {
+			_.forEach(groupIdData, (shapeStore: ShapeStore) => {
+				const shapeIds: ShapeIds = {
+					groupId: shapeStore.leafletRef.groupId,
+					shapeId: shapeStore.leafletRef.id
+				}
+				// Change isSelected state
+				store.toggleSelectionMode(shapeIds)
+				const manager = ShapeManagerRepository.getManagerByType(_.get(shapeStore, 'shapeDef.shapeObject.type'));
+				if (manager) {
+					manager.updateIsSelectedView(shapeStore.leafletRef);
+				}
+
+
+				/* if (shapeStore.shapeDef.data.isSelectedFade) { // O.A
+					shapeStore.shapeDef.data.isSelectedFade = false;
+				} */
+				// Handle Selected-leaflet-shpae-list
+				// Utils.selectedLeafletObjectHandler(context, leafletObject); // O.A
+			})
 		}
-		// Handle Selected-leaflet-shpae-list
-		// Utils.selectedLeafletObjectHandler(context, leafletObject);
 	}
-	selectShape(context: any /*GisPluginContext*/, leafletObject: L.FeatureGroup | L.Layer): void {
-		Utils.doNothing([context, leafletObject])
+	selectShape(leafletObject: L.FeatureGroup | L.Layer): void {
+		Utils.doNothing([leafletObject])
 		// Change isSelected state
 		// leafletObject.shapeDef.data.isSelected = !leafletObject.shapeDef.data.isSelected;
 		// Handle Selected-leaflet-shpae-list
@@ -89,36 +105,37 @@ export abstract class ShapeManagerBase implements ShapeManagerInterface {
 	}
 
 	updateIsSelectedView(leafletObject: L.Layer): void {
-		const isSelected = _.get(leafletObject, 'shapeDef.data.isSelected');
-		const leafletObjectParent:any = leafletObject.__parent && leafletObject.__parent._group.getVisibleParent(leafletObject);
+		const shapeStore: ShapeStore = store.groupIdToShapeIdMap[leafletObject.groupId][leafletObject.id];
+		const isSelected = _.get(shapeStore, 'shapeDef.data.isSelected');
+		// const leafletObjectParent:any = leafletObject.__parent && leafletObject.__parent._group.getVisibleParent(leafletObject);
 
 		const color = isSelected ? 'orange' : '#38f';
 		const styles = {
 			color,
-			opacity: !!_.get(leafletObject, 'shapeDef.data.isSelectedFade') ? '0.5' : '1'
+			opacity: !!_.get(shapeStore, 'shapeDef.data.isSelectedFade') ? '0.5' : '1'
 		};
 
-		if (isSelected && leafletObjectParent) {
-			leafletObjectParent._icon.classList.add('selected-cluster');
-		} else if (leafletObjectParent) {
-			leafletObjectParent._icon.classList.remove('selected-cluster');
-		}
+		// if (isSelected && leafletObjectParent) {
+		// 	leafletObjectParent._icon.classList.add('selected-cluster');
+		// } else if (leafletObjectParent) {
+		// 	leafletObjectParent._icon.classList.remove('selected-cluster');
+		// }
 
 		(leafletObject as L.FeatureGroup).setStyle(styles as any);
 	}
 
-	toggleHighlight(element: any,context: any /*GisPluginContext*/) {
-		Utils.doNothing(context)
+	toggleHighlight(element: any) {
+		Utils.removeHighlightPOIs();
 		const target = element._icon || element.path; // point or other svg shape
 
-		if(!target || !_.get(element, 'shapeDef.data.groupId')) {return;}
+		if(!target || !_.get(element, 'groupId')) {return;}
 
 		const isHighLighted = target.classList.contains('highlighted');
 
 		if (isHighLighted) {
 			// Utils.removeHighlightPOIs();
 		} else {
-			// Utils.highlightPOIsByGroupId(context, element.shapeDef.data.groupId);
+			Utils.highlightPOIsByGroupId(element.groupId);
 		}
 	}
 

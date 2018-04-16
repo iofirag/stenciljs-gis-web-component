@@ -35,11 +35,14 @@ export const MAX_SOUTH_WEST: L.LatLngLiteral = {
     lat: -85,
     lng: 180
 };
+
 export enum FILE_TYPES {
     kml = 'kml',
     csv = 'csv',
     zip = 'zip' // (shp file)
-}
+};
+export const FILE_TYPES_ARRAY: FILE_TYPES[] = Object.values(FILE_TYPES) as FILE_TYPES[];
+
 export const CoordinateType: { [key: string]: CoordinateSystemType } = {
     MGRS: 'utmref',
     UTM: 'utm',
@@ -69,3 +72,13 @@ export const LayerNames: { [key: string]: string } = {
 
 export const MIN_ZOOM: number = 2;
 export const MAX_ZOOM: number = 20;
+
+export const BUBBLE_TYPE = {
+    POPUP: 'Popup',
+    TOOLTIP: 'Tooltip'
+};
+export const GENERATED_ID = {
+    SHAPE_ID: 'shapeId',
+    DRAW_LAYER_GROUP_ID: 'draw_layer_groupId',
+    DEFAULT_GROUP: 'default_group'
+}

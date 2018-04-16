@@ -8,13 +8,18 @@ import 'leaflet.heat';
 import 'leaflet.markercluster';
 
 import _ from 'lodash';
-import { ShapeLayerDefinition, Coordinate, ClusterOptions, ShapeLayerContainer_Dev } from '../models';
+import { ShapeLayerDefinition, Coordinate, ClusterOptions, ShapeLayerContainer_Dev, 
+	ShapeStore, ShapeType } from '../models';
 import { ShapeManagerInterface } from './shapes/ShapeManager';
-import { MIN_OPACITY } from './statics';
+import { MIN_OPACITY, BUBBLE_TYPE } from './statics';
 import { ShapeManagerRepository } from './shapes/ShapeManagerRepository';
 import store from '../components/store/store';
+import Utils from './utilities';
+import Generator from 'id-generator';
+const shapeIdGenerator = new Generator(() => { return 'shapeId' });
+// const groupIdGenerator = new Generator(() => { return 'groupId' })
 // import Utils from './utilities';
-// import Utils from './utilities';
+
 
 export const HEAT_LAYER    = 'Heat Layer';
 export const CLUSTER_LAYER = 'Cluster Layer';
@@ -111,23 +116,45 @@ export default class LayersFactory {
 
 		for (const shapeDef of layerShapesCloned) {
 			shapeDef.options = shapeDef.options || {};
+
+			shapeDef.data = shapeDef.data || {};
+			shapeDef.data.isSelected = _.get(shapeDef, 'data.isSelected', false)
+			shapeDef.data.isSelectedFade = _.get(shapeDef, 'data.isSelectedFade', false)
+			shapeDef.data.groupId = _.get(shapeDef, 'data.groupId', 'default_group');
+			shapeDef.data.id = _.get(shapeDef, 'data.id', shapeIdGenerator.newId());
+			
 			// Iterate all shapes in this layer (some object types)
 			const manager: ShapeManagerInterface | null = ShapeManagerRepository.getManagerByShapeDefinition(shapeDef);
 
 			if (manager) {
 				console.log(isDisplay)
-				// const managerType = manager.getType();
-				// const { id/* , groupId */ } = shapeDef.data;
-				const leafletObject: L.Layer | L.FeatureGroup = manager.addShapeToLayer(shapeDef, clusterLayer);
-				console.log(leafletObject)
-				// clusterLayer.addLayer()
+				const leafletObject: L.Layer | L.FeatureGroup = manager.createShape(shapeDef);
+				// Set group-id and shape-id on layer
+				// leafletObject.groupId = shapeDef.data.groupId;
+				// leafletObject.id = shapeDef.data.id;
 
-				// Utils.setEventsOnLeafletLayer(leafletObject, {
-				// 	click: Utils.shapeOnClickHandler.bind(this, manager, context),
-				// 	mouseover: context.props.onFetchDataByShapeId ? (e) => { this.onHoverShapeHandler(e, context, id, groupId, leafletObject); } :  (e) => {this.shapeHoverTooltipHandler(e); },
-				// 	mouseout: () => { this.onOutShape(leafletObject, managerType); },
-				// });	// Add events
+				// console.log(leafletObject)
+				
+				// console.log(groupIdExist);
+				const shapeStore: ShapeStore = {
+					leafletRef: leafletObject,
+					shapeDef: shapeDef
+				}
+				// let shapeIds: ShapeIds = {
+				// 	groupId: shapeDef.data.groupId,
+				// 	shapeId: shapeDef.data.id
+				// }
+				store.addShape(shapeStore);
 
+				// Add shape to cluster layer
+				clusterLayer.addLayer(leafletObject);
+
+				// Set shape events
+				Utils.setEventsOnLeafletLayer(leafletObject, {
+					click: Utils.shapeOnClickHandler.bind(this, manager),
+					mouseover: (e) => {this.shapeHoverTooltipHandler(e); },
+					// mouseout: () => { this.onOutShape(leafletObject, managerType); },
+				});
 				// if (isDisplay) {
 				// 	// Layer should be displayed
 				// 	const isSelected: boolean = _.get(shapeDef, 'data.isSelected');
@@ -144,63 +171,76 @@ export default class LayersFactory {
 				// 	}
 				// }
 				// // Create bubble
-				// Utils.createBubble(leafletObject, BUBBLE_TYPE.TOOLTIP);
-
+				Utils.createBubble(leafletObject, shapeDef.data, BUBBLE_TYPE.TOOLTIP);
 				// leafletObject.layerName = layer.layerName;	// For Exporting layer name of this object
 			}
 		}
 
-		// clusterLayer.on('animationend', (e: any) => {
-		// 	// fix for selected cluters that don't need to be selected;
-		// 	const currentClusterLayers = e.target._featureGroup.getLayers();
-		// 	const clusters: any = context.map.getContainer().querySelectorAll('.selected-cluster') || [];
-		// 	clusters.forEach((cluster: any) => cluster.classList.remove('selected-cluster'));
+		clusterLayer.on('animationend', (e: any) => { // O.A
+			console.log('animationend')
+			// fix for selected cluters that don't need to be selected;
+			// Remove selected clusters that changed AND add again for the remaining selected clusters
+			Utils.clustersReselection();
+			
+			// update shapes select view
+			const currentClusterLayers = e.target._featureGroup.getLayers();
+			_.forEach(currentClusterLayers, (layer: L.Layer | L.FeatureGroup) => {
+				if (layer.id && layer.groupId) {
+					const shapeStore: ShapeStore = store.groupIdToShapeIdMap[layer.groupId][layer.id];
+					const shapeType: ShapeType = _.get(shapeStore, 'shapeDef.shapeObject.type');
+					const manager: ShapeManagerInterface = ShapeManagerRepository.getManagerByType(shapeType);
+					manager.updateIsSelectedView(layer);
+				}
+			});
+		});
 
-		// 	Utils.selectClustersBySelectedLeafletObjects(context.selectedLeafletObjects);
+		clusterLayer.on('clusterclick', (e: any) => {
+			if (!e.originalEvent.ctrlKey || store.state.mapConfig.isSelectionDisable) { return; }
 
-		// 	// update shapes select view
-		// 	_.forEach(currentClusterLayers, (layer: any) => {
-		// 		if (layer.shapeDef) {
-		// 			const shapeType: ShapeType = _.get(layer, 'shapeDef.shapeObject.type');
-		// 			const manager: ShapeManagerInterface = ShapeManagerRepository.getManagerByType(shapeType);
+			// Update isSelected view
+			// const selectedLayersShapeDef: ShapeDefinition[] = [];
+			const isClusterSelected = e.layer.options.icon._icon.classList.contains('selected-cluster');
 
-		// 			manager.updateIsSelectedView(layer);
-		// 		}
-		// 	});
-		// });
+			// if (e.originalEvent.ctrlKey) {
+			const markersInsideCluster: any = e.layer.getAllChildMarkers();
 
-		// clusterLayer.on('clusterclick', (e: any) => {
-		// 	if (!e.originalEvent.ctrlKey || context.props.isSelectionDisable === true) { return; }
+			let selectedGroups: string[] = [];
 
-		// 	// Update isSelected view
-		// 	const selectedLayersShapeDef: ShapeDefinition[] = [];
-		// 	const isClusterSelected = e.layer.options.icon._icon.classList.contains('selected-cluster');
+			markersInsideCluster.forEach((layer: L.Layer | L.FeatureGroup) => {
+				const shapeStore: ShapeStore = store.groupIdToShapeIdMap[layer.groupId][layer.id];
+				const shapeType: ShapeType = _.get(shapeStore, 'shapeDef.shapeObject.type');
 
-		// 	// if (e.originalEvent.ctrlKey) {
-		// 	const markersInsideCluster: any = e.layer.getAllChildMarkers();
+				const manager: ShapeManagerInterface = ShapeManagerRepository.getManagerByType(shapeType);
+				// const shapeIds: ShapeIds = {
+				// 	groupId: layer.groupId,
+				// 	shapeId: layer.id
+				// }
+				if (!isClusterSelected && !selectedGroups.includes(layer.groupId)) {
+					// store.toggleSelectionMode(shapeIds);// ??
+					// manager.selectShape(layer);
+					manager.toggleSelectShape(layer)
+					Utils.updateBubble(layer);
+					selectedGroups.push(layer.groupId);
+					// manager.updateIsSelectedView(layer);
+				}
+				/* if (!isClusterSelected) { O.A use action to change the isSelected and add to selectedObject
+					shapeStore.shapeDef.data.isSelected = true;
+					selectedLayersShapeDef.push(shapeStore.shapeDef);
+				} else {
+					if (shapeStore.shapeDef.data.isSelected) {
+						shapeStore.shapeDef.data.isSelected = false;
+						shapeStore.shapeDef.data.isSelectedFade = false;
+						selectedLayersShapeDef.push(shapeStore.shapeDef);
+					}
+				} */
 
-		// 	markersInsideCluster.forEach((layer: any) => {
-		// 		const manager: ShapeManagerInterface = ShapeManagerRepository.getManagerByType(layer.shapeDef.shapeObject.type);
-		// 		if (!isClusterSelected) {
-		// 			layer.shapeDef.data.isSelected = true;
-		// 			selectedLayersShapeDef.push(layer.shapeDef);
-		// 		} else {
-		// 			if (layer.shapeDef.data.isSelected) {
-		// 				layer.shapeDef.data.isSelected = false;
-		// 				layer.shapeDef.data.isSelectedFade = false;
-		// 				selectedLayersShapeDef.push(layer.shapeDef);
-		// 			}
-		// 		}
-
-		// 		manager.selectShape(context, layer);
-		// 		// Utils.updateBubble(layer);
-		// 		setTimeout(()=> {
-		// 			manager.updateIsSelectedView(layer);
-		// 		}, 0);
-		// 	});
-		// 	// }
-		// 	context.props.onSelectionDone(selectedLayersShapeDef);
-		// });
+				
+				// setTimeout(()=> {
+				// }, 0);
+			});
+			// }
+			// context.props.onSelectionDone(selectedLayersShapeDef); // O.A
+		});
 
 		return clusterLayer;
 	}
@@ -230,20 +270,22 @@ export default class LayersFactory {
 		const childrenList = cluster.getAllChildMarkers();
 		let weight = 0;
 		let isClusterSelected = false;
-
-		childrenList.forEach((leafletLayer: any) => {
-			const isSelected = leafletLayer.shapeDef.data.isSelected;
-			if (!isClusterSelected && isSelected) {
-				isClusterSelected = isSelected;
+		
+		childrenList.forEach((layer: any) => {
+			if (layer.id && layer.groupId) {
+				if (!isClusterSelected && store.selectedObjects[layer.id]) {
+					isClusterSelected = true;
+				}
+				const shapeStore: ShapeStore = store.groupIdToShapeIdMap[layer.groupId][layer.id];
+				const count: number = _.get(shapeStore, 'shapeDef.data.count');
+				weight += (count || 1);
+				// const isSelected = _.get(shapeStore, 'shapeDef.data.isSelected');
 			}
-			const count: number = _.get(leafletLayer, 'shapeDef.data.count');
-			weight += (count || 1);
 		});
-
-		// const size: string = (weight < 10) ? 'small' : ((weight < 100)
-		// 	? 'medium'
-		// 	: 'large');
-
+		/* const size: string = (weight < 10) ? 'small' : ((weight < 100)
+			? 'medium'
+			: 'large'); */
+		
 		const selectedClusterClass = isClusterSelected ? 'selected-cluster' : '';
 		// create the icon with the "weight" count, instead of marker count
 		return L.divIcon({
@@ -283,17 +325,19 @@ export default class LayersFactory {
 	// 	this.shapeHoverTooltipHandler(event);
 	// }
 
-	// private static shapeHoverTooltipHandler(event: any) {
-	// 	if (event.originalEvent.ctrlKey || event.originalEvent.shiftKey) {
-	// 		// event.target.closeTooltip();
-	// 		event.target._tooltip._container.style.display = 'none';
-	// 	} else  {
-	// 		// check if tooltip is display on the map
-	// 		if (event.target.getTooltip()._container) {
-	// 			event.target.getTooltip()._container.style.removeProperty('display');
-	// 		}
-	// 	}
-	// }
+	private static shapeHoverTooltipHandler(event: any) {
+		if (event.originalEvent.ctrlKey || event.originalEvent.shiftKey) {
+			// event.target.closeTooltip();
+			if (event.target.getTooltip()._container) {
+				event.target.getTooltip()._container.style.display = 'none';
+			}
+		} else {
+			// check if tooltip is display on the map
+			if (event.target.getTooltip()._container) {
+				event.target.getTooltip()._container.style.removeProperty('display');
+			}
+		}
+	}
 }
 
 export type ClusterOptions_Dev = ClusterOptions & {

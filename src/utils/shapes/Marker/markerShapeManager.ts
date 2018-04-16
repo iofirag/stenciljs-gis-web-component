@@ -1,18 +1,14 @@
-import { MarkerShape, ShapeObject, ShapeType, MarkerShapeOptions, ShapeDefinition, Coordinate } from '../../../models';
-import { ShapeManagerBase } from '../ShapeManager';
+import { MarkerShape, ShapeObject, ShapeType, MarkerShapeOptions, 
+	ShapeDefinition, Coordinate, ShapeStore, GroupData } from '../../../models';
+import { ShapeManagerBase, ShapeEventHandlers } from '../ShapeManager';
 import _ from 'lodash';
 import L from 'leaflet';
 import { interceptSvg } from './intercept';
 import { markerSvg } from './maker';
 import Utils from '../../utilities';
+import store from '../../../components/store/store';
 
 export class MarkerShapeManager extends ShapeManagerBase {
-
-	// getCoordinateAsString(shapeObject: ShapeObject): string {
-	// 	const marker = shapeObject.shape as MarkerShape;
-	// 	Utils.doNothing(marker)
-	// 	return null // Utils.getCoordinageStrByCoordinate(marker.coordinate);
-	// }
 
 	getHeatLayerPoints(shapeObject: ShapeObject): Coordinate {
 		const marker = shapeObject.shape as MarkerShape;
@@ -55,7 +51,8 @@ export class MarkerShapeManager extends ShapeManagerBase {
 		return (wkt.indexOf('POINT(') > -1);
 	}
 
-	addShapeToLayer(shapeDef: ShapeDefinition, container: L.LayerGroup): L.Layer {
+	createShape(shapeDef: ShapeDefinition, eventHandlers: ShapeEventHandlers): L.Layer {
+		Utils.doNothing(eventHandlers);
 		if (shapeDef.shapeObject) {
 			// Create Marker from shape values
 			const markerShape:        MarkerShape        = <MarkerShape>shapeDef.shapeObject.shape;
@@ -73,13 +70,14 @@ export class MarkerShapeManager extends ShapeManagerBase {
 
 			const leafletObject: L.Layer = new L.Marker([lat, lng], markerShapeOptions);
 
-			leafletObject.shapeDef = _.merge(shapeDef, {
+			
+			/* leafletObject.shapeDef = _.merge(shapeDef, {// O.A
 				data: {
 					isSelected: _.get(shapeDef, 'data.isSelected', false),
 					count: _.get(shapeDef, 'data.count', 1),
 				}
-			});
-			container.addLayer(leafletObject);	// Add to layerGroup
+			}); */
+			// container.addLayer(leafletObject);	// Add to layerGroup
 			return leafletObject;
 		} else {
 			console.error('shapeDef.shapeObject.shape is missing for creating the marker');
@@ -89,69 +87,73 @@ export class MarkerShapeManager extends ShapeManagerBase {
 	}
 
 	updateIsSelectedView(leafletObject: L.Marker): void {
-		const isSelected = _.get(leafletObject, 'shapeDef.data.isSelected');
-		const leafletObjectParent:any = leafletObject.__parent && leafletObject.__parent._group.getVisibleParent(leafletObject);
+		const groupData: GroupData = store.groupIdToShapeIdMap[leafletObject.groupId];
+		
+		_.forEach(groupData, (shapeStore: ShapeStore) => {
+			const leafletMarker = shapeStore.leafletRef as L.Marker;
+			// const isSelected = _.get(shapeStore, 'shapeDef.data.isSelected');
+			// const leafletObjectParent: any = leafletMarker.__parent && leafletMarker.__parent._group.getVisibleParent(leafletMarker);
 
-		if (isSelected && leafletObjectParent) {
-			leafletObjectParent._icon.classList.add('selected-cluster');
-		} else if (leafletObjectParent) {
-			leafletObjectParent._icon.classList.remove('selected-cluster');
-		}
+			// if (isSelected && leafletObjectParent) {
+			// 	leafletObjectParent._icon.classList.add('selected-cluster');
+			// } else if (leafletObjectParent) {
+			// 	leafletObjectParent._icon.classList.remove('selected-cluster');
+			// }
 
+			if (!leafletMarker._icon) { return; } // Object that hide under cluster
 
-		if (!leafletObject._icon) { return; } // Object that hide under cluster
+			// add or remove 'selected' css class
+			const shapeData = _.get(shapeStore, 'shapeDef.data');
+			const unselected = '#505050';
+			const strokeSelected = 'rgba(0, 166, 218, 1)';
+			const backGroundSelected = '#ffffcc';
 
-		// add or remove 'selected' css class
-		const shapeData          = _.get(leafletObject, 'shapeDef.data');
-		const unselected         = '#505050';
-		const strokeSelected     = 'rgba(0, 166, 218, 1)';
-		const backGroundSelected = '#ffffcc';
+			// set lcation styling must be inline styling,
+			if (shapeData.isSelected) {
+				const interceptStroke = !shapeData.isSelectedFade ? strokeSelected : unselected;
 
-		// set lcation styling must be inline styling,
-		if (shapeData.isSelected) {
-			const interceptStroke = !shapeData.isSelectedFade ? strokeSelected : unselected;
+				if (shapeData.type === 'intercept') {
+					const circle = leafletMarker._icon.querySelector('#circle');
 
-			if (shapeData.type === 'intercept') {
-				const circle = leafletObject._icon.querySelector('#circle');
+					if (!circle) { return; }
 
-				if (!circle) {return;}
+					const sign = leafletMarker._icon.querySelector('#v-sign');
 
-				const sign   = leafletObject._icon.querySelector('#v-sign');
+					circle.style.strokeWidth = '2px';
+					circle.style.fill = backGroundSelected;
+					circle.style.stroke = interceptStroke;
+					sign.style.stroke = interceptStroke;
+				} else {
+					const marker = leafletMarker._icon.querySelector('path');
 
-				circle.style.strokeWidth = '2px';
-				circle.style.fill        = backGroundSelected;
-				circle.style.stroke      = interceptStroke;
-				sign.style.stroke        = interceptStroke;
+					if (!marker) { return; }
+
+					marker.style.fill = backGroundSelected;
+					marker.style.stroke = interceptStroke;
+				}
+
 			} else {
-				const marker = leafletObject._icon.querySelector('path');
+				if (shapeData.type === 'intercept') {
+					const circle = leafletMarker._icon.querySelector('#circle');
 
-				if (!marker) {return;}
+					if (!circle) { return; }
 
-				marker.style.fill   = backGroundSelected;
-				marker.style.stroke = interceptStroke;
+					const sign = leafletMarker._icon.querySelector('#v-sign');
+
+					circle.style.fill = unselected;
+					circle.style.stroke = 'white';
+					circle.style.strokeWidth = "1px";
+					sign.style.stroke = unselected;
+				} else {
+					const marker = leafletMarker._icon.querySelector('path');
+
+					if (!marker) { return; }
+
+					marker.style.fill = unselected;
+					marker.style.stroke = 'initial';
+				}
 			}
-
-		} else {
-			if (shapeData.type === 'intercept') {
-				const circle = leafletObject._icon.querySelector('#circle');
-
-				if (!circle) {return;}
-
-				const sign = leafletObject._icon.querySelector('#v-sign');
-
-				circle.style.fill        = unselected;
-				circle.style.stroke      = 'white';
-				circle.style.strokeWidth = "1px";
-				sign.style.stroke = unselected;
-			} else {
-				const marker = leafletObject._icon.querySelector('path');
-
-				if (!marker) { return; }
-
-				marker.style.fill   = unselected;
-				marker.style.stroke = 'initial';
-			}
-		}
+		})
 	}
 
 	getShapeObjectFromDrawingLayer(layer: L.Marker): ShapeObject {

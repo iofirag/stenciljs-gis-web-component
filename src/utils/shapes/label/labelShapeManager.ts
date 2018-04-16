@@ -6,12 +6,6 @@ import Utils from '../../utilities';
 
 export class LabelShapeManager extends ShapeManagerBase {
 
-	// getCoordinateAsString(shapeObject: ShapeObject): string {
-	// 	const label = <LabelShape>shapeObject.shape;
-	// 	Utils.doNothing(label);
-	// 	return null // Utils.getCoordinageStrByCoordinate(label.coordinate);
-	// }
-
 	getType(): ShapeType {
 		return ShapeType.LABEL;
 	}
@@ -59,7 +53,7 @@ export class LabelShapeManager extends ShapeManagerBase {
 		}
 	}
 
-	addShapeToLayer(shapeDef: ShapeDefinition, container: L.LayerGroup, eventHandlers: ShapeEventHandlers): L.Layer {
+	createShape(shapeDef: ShapeDefinition, eventHandlers: ShapeEventHandlers): L.Layer {
 		Utils.doNothing(eventHandlers)
 		if (shapeDef.shapeObject) { // everytime true, because shapeDef.shapeObject filled with value at shape initialize
 			// Create Circle from shape values
@@ -75,14 +69,14 @@ export class LabelShapeManager extends ShapeManagerBase {
 
 			const leafletObject: L.Layer = <any>L.marker([lat, lng], labelShapeOptions);
 
-			leafletObject.shapeDef = _.merge(shapeDef, {
+			/* leafletObject.shapeDef = _.merge(shapeDef, { O.A
 				data: {
 					isSelected: _.get(shapeDef, 'data.isSelected', false),
 					count: _.get(shapeDef, 'data.count', 1),
 				}
-			});
+			}); */
 			// Utils.setEventsOnLeafletLayer(leafletObject, eventHandlers);	// Add events
-			container.addLayer(leafletObject);	// Add to layerGroup
+			// container.addLayer(leafletObject);	// Add to layerGroup
 			return leafletObject;
 		} else {
 			console.error('shapeDef.shapeObject.shape is missing for creating the circle');
