@@ -388,13 +388,25 @@ export type BaseMap = { [key: string]: TileLayer }
 
 export type SelectionMode = 'selectLayer' | 'unSelectLayer'
 
-export type GroupIdToShapeIdMap = { [groupId: string]: GroupData }
-export type GroupData = { [id: string]: ShapeStore }
-export type SelectedObjects = { [shapeId: string]: ShapeIds }
+
+
+export type GroupIdToShapeStoreMap = { [groupId: string]: GroupData }
+export type GroupData = { 
+    [id: string]: ShapeStore 
+}
 export type ShapeStore = {
     leafletRef: Layer | FeatureGroup
     shapeDef: ShapeDefinition
 }
+
+export type SelectedObjects = { [id: string]: SelectedObjectsValue }
+export type SelectedObjectsValue = {
+    selectionType: SelectionType, 
+    groupId: string
+}
+export type SelectionType = 'group' | 'single'
+
+
 export type ShapeIds = {
     groupId: string, 
     shapeId: string

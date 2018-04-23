@@ -272,19 +272,24 @@ export declare type BaseMap = {
     [key: string]: TileLayer;
 };
 export declare type SelectionMode = 'selectLayer' | 'unSelectLayer';
-export declare type GroupIdToShapeIdMap = {
+export declare type GroupIdToShapeStoreMap = {
     [groupId: string]: GroupData;
 };
 export declare type GroupData = {
     [id: string]: ShapeStore;
 };
-export declare type SelectedObjects = {
-    [shapeId: string]: ShapeIds;
-};
 export declare type ShapeStore = {
     leafletRef: Layer | FeatureGroup;
     shapeDef: ShapeDefinition;
 };
+export declare type SelectedObjects = {
+    [id: string]: SelectedObjectsValue;
+};
+export declare type SelectedObjectsValue = {
+    selectionType: SelectionType;
+    groupId: string;
+};
+export declare type SelectionType = 'group' | 'single';
 export declare type ShapeIds = {
     groupId: string;
     shapeId: string;

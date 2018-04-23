@@ -30,9 +30,9 @@ export class DrawBarPlugin {
     componentDidLoad() {
         Utils.log_componentDidLoad(this.compName);
         this.layerManagerEl = this.gisMap.getContainer().querySelector(LAYER_MANAGER_PLUGIN_TAG);
-        this.layerManagerEl.addingDrawableLayerToLayerController(this.drawnLayer);
-        Utils.doNothing(leafletDraw);
         this.gisMap.addLayer(this.drawnLayer);
+        this.layerManagerEl.addingDrawableLayerToLayerController(this.drawnLayer); // check
+        Utils.doNothing(leafletDraw);
         this.gisMap.addControl(this.control);
         this.gisMap.on(L.Draw.Event.CREATED, this.onDrawCreated.bind(this));
         this.gisMap.on(L.Draw.Event.EDITED, ( /* e: any */) => {

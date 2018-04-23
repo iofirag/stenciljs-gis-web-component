@@ -87,7 +87,7 @@ export class MarkerShapeManager extends ShapeManagerBase {
 	}
 
 	updateIsSelectedView(leafletObject: L.Marker): void {
-		const groupData: GroupData = store.groupIdToShapeIdMap[leafletObject.groupId];
+		const groupData: GroupData = store.groupIdToShapeStoreMap[leafletObject.groupId];
 		
 		_.forEach(groupData, (shapeStore: ShapeStore) => {
 			const leafletMarker = shapeStore.leafletRef as L.Marker;
@@ -109,7 +109,9 @@ export class MarkerShapeManager extends ShapeManagerBase {
 			const backGroundSelected = '#ffffcc';
 
 			// set lcation styling must be inline styling,
-			if (shapeData.isSelected) {
+			if (store.idToSelectedObjectsMap[shapeStore.leafletRef.groupId] 
+				|| store.idToSelectedObjectsMap[shapeStore.leafletRef.id]) {
+					// Importent - this layer is selected even thow shapeDef.data.isSelected is false 
 				const interceptStroke = !shapeData.isSelectedFade ? strokeSelected : unselected;
 
 				if (shapeData.type === 'intercept') {

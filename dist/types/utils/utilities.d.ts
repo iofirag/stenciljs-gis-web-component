@@ -24,11 +24,10 @@ export default class Utils {
     static removeHighlightPOIs(): void;
     static highlightPOIsByGroupId(groupId: string): void;
     static getVisibleLayers(mapLayers: MapLayers, map: L.Map): L.Layer[];
-    static getSelectedObjects(): ShapeStore[];
     static getShapeStoreByShapeId(shapeId: string, groupId?: string): ShapeStore;
     static clustersReselection(): void;
     static updateViewForSelectedObjects(): void;
-    static selectClustersBySelectedLeafletObjects(selectedLeafletObjects: SelectedObjects): void;
+    static selectClustersBySelectedLeafletObjects(selectedObjects: SelectedObjects): void;
     static createBubble(leafletObject: L.Layer, shapeData: ShapeData, type: string): void;
     static generatePopupMarkupFromData(shapeData: ShapeData): string;
 }

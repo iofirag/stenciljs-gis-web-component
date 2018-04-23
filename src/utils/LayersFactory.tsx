@@ -9,9 +9,9 @@ import 'leaflet.markercluster';
 
 import _ from 'lodash';
 import { ShapeLayerDefinition, Coordinate, ClusterOptions, ShapeLayerContainer_Dev, 
-	ShapeStore, ShapeType } from '../models';
+	ShapeStore, ShapeType, ShapeData } from '../models';
 import { ShapeManagerInterface } from './shapes/ShapeManager';
-import { MIN_OPACITY, BUBBLE_TYPE } from './statics';
+import { MIN_OPACITY, BUBBLE_TYPE, GENERATED_ID } from './statics';
 import { ShapeManagerRepository } from './shapes/ShapeManagerRepository';
 import store from '../components/store/store';
 import Utils from './utilities';
@@ -118,17 +118,25 @@ export default class LayersFactory {
 			shapeDef.options = shapeDef.options || {};
 
 			shapeDef.data = shapeDef.data || {};
-			shapeDef.data.isSelected = _.get(shapeDef, 'data.isSelected', false)
-			shapeDef.data.isSelectedFade = _.get(shapeDef, 'data.isSelectedFade', false)
-			shapeDef.data.groupId = _.get(shapeDef, 'data.groupId', 'default_group');
+			shapeDef.data.isSelected = _.get(shapeDef, 'data.isSelected', false);
+			shapeDef.data.isSelectedFade = _.get(shapeDef, 'data.isSelectedFade', false);
+			shapeDef.data.groupId = _.get(shapeDef, 'data.groupId', GENERATED_ID.DEFAULT_GROUP);
 			shapeDef.data.id = _.get(shapeDef, 'data.id', shapeIdGenerator.newId());
 			
+
+			// if (store.idToSelectedObjectsMap.hasOwnProperty(shapeDef.data.groupId)) {
+			// 	// Set isSelected=true for shapes that doesnt has it, in already selcted group 
+			// 	// Fix isSelected to be true, because one or more another objects in same group is already selected
+			// 	// O.A
+			// 	shapeDef.data.isSelected = true;
+			// }
 			// Iterate all shapes in this layer (some object types)
 			const manager: ShapeManagerInterface | null = ShapeManagerRepository.getManagerByShapeDefinition(shapeDef);
 
 			if (manager) {
 				console.log(isDisplay)
 				const leafletObject: L.Layer | L.FeatureGroup = manager.createShape(shapeDef);
+
 				// Set group-id and shape-id on layer
 				// leafletObject.groupId = shapeDef.data.groupId;
 				// leafletObject.id = shapeDef.data.id;
@@ -170,8 +178,9 @@ export default class LayersFactory {
 				// 		delete context.selectedLeafletObjects[layerId] ;
 				// 	}
 				// }
-				// // Create bubble
-				Utils.createBubble(leafletObject, shapeDef.data, BUBBLE_TYPE.TOOLTIP);
+				const shapeData: ShapeData = store.groupIdToShapeStoreMap[shapeDef.data.groupId][shapeDef.data.id].shapeDef.data;
+				// Create bubble
+				Utils.createBubble(leafletObject, shapeData, BUBBLE_TYPE.TOOLTIP);
 				// leafletObject.layerName = layer.layerName;	// For Exporting layer name of this object
 			}
 		}
@@ -186,7 +195,7 @@ export default class LayersFactory {
 			const currentClusterLayers = e.target._featureGroup.getLayers();
 			_.forEach(currentClusterLayers, (layer: L.Layer | L.FeatureGroup) => {
 				if (layer.id && layer.groupId) {
-					const shapeStore: ShapeStore = store.groupIdToShapeIdMap[layer.groupId][layer.id];
+					const shapeStore: ShapeStore = store.groupIdToShapeStoreMap[layer.groupId][layer.id];
 					const shapeType: ShapeType = _.get(shapeStore, 'shapeDef.shapeObject.type');
 					const manager: ShapeManagerInterface = ShapeManagerRepository.getManagerByType(shapeType);
 					manager.updateIsSelectedView(layer);
@@ -207,7 +216,7 @@ export default class LayersFactory {
 			let selectedGroups: string[] = [];
 
 			markersInsideCluster.forEach((layer: L.Layer | L.FeatureGroup) => {
-				const shapeStore: ShapeStore = store.groupIdToShapeIdMap[layer.groupId][layer.id];
+				const shapeStore: ShapeStore = store.groupIdToShapeStoreMap[layer.groupId][layer.id];
 				const shapeType: ShapeType = _.get(shapeStore, 'shapeDef.shapeObject.type');
 
 				const manager: ShapeManagerInterface = ShapeManagerRepository.getManagerByType(shapeType);
@@ -273,10 +282,11 @@ export default class LayersFactory {
 		
 		childrenList.forEach((layer: any) => {
 			if (layer.id && layer.groupId) {
-				if (!isClusterSelected && store.selectedObjects[layer.id]) {
+				if (!isClusterSelected 
+					&& (store.idToSelectedObjectsMap[layer.groupId] || store.idToSelectedObjectsMap[layer.id])) {
 					isClusterSelected = true;
 				}
-				const shapeStore: ShapeStore = store.groupIdToShapeIdMap[layer.groupId][layer.id];
+				const shapeStore: ShapeStore = store.groupIdToShapeStoreMap[layer.groupId][layer.id];
 				const count: number = _.get(shapeStore, 'shapeDef.data.count');
 				weight += (count || 1);
 				// const isSelected = _.get(shapeStore, 'shapeDef.data.isSelected');

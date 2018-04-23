@@ -94,32 +94,33 @@ export class DevComponent {
             distanceUnitType: 'km',
             coordinateSystemType: 'gps',
         };
-        // const protocol = 'http:';
+        const protocol = 'http:';
         const tileLayers = [
-        // {
-        //   name: 'Verint Map',
-        //   tilesURI: protocol + '//osm/osm_tiles/{z}/{x}/{y}.png', // 'http://{s}.tile.osm.org/{z}/{x}/{y}.png', // 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', // 'http://10.164.39.38/pandonia/{z}/{x}/{y}.png',
-        //   minZoom: 1,
-        //   maxZoom: 20,
-        //   attributionControl: false
-        // }, 
-        // {
-        //   name: 'Rail Ways',
-        //   tilesURI: 'http://www.openptmap.org/tiles/{z}/{x}/{y}.png',
-        //   minZoom: 1,
-        //   maxZoom: 20,
-        //   attributionControl: false
-        // }
+            {
+                name: 'Verint Map',
+                tilesURI: protocol + '//osm/osm_tiles/{z}/{x}/{y}.png',
+                minZoom: 1,
+                maxZoom: 20,
+                attributionControl: false
+            },
+            {
+                name: 'Rail Ways',
+                tilesURI: 'http://www.openptmap.org/tiles/{z}/{x}/{y}.png',
+                minZoom: 1,
+                maxZoom: 20,
+                attributionControl: false
+            }
         ];
         const shapeLayers = [
             {
                 layerName: 'Test data 1',
                 isDisplay: true,
                 shapes: [
+                    // Uniqe group id (group0)
                     {
                         shapeWkt: 'POINT(35 32)',
                         data: {
-                            name: '232',
+                            name: '232 in gorup0',
                             groupId: 'group0',
                             // id: 'specialId1',
                             type: 'intercept',
@@ -128,51 +129,27 @@ export class DevComponent {
                     {
                         shapeWkt: 'POINT(35 33)',
                         data: {
-                            name: '233',
+                            name: '233 in gorup0',
                             groupId: 'group0',
                             id: 'specialId2',
                             type: 'intercept',
+                            isSelected: true
                         }
                     },
                     {
                         shapeWkt: 'POINT(30 30)',
                         data: {
-                            name: '234',
-                            // groupId: 'group0',
+                            name: '234 in gorup0',
+                            groupId: 'group0',
                             id: 'specialId3',
                             type: 'intercept',
                         }
                     },
-                    {
-                        shapeWkt: 'POINT(37 32)',
-                        data: {
-                            name: '235',
-                            // groupId: 'group0',
-                            id: 'specialId4'
-                        }
-                    },
-                    {
-                        shapeWkt: 'POLYGON((0 0 0,0 5 0,5 5 0,5 0 0,0 0 0))',
-                        data: {
-                            name: 'cell1 coverage',
-                            groupId: 'cell1',
-                            id: 'cell1coverage',
-                            count: 10
-                        }
-                    },
-                    {
-                        shapeWkt: 'POINT(1.40 6.285)',
-                        data: {
-                            name: 'cell1 point',
-                            groupId: 'cell1',
-                            id: 'cell1point',
-                            type: 'intercept',
-                        }
-                    },
+                    // Uniqe group id (samepoint1)
                     {
                         shapeWkt: 'POINT(42 42)',
                         data: {
-                            name: 'samepoint',
+                            name: 'a in samepoint1',
                             groupId: 'samepoint1',
                             id: 'samepoint1a',
                             type: 'intercept',
@@ -181,10 +158,70 @@ export class DevComponent {
                     {
                         shapeWkt: 'POINT(42 42)',
                         data: {
-                            name: '233',
+                            name: 'b in samepoint1',
                             groupId: 'samepoint1',
                             id: 'samepoint1b',
                             type: 'intercept',
+                        }
+                    },
+                    {
+                        shapeWkt: 'POINT(43 43)',
+                        data: {
+                            name: 'c in samepoint1',
+                            groupId: 'samepoint1',
+                            id: 'samepoint1c',
+                            type: 'intercept',
+                        }
+                    },
+                    {
+                        shapeWkt: 'POINT(43 43)',
+                        data: {
+                            name: 'd in samepoint1',
+                            groupId: 'samepoint1',
+                            id: 'samepoint1d',
+                            type: 'intercept',
+                        }
+                    },
+                    // Uniqe group id (cell1)
+                    {
+                        shapeWkt: 'POLYGON((0 0 0,0 5 0,5 5 0,5 0 0,0 0 0))',
+                        data: {
+                            name: 'cell coverage in cell1',
+                            groupId: 'cell1',
+                            id: 'cell1coverage',
+                            count: 10
+                        }
+                    },
+                    {
+                        shapeWkt: 'POINT(1.40 6.285)',
+                        data: {
+                            name: 'cell point in cell1',
+                            groupId: 'cell1',
+                            id: 'cell1point',
+                            type: 'intercept',
+                        }
+                    },
+                    // Default group
+                    {
+                        shapeWkt: 'POINT(37 38)',
+                        data: {
+                            name: 'd1 in default group',
+                            id: 'd1'
+                        }
+                    },
+                    {
+                        shapeWkt: 'POINT(38 38)',
+                        data: {
+                            name: 'd2 in default group',
+                            id: 'd2',
+                            isSelected: true
+                        }
+                    },
+                    {
+                        shapeWkt: 'POINT(39 38)',
+                        data: {
+                            name: 'd3 in default group',
+                            id: 'd3',
                         }
                     },
                 ]

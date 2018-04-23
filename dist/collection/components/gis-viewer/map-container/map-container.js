@@ -4,15 +4,20 @@ import _ from 'lodash';
 import L from 'leaflet';
 import store from '../../store/store';
 import { ShapeManagerRepository } from '../../../utils/shapes/ShapeManagerRepository';
+import { reaction } from 'mobx';
 // import { reaction } from 'mobx';
 export class MapContainer {
     constructor() {
         this.compName = MAP_CONTAINER_TAG;
-        // reaction(() => store.selectedObjects,
-        //   (selectedObjects) => {
-        //     console.log(selectedObjects);
-        //   }
-        // )
+        reaction(() => store.idToSelectedObjectsMap, (e) => {
+            console.log(e);
+            _.forEach(store.mapLayers.initialLayers, (initialLayer) => {
+                let leafletClusterLayer = initialLayer.leafletClusterLayer;
+                for (let cluster in leafletClusterLayer._featureGroup._layers) {
+                    leafletClusterLayer._featureGroup._layers[cluster]._updateIcon && leafletClusterLayer._featureGroup._layers[cluster]._updateIcon();
+                }
+            });
+        });
     }
     // @State() gisMap: L.Map;
     // styleLayerManagerControl: L.Control.StyledLayerControl;
@@ -99,11 +104,11 @@ export class MapContainer {
         //   });
         // }
         store.gisMap.on('zoomstart', () => {
-            console.log(1);
+            // console.log(1)
             Utils.clustersReselection();
         });
         store.gisMap.on('movestart', () => {
-            console.log(2);
+            // console.log(2)
             // Utils.clustersReselection();
         });
         // store.gisMap.on('zoomlevelschange', () => {
@@ -112,18 +117,18 @@ export class MapContainer {
         store.gisMap.on('load', () => {
         });
         store.gisMap.on('zoom', () => {
-            console.log(4);
+            // console.log(4)
         });
         store.gisMap.on('move', () => {
-            console.log(5);
+            // console.log(5)
         });
         store.gisMap.on('zoomend', () => {
-            console.log(6);
+            // console.log(6)
         });
         store.gisMap.on('moveend', () => {
             console.log('moveend');
             // console.log(7)
-            Utils.selectClustersBySelectedLeafletObjects(store.selectedObjects); // O.A
+            Utils.selectClustersBySelectedLeafletObjects(store.idToSelectedObjectsMap); // O.A
             Utils.updateViewForSelectedObjects();
         });
         // Leaflet mouse wheel zoom only after click on map
@@ -176,12 +181,12 @@ export class MapContainer {
                 groupId: layer.groupId,
                 shapeId: layer.id
             };
-            const shapeStore = store.groupIdToShapeIdMap[layerIds.groupId][layerIds.shapeId];
+            const shapeStore = store.groupIdToShapeStoreMap[layerIds.groupId][layerIds.shapeId];
             const manager = ShapeManagerRepository.getManagerByType(_.get(shapeStore, 'shapeDef.shapeObject.type'));
             if (manager) {
                 const latLng = layer._latlngs ? layer._latlngs : layer._latlng;
-                const isSelected = store.selectedObjects.hasOwnProperty(layerIds.shapeId); /* shapeStore.shapeDef.data.isSelected; */
-                // // Object found in bounds
+                const isSelected = store.idToSelectedObjectsMap.hasOwnProperty(layerIds.shapeId); /* shapeStore.shapeDef.data.isSelected; */
+                // Object found in bounds
                 if (latLng && event.boxZoomBounds.contains(latLng)) {
                     if (!isSelected) {
                         manager.toggleSelectShape(layer);

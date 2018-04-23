@@ -3,9 +3,10 @@ import { GisViewerProps, MapConfig, TileLayerDefinition, ShapeLayerDefinition,
     ScaleConfig, LayerManagerConfig, SearchConfig, MiniMapConfig, DrawBarConfig, 
     MouseCoordinateConfig, MeasureConfig, ZoomToExtentConfig, UnitsChangerConfig, 
     FullScreenConfig, ToolbarConfig, MapPluginsConfig, CoordinateSystemType, 
-    ClusterHeat, MapLayers, ShapeStore, GroupIdToShapeIdMap, ShapeIds, 
-    SelectedObjects } from '../../models';
+    ClusterHeat, MapLayers, ShapeStore, ShapeIds, 
+    SelectedObjects, GroupIdToShapeStoreMap } from '../../models';
 import _ from 'lodash';
+import { GENERATED_ID } from '../../utils/statics';
 // import { CoordinateType } from '../../utils/statics';
 
 
@@ -16,8 +17,8 @@ class Store {
     @observable state: GisViewerProps;
     @observable mapLayers: MapLayers;
 
-    @observable groupIdToShapeIdMap: GroupIdToShapeIdMap;
-    @observable selectedObjects: SelectedObjects;
+    @observable groupIdToShapeStoreMap: GroupIdToShapeStoreMap;
+    @observable idToSelectedObjectsMap: SelectedObjects;
 
     // @observable zoom: number;
     @observable gisMap: L.Map;
@@ -25,19 +26,28 @@ class Store {
     @action 
     toggleSelectionMode(shapeIds: ShapeIds) {
         // Toggle shape selection
-        this.groupIdToShapeIdMap[shapeIds.groupId][shapeIds.shapeId].shapeDef.data.isSelected = 
-        !this.groupIdToShapeIdMap[shapeIds.groupId][shapeIds.shapeId].shapeDef.data.isSelected;
+        // this.groupIdToShapeStoreMap[shapeIds.groupId][shapeIds.shapeId].shapeDef.data.isSelected = 
+        //     !this.groupIdToShapeStoreMap[shapeIds.groupId][shapeIds.shapeId].shapeDef.data.isSelected;
         
-        if (this.groupIdToShapeIdMap[shapeIds.groupId][shapeIds.shapeId].shapeDef.data.isSelected) {
-            // Add shape to selected list
-            this.selectedObjects[shapeIds.shapeId] = shapeIds
-        } else {
-            // Remove shape from selected
-            delete this.selectedObjects[shapeIds.shapeId];
-        }
+        // if (this.groupIdToShapeStoreMap[shapeIds.groupId][shapeIds.shapeId].shapeDef.data.isSelected) {
+        //     if (shapeIds.groupId.indexOf(GENERATED_ID.DEFAULT_GROUP)===0
+        //         || shapeIds.groupId.indexOf(GENERATED_ID.DRAW_LAYER_GROUP_ID)===0) {
+        //         // Add shape-id to selected list with group id (DEFAULT_GROUP / DRAW_LAYER_GROUP_ID)
+        //         this.idToSelectedObjectsMap[shapeIds.shapeId] = { selectionType: 'single', groupId: shapeIds.groupId };
+        //     } else {
+        //             // Add group-id to selected list
+        //         this.idToSelectedObjectsMap[shapeIds.groupId] = {selectionType: 'group', groupId: shapeIds.groupId};
+        //     }
+        // } else {
+        //     // Remove shape from selected
+        //     delete this.idToSelectedObjectsMap[shapeIds.shapeId];
+        // }
+        const isSelected: boolean = (this.idToSelectedObjectsMap[shapeIds.groupId] || this.idToSelectedObjectsMap[shapeIds.shapeId])? true: false;
+        this.setSelectionMode(shapeIds, !isSelected);
         // Importent - Destracture the object for set new reference.
-        this.selectedObjects = { ...this.selectedObjects };
+        this.idToSelectedObjectsMap = { ...this.idToSelectedObjectsMap };
     }
+    
 
     // @computed get coordinateSystemType(): CoordinateSystemType {
     //     return this.state.mapConfig.coordinateSystemType;
@@ -78,15 +88,89 @@ class Store {
             groupId: shapeStore.leafletRef.groupId,
             shapeId: shapeStore.leafletRef.id
         }
-        if (!_.has(this, `groupIdToShapeIdMap[${shapeIds.groupId}]`)) {
-            this.groupIdToShapeIdMap[shapeIds.groupId] = {};
+        if (!this.groupIdToShapeStoreMap.hasOwnProperty(shapeIds.groupId)) {
+            // Init group id
+            this.groupIdToShapeStoreMap[shapeIds.groupId] = {};
         }
-        this.groupIdToShapeIdMap[shapeIds.groupId][shapeIds.shapeId] = shapeStore;
+        // Add data to group id
+        this.groupIdToShapeStoreMap[shapeIds.groupId][shapeIds.shapeId] = shapeStore;
 
+
+        /* not selected 
+            or first selected shape in group 
+            or single selected */
         // Set shape selection
-        if (shapeStore.shapeDef.data.isSelected) {
-            this.selectedObjects[shapeIds.shapeId] = shapeIds;
+        if (this.idToSelectedObjectsMap[shapeIds.groupId] // group already selected flow
+            || this.idToSelectedObjectsMap[shapeIds.shapeId] // This object already selected
+            || shapeStore.shapeDef.data.isSelected) {   // initiate as selected
+            this.setSelectionMode(shapeIds, true);
         }
+        
+
+
+        // if (Object.keys(this.groupIdToShapeStoreMap[shapeIds.groupId]).length > 1) {
+
+        // }
+        // const needToFixIsSelected: boolean = _.some(this.groupIdToShapeStoreMap[shapeIds.groupId], (value: ShapeStore) => {
+        //     return !value.shapeDef.data.isSelected
+        // })
+        // if (needToFixIsSelected) {
+
+
+        // // Fix flows of  isSelected not consist of group selection
+        // if (this.idToSelectedObjectsMap.hasOwnProperty(shapeIds.groupId)/*  || shapeStore.shapeDef.data.isSelected */) {
+        //     // Fix isSelected of firsts object
+        //     if (!this.groupIdToShapeStoreMap[shapeIds.groupId][shapeIds.shapeId].shapeDef.data.isSelected) {
+        //         this.groupIdToShapeStoreMap[shapeIds.groupId][shapeIds.shapeId].shapeDef.data.isSelected = true;
+        //     }
+            
+        //     // Fix isSelected for other objects
+        //     const needToFixIsSelected: boolean = _.some(this.groupIdToShapeStoreMap[shapeIds.groupId], (value: ShapeStore) => {
+        //         return !value.shapeDef.data.isSelected
+        //     })
+        //     if (needToFixIsSelected) {
+        //         const groupId: GroupData = this.groupIdToShapeStoreMap[shapeIds.groupId];
+        //         _.forEach(groupId, (groupItem: ShapeStore) => {
+        //             groupItem.shapeDef.data.isSelected = true;
+        //         });
+        //     }
+        // }
+        //  else {
+        //     /* not selected 
+        //     or first selected shape in group 
+        //     or single selected */
+        //     // Set shape selection
+        //     if (shapeStore.shapeDef.data.isSelected) {
+        //         this.setSelectionMode(shapeIds, shapeStore.shapeDef.data.isSelected);
+        //     }
+        // }
+
+
+
+        // this.selectedIds[shapeIds.shapeId] = shapeIds;
+    }
+    @action
+    setSelectionMode(shapeIds: ShapeIds, isSelected: boolean) {
+        if (isSelected) {
+            if (shapeIds.groupId === GENERATED_ID.DEFAULT_GROUP 
+                || shapeIds.groupId === GENERATED_ID.DRAW_LAYER_GROUP_ID) {
+                // Add shape-id to selected list with group id (DEFAULT_GROUP / DRAW_LAYER_GROUP_ID)
+                this.idToSelectedObjectsMap[shapeIds.shapeId] = { selectionType: 'single', groupId: shapeIds.groupId };
+            } else {
+                // Add group-id to selected list
+                this.idToSelectedObjectsMap[shapeIds.groupId] = { selectionType: 'group', groupId: shapeIds.groupId };
+            }
+        } else {
+            if (this.idToSelectedObjectsMap.hasOwnProperty(shapeIds.groupId)) {
+                // Remove group id from selected objects
+                delete this.idToSelectedObjectsMap[shapeIds.groupId];
+            } else if (this.idToSelectedObjectsMap.hasOwnProperty(shapeIds.shapeId)) {
+                // Remove shape from selected
+                delete this.idToSelectedObjectsMap[shapeIds.shapeId];
+            }
+        }
+        // Importent - Destracture the object for set new reference.
+        this.idToSelectedObjectsMap = { ...this.idToSelectedObjectsMap };
     }
 
     constructor() {
@@ -96,8 +180,8 @@ class Store {
         this.DEFAULT_VALUES = this.getDefaultValue();
         this.state = this.DEFAULT_VALUES;
         this.mapLayers = this.getDefaultMapLayers()
-        this.groupIdToShapeIdMap = {};
-        this.selectedObjects = {};
+        this.groupIdToShapeStoreMap = {};
+        this.idToSelectedObjectsMap = {};
         // this.coordinateSystemType = 'gps';
         // this.distanceUnitType = 'km';
         

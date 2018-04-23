@@ -2,59 +2,59 @@
   "namespace": "gisviewer",
   "fsNamespace": "gisviewer",
   "loader": "../gisviewer.js",
-  "core": "gisviewer.ndxurbzi.js",
-  "corePolyfilled": "gisviewer.obxprsnl.js",
+  "corePolyfilled": "es5-build-disabled.js",
+  "core": "gisviewer.core.js",
   "components": {
     "custom-drop-down-plugin": {
-      "$": "k2tg0301"
+      "$": "custom-drop-down-plugin"
     },
     "custom-export": {
-      "$": "iqdk39vk"
+      "$": "custom-export"
     },
     "custom-settings": {
-      "$": "k2tg0301"
+      "$": "custom-drop-down-plugin"
     },
     "dev-component": {
-      "$": "zqxwusto"
+      "$": "dev-component"
     },
     "draw-bar-plugin": {
-      "$": "qi7irusi"
+      "$": "draw-bar-plugin"
     },
     "drop-down-plugin": {
-      "$": "iqdk39vk"
+      "$": "custom-export"
     },
     "full-screen-plugin": {
-      "$": "zqxwusto"
+      "$": "dev-component"
     },
     "gis-viewer": {
-      "$": "zqxwusto"
+      "$": "dev-component"
     },
     "layer-manager-plugin": {
-      "$": "czts2dum"
+      "$": "layer-manager-plugin"
     },
     "map-container": {
-      "$": "zqxwusto"
+      "$": "dev-component"
     },
     "measure-plugin": {
-      "$": "7sbwza3a"
+      "$": "measure-plugin"
     },
     "mini-map-plugin": {
-      "$": "fykdmuu4"
+      "$": "mini-map-plugin"
     },
     "mouse-coordinate-plugin": {
-      "$": "4fhsteft"
+      "$": "mouse-coordinate-plugin"
     },
     "scale-plugin": {
-      "$": "afa9w1oj"
+      "$": "scale-plugin"
     },
     "search-plugin": {
-      "$": "s2xn8rgw"
+      "$": "search-plugin"
     },
     "tool-bar": {
-      "$": "zqxwusto"
+      "$": "dev-component"
     },
     "zoom-to-extent-plugin": {
-      "$": "hdcplkpw"
+      "$": "zoom-to-extent-plugin"
     }
   }
 }

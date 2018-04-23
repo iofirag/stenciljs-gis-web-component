@@ -1,5 +1,5 @@
 import { ShapeDefinition, PolygonShape, ShapeType, ShapeObject, Coordinate, MultiPolygonShape } from '../../../models';
-import _ from 'lodash';
+// import _ from 'lodash';
 import L from 'leaflet';
 import { ShapeEventHandlers, ShapeManagerBase } from "../ShapeManager";
 import Utils from '../../utilities';
@@ -89,12 +89,12 @@ export class MultiPolygonShapeManager extends ShapeManagerBase {
 
       const leafletObject: any = new L.GeoJSON(mp);
 
-      leafletObject.shapeDef = _.merge(shapeDef, {
+      /* leafletObject.shapeDef = _.merge(shapeDef, {
         data: {
           isSelected: _.get(shapeDef, "data.isSelected", false),
           count: _.get(shapeDef, "data.count", 1)
         }
-      });
+      }); */
 
       // Utils.setEventsOnLeafletLayer(leafletObject, eventHandlers);	// Add events
       // container.addLayer(leafletObject);	// Add to layerGroup

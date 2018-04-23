@@ -2,11 +2,12 @@ import { Component, Prop, Element, Method } from '@stencil/core';
 import { MAP_CONTAINER_TAG, ZOOM_TO_EXTENT_PLUGIN_TAG, MAX_NORTH_EAST, 
   MAX_SOUTH_WEST } from '../../../utils/statics';
 import Utils from '../../../utils/utilities';
-import { GisViewerProps, CoordinateSystemType, DistanceUnitType, ShapeDefinition, Coordinate, ShapeIds, ShapeStore } from '../../../models';
+import { GisViewerProps, CoordinateSystemType, DistanceUnitType, ShapeDefinition, Coordinate, ShapeIds, ShapeStore, ShapeLayerContainer_Dev } from '../../../models';
 import _ from 'lodash';
 import L from 'leaflet';
 import store from '../../store/store';
 import { ShapeManagerRepository } from '../../../utils/shapes/ShapeManagerRepository';
+import { reaction } from 'mobx';
 // import { reaction } from 'mobx';
 
 @Component({
@@ -55,11 +56,18 @@ export class MapContainer {
   }
 
   constructor() {
-    // reaction(() => store.selectedObjects,
-    //   (selectedObjects) => {
-    //     console.log(selectedObjects);
-    //   }
-    // )
+    reaction(() => store.idToSelectedObjectsMap,
+      (e) => {
+        console.log(e)
+        _.forEach(store.mapLayers.initialLayers, (initialLayer: ShapeLayerContainer_Dev) => {
+          let leafletClusterLayer = initialLayer.leafletClusterLayer;
+          for (let cluster in leafletClusterLayer._featureGroup._layers) {
+            leafletClusterLayer._featureGroup._layers[cluster]._updateIcon && leafletClusterLayer._featureGroup._layers[cluster]._updateIcon();
+          }
+        })
+      }
+    )
+
   }
   
   componentWillLoad() {
@@ -155,11 +163,11 @@ export class MapContainer {
     //   });
     // }
     store.gisMap.on('zoomstart', () => {
-      console.log(1)
+      // console.log(1)
       Utils.clustersReselection();
     })
     store.gisMap.on('movestart', () => {
-      console.log(2)
+      // console.log(2)
       // Utils.clustersReselection();
     })
 
@@ -169,19 +177,19 @@ export class MapContainer {
     store.gisMap.on('load', () => {
     })
     store.gisMap.on('zoom', () => {
-      console.log(4)
+      // console.log(4)
     })
     store.gisMap.on('move', () => {
-      console.log(5)
+      // console.log(5)
     })
     
     store.gisMap.on('zoomend', () => {
-      console.log(6)
+      // console.log(6)
     })
     store.gisMap.on('moveend', () => { // O.A
       console.log('moveend')
       // console.log(7)
-      Utils.selectClustersBySelectedLeafletObjects(store.selectedObjects); // O.A
+      Utils.selectClustersBySelectedLeafletObjects(store.idToSelectedObjectsMap); // O.A
       Utils.updateViewForSelectedObjects();
     });
 
@@ -241,15 +249,15 @@ export class MapContainer {
       const layerIds: ShapeIds = {
         groupId: layer.groupId,
         shapeId: layer.id
-      }
-      const shapeStore: ShapeStore = store.groupIdToShapeIdMap[layerIds.groupId][layerIds.shapeId];
+      };
+      const shapeStore: ShapeStore = store.groupIdToShapeStoreMap[layerIds.groupId][layerIds.shapeId];
       
       const manager = ShapeManagerRepository.getManagerByType(_.get(shapeStore, 'shapeDef.shapeObject.type'));
       if (manager) {
         const latLng: Coordinate | Coordinate[] = layer._latlngs ? layer._latlngs : layer._latlng;
-        const isSelected: boolean = store.selectedObjects.hasOwnProperty(layerIds.shapeId)/* shapeStore.shapeDef.data.isSelected; */
+        const isSelected: boolean = store.idToSelectedObjectsMap.hasOwnProperty(layerIds.shapeId)/* shapeStore.shapeDef.data.isSelected; */
 
-        // // Object found in bounds
+        // Object found in bounds
         if (latLng && event.boxZoomBounds.contains(latLng)) {
           if (!isSelected) {
             manager.toggleSelectShape(layer);

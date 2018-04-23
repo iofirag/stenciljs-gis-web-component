@@ -1,7 +1,7 @@
 import _ from "lodash";
-import { FILE_TYPES, DEFAULT_OSM_TILE, MIN_ZOOM, MAX_ZOOM, FILE_TYPES_ARRAY } from "./statics";
+import { FILE_TYPES, DEFAULT_OSM_TILE, MIN_ZOOM, MAX_ZOOM, FILE_TYPES_ARRAY, GENERATED_ID } from "./statics";
 import { TileLayerDefinition, BaseMap, ShapeLayerContainer_Dev, ShapeLayerDefinition, 
-    ShapeType, MapLayers, GroupData, ShapeStore, ShapeIds, SelectedObjects, ShapeData } from "../models";
+    ShapeType, MapLayers, GroupData, ShapeStore, SelectedObjects, ShapeData, SelectedObjectsValue } from "../models";
 import L from "leaflet";
 import LayersFactory from "./LayersFactory";
 import { ShapeEventHandlers, ShapeManagerInterface } from "./shapes/ShapeManager";
@@ -141,21 +141,29 @@ export default class Utils {
     }
     public static shapeOnClickHandler(manager: ShapeManagerInterface | null, clickEvent: any) {
         if (store.state.mapConfig.isSelectionDisable) { return; }
-
-        manager.toggleHighlight(clickEvent.target);
-
-        if (clickEvent.originalEvent.ctrlKey) {
-            manager.toggleSelectShape(clickEvent.target);
-            manager.updateIsSelectedView(clickEvent.target);
             
-            // Utils.updateIsSelectedClusterView(clickEvent.target);   // Update cluster selection view after unselected one child
-            
-            Utils.updateBubble(clickEvent.target);
-            // context.props.onSelectionDone([clickEvent.target.shapeDef]);
+        const groupId: string = clickEvent.target.groupId;
+        let groupData: GroupData = null;
+
+        if (groupId === GENERATED_ID.DEFAULT_GROUP || groupId === GENERATED_ID.DRAW_LAYER_GROUP_ID) {
+            groupData = {
+                [clickEvent.target.id]: store.groupIdToShapeStoreMap[groupId][clickEvent.target.id]
+            }
+        } else {
+            groupData = store.groupIdToShapeStoreMap[clickEvent.target.groupId];
         }
+        _.forEach(groupData, (shapeStore: ShapeStore) => {
+            manager.toggleHighlight(shapeStore.leafletRef);
+            if (clickEvent.originalEvent.ctrlKey) {
+                manager.toggleSelectShape(shapeStore.leafletRef);
+                manager.updateIsSelectedView(shapeStore.leafletRef);
+                Utils.updateBubble(shapeStore.leafletRef);
+            }
+        })
+        // context.props.onSelectionDone([clickEvent.target.shapeDef]);
     }
     public static updateBubble(leafletObject: L.Layer): void {
-        const shapeData: ShapeData = store.groupIdToShapeIdMap[leafletObject.groupId][leafletObject.id].shapeDef.data;
+        const shapeData: ShapeData = store.groupIdToShapeStoreMap[leafletObject.groupId][leafletObject.id].shapeDef.data;
         // Update popup
         const bubbleContent: string = Utils.generatePopupMarkupFromData(shapeData);
         if (leafletObject._layers) {
@@ -204,7 +212,7 @@ export default class Utils {
     public static highlightPOIsByGroupId(groupId: string): void {
         if (!groupId) { return; }
 
-        const groupIdData: GroupData = store.groupIdToShapeIdMap[groupId];
+        const groupIdData: GroupData = store.groupIdToShapeStoreMap[groupId];
         if (groupIdData) {
             _.forEach(groupIdData, (shapeStore: ShapeStore) => {
                 const manager = ShapeManagerRepository.getManagerByType(_.get(shapeStore, 'shapeDef.shapeObject.type'));
@@ -269,21 +277,24 @@ export default class Utils {
 
         return shapeLayers;
     }
-    public static getSelectedObjects(): ShapeStore[] {
-        // get all selected object
-        let allSelectedObjects: ShapeStore[] = [];
-        _.forEach(store.selectedObjects, (shapeIds: ShapeIds)=> {
-            const selectedShapeStore: ShapeStore = this.getShapeStoreByShapeId(shapeIds.shapeId, shapeIds.groupId);
-            allSelectedObjects.push(selectedShapeStore);
-        })
-        return allSelectedObjects;
-    }
+    // public static getSelectedObjects(): ShapeStore[] {
+    //     // get all selected object
+    //     let allSelectedObjects: ShapeStore[] = [];
+    //     _.forEach(store.idToSelectedObjectsMap, (selectedObjectsValue: SelectedObjectsValue) => {
+            
+            
+
+    //         const selectedShapeStore: ShapeStore = this.getShapeStoreByShapeId(shapeIds.shapeId, shapeIds.groupId);
+    //         allSelectedObjects.push(selectedShapeStore);
+    //     })
+    //     return allSelectedObjects;
+    // }
     public static getShapeStoreByShapeId(shapeId: string, groupId?: string): ShapeStore {
         let groupDataList: GroupData[] = [];
         if (groupId) {
-            groupDataList.push(store.groupIdToShapeIdMap[groupId]);
+            groupDataList.push(store.groupIdToShapeStoreMap[groupId]);
         } else {
-            _.forEach(store.groupIdToShapeIdMap, (groupData: GroupData) => {
+            _.forEach(store.groupIdToShapeStoreMap, (groupData: GroupData) => {
                 groupDataList.push(groupData);
             })
         }
@@ -297,41 +308,113 @@ export default class Utils {
         })
         return selectedShape;
     }
+    // public isLayerNeedToBeSelected(layer: L.Layer| L.FeatureGroup): boolean {
+    //     if (layer.groupId.includes(GENERATED_ID.DEFAULT_GROUP)
+    //         || layer.groupId.includes(GENERATED_ID.DRAW_LAYER_GROUP_ID)) {
+    //         // Add shape-id to selected list
+    //         // this.selectedIds[shapeIds.shapeId] = shapeIds
+    //     } else {
+    //         // Add group-id to selected list
+    //         // this.selectedIds[shapeIds.groupId] = { groupId: '', shapeId: '' };
+    //     }
+    // }
     public static clustersReselection() {
         const clusters: any = store.gisMap.getContainer().querySelectorAll('.selected-cluster') || [];
-        _.forEach(clusters, ((cluster) => cluster.classList.remove('selected-cluster')))
-        Utils.selectClustersBySelectedLeafletObjects(store.selectedObjects); // O.A
+        _.forEach(clusters, ((cluster) => cluster.classList.remove('selected-cluster')));
+        Utils.selectClustersBySelectedLeafletObjects(store.idToSelectedObjectsMap); // O.A
     }
     public static updateViewForSelectedObjects() {
-        const selectedObjects: ShapeStore[] = Utils.getSelectedObjects();
-        // TBD check e for inner shapes instead of iterate all visibleLayers
-        selectedObjects.forEach((shapeStore: ShapeStore) => {
-            const manager = ShapeManagerRepository.getManagerByType(_.get(shapeStore, 'shapeDef.shapeObject.type'));
-            if (manager) {
-                if (store.gisMap.getBounds().contains((shapeStore.leafletRef as any).getLatLng())) {
-                    manager.updateIsSelectedView(shapeStore.leafletRef);
-                }
-            }
-        });
-    }
-    public static selectClustersBySelectedLeafletObjects(selectedLeafletObjects: SelectedObjects) {
-        // if (_.isEmpty(selectedLeafletObjects)) { return; }
-        _.forEach(selectedLeafletObjects, (shapeIds: ShapeIds) => {
+        // const selectedObjects: ShapeStore[] = Utils.getSelectedObjects();
+        // // TBD check e for inner shapes instead of iterate all visibleLayers
+        // selectedObjects.forEach((shapeStore: ShapeStore) => {
+        //     const manager = ShapeManagerRepository.getManagerByType(_.get(shapeStore, 'shapeDef.shapeObject.type'));
+        //     if (manager) {
+        //         if (store.gisMap.getBounds().contains((shapeStore.leafletRef as any).getLatLng())) {
+        //             manager.updateIsSelectedView(shapeStore.leafletRef);
+        //         }
+        //     }
+        // });
+        _.forEach(store.idToSelectedObjectsMap, (selectedObjectsValue: SelectedObjectsValue, key: string) => {
+            let groupData: GroupData = {};
+            switch (selectedObjectsValue.selectionType) {
+                case 'group':
+                    // Whole group was selected (cant be DEFAULT_GROUP or DRAW_LAYER_GROUP_ID)
+                    groupData = store.groupIdToShapeStoreMap[selectedObjectsValue.groupId];
+                    break;
+                case 'single':
+                    // just one shape was selected
+                    groupData = {
+                        [key]: store.groupIdToShapeStoreMap[selectedObjectsValue.groupId][key]
+                    }
+                    break;
             
-            const shape: ShapeStore = store.groupIdToShapeIdMap[shapeIds.groupId][shapeIds.shapeId];
+                default:
+                    break;
+            }
+            _.forEach(groupData, (shapeStore: ShapeStore) => {
+                const manager = ShapeManagerRepository.getManagerByType(_.get(shapeStore, 'shapeDef.shapeObject.type'));
+                if (manager) {
+                    if (store.gisMap.getBounds().contains((shapeStore.leafletRef as any).getLatLng())) {
+                        manager.updateIsSelectedView(shapeStore.leafletRef);
+                        // Fix for unselected shapes that theier group is selected
+                        Utils.updateBubble(shapeStore.leafletRef)
+                    }
+                }
+            });
+        })
+
+
+
+        // _.forEach(store.idToSelectedObjectsMap, (selectedObjectsValue: SelectedObjectsValue, key: string) => {
             // const shapeType: ShapeType = _.get(shapeStore, 'shapeDef.shapeObject.type');
             // const manager: ShapeManagerInterface = ShapeManagerRepository.getManagerByType(shapeType);
             // manager.updateIsSelectedView(layer);
 
-            const highlightMarkerCluster = _.get(shape, 'leafletRef.__parent._group');
 
-            if (!!highlightMarkerCluster) {
-                const cluster = highlightMarkerCluster && highlightMarkerCluster.getVisibleParent(shape.leafletRef);
+            // _.forEach(groupData, shapeStore => {
 
-                if (_.has(cluster, '_icon') && shape.shapeDef.data.isSelected) {
-                    cluster._icon.classList.add('selected-cluster');
-                }
+            // })
+    }
+    public static selectClustersBySelectedLeafletObjects(selectedObjects: SelectedObjects) {
+        // if (_.isEmpty(selectedLeafletObjects)) { return; }
+        // const selectedIdsList: string[] = Object.keys(selectedIds)
+        _.forEach(selectedObjects, (selectedObjectsValue: SelectedObjectsValue, key: string) => {
+            // const shapeType: ShapeType = _.get(shapeStore, 'shapeDef.shapeObject.type');
+            // const manager: ShapeManagerInterface = ShapeManagerRepository.getManagerByType(shapeType);
+            // manager.updateIsSelectedView(layer);
+
+            let groupData: GroupData = {};
+            switch (selectedObjectsValue.selectionType) {
+                case 'group':
+                    // Whole group was selected (cant be DEFAULT_GROUP or DRAW_LAYER_GROUP_ID)
+                    groupData = store.groupIdToShapeStoreMap[selectedObjectsValue.groupId];
+                    break;
+                case 'single':
+                    // just one shape was selected
+                    groupData = {
+                        [key]: store.groupIdToShapeStoreMap[selectedObjectsValue.groupId][key]
+                    }
+                    break;
+            
+                default:
+                    break;
             }
+            _.forEach(groupData, shapeStore => {
+                const highlightMarkerCluster = _.get(shapeStore, 'leafletRef.__parent._group');
+
+                if (!!highlightMarkerCluster) {
+                    const cluster = highlightMarkerCluster && highlightMarkerCluster.getVisibleParent(shapeStore.leafletRef);
+                    
+                    let isSelected = false;
+                    if (store.idToSelectedObjectsMap.hasOwnProperty(shapeStore.leafletRef.groupId)
+                        || store.idToSelectedObjectsMap.hasOwnProperty(shapeStore.leafletRef.id)) {
+                        isSelected = true;
+                    }
+                    if (_.has(cluster, '_icon') && isSelected) {
+                        cluster._icon.classList.add('selected-cluster');
+                    }
+                }
+            })
         });
     }
     // public static selectedLeafletObjectHandler(leafletObject: L.FeatureGroup | L.Layer, shapeDef: ShapeDefinition) {
