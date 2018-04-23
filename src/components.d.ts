@@ -80,6 +80,7 @@ declare global {
 
   namespace StencilComponents {
     interface GisViewer {
+      'bbb': () => void;
       'changeCoordinateSystem': () => void;
       'changeDistanceUnits': () => void;
       'getVersion': () => void;

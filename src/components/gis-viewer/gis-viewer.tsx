@@ -46,6 +46,10 @@ export class GisViewer {
   changeCoordinateSystem() {
     this.mapContainerEl.changeCoordinateSystem();
   }
+  @Method()
+  bbb() {
+    this.mapContainerEl.changeCoordinateSystem();
+  }
 
 
   componentWillLoad() {
