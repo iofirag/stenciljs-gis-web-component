@@ -67,6 +67,7 @@ export class DevComponent {
           <input type='button' value='Change Units distance' onClick={e => this.testChangeDistanceUnits(e)} />
           <input type='button' value='Change Coordinate System' onClick={e => this.testChangeCoordinateSystem(e)} />
           <input type='button' value='Add shape in props' onClick={e => this.testAddShapeInProps(e)} />
+          <input type='button' value='Export image' onClick={ _ => this.testExportImage()} />
           {/* <input type='button' value='' onClick={() => {}} /> */}
 
           {/* <RaisedButton label='Export draw' primary={true} onClick={this.testExportDraw} />
@@ -109,11 +110,19 @@ export class DevComponent {
     this.gisViewerEl.zoomToExtent();
   }
   testChangeDistanceUnits(e: UIEvent) {
-    console.log('Testing ChangeDistanceUnits command', e.type);    
+    console.log('Testing ChangeDistanceUnits command', e.type);
     this.gisViewerEl.changeDistanceUnits();
   }
 
-
+	testExportImage(): void {
+		this.gisViewerEl.exportMapImage().then((canvasObj: any) => {
+			const img = document.createElement('img');
+			img.src = canvasObj.toDataURL('image/png');
+			document.body.appendChild(img);
+		}).catch((ex: any) => {
+			console.error("Error retrieving image data url", ex);
+		});
+	}
 
   testChangeCoordinateSystem(e: UIEvent) {
     console.log('Testing changeCoordinateSystem command', e.type);
@@ -132,7 +141,7 @@ export class DevComponent {
   }
 
 
-  
+
 
   createDevState(): GisViewerProps {
 
@@ -162,7 +171,7 @@ export class DevComponent {
         minZoom: 1,
         maxZoom: 20,
         attributionControl: false
-      }, 
+      },
       {
         name: 'Rail Ways',
         tilesURI: 'http://www.openptmap.org/tiles/{z}/{x}/{y}.png',
@@ -295,9 +304,9 @@ export class DevComponent {
             }
           },
 
-          
 
-          
+
+
           // {
           //   shapeWkt: 'POLYGON((0 0 0,0 5 0,5 5 0,5 0 0,0 0 0))',
           //   data: {
@@ -315,9 +324,9 @@ export class DevComponent {
           //     id: 'cell2center',
           //     type: 'intercept',
           //   }
-          // }, 
+          // },
         ]
-      }, 
+      },
       // {
       //   layerName: 'Test data 2',
       //   isDisplay: false,

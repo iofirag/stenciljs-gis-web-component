@@ -1,8 +1,9 @@
 import _ from "lodash";
 import { FILE_TYPES, DEFAULT_OSM_TILE, MIN_ZOOM, MAX_ZOOM, FILE_TYPES_ARRAY, GENERATED_ID } from "./statics";
-import { TileLayerDefinition, BaseMap, ShapeLayerContainer_Dev, ShapeLayerDefinition, 
+import { TileLayerDefinition, BaseMap, ShapeLayerContainer_Dev, ShapeLayerDefinition,
     ShapeType, MapLayers, GroupData, ShapeStore, SelectedObjects, ShapeData, SelectedObjectsValue } from "../models";
 import L from "leaflet";
+import html2canvas from "html2canvas";
 import LayersFactory from "./LayersFactory";
 import { ShapeEventHandlers, ShapeManagerInterface } from "./shapes/ShapeManager";
 import store from "../components/store/store";
@@ -37,6 +38,50 @@ export default class Utils {
             });
         });
     };
+
+    public static async exportMapImage(): Promise<any> {
+      const controllers: any = document.getElementsByClassName('leaflet-control-container')[0];
+
+      controllers.style.display = 'none';
+
+      const markers = {};
+      const markerLayer: any = document.querySelectorAll('.leaflet-marker-icon');
+
+      // Remove tags css translate values and save the for after use
+      if (markerLayer) {
+        markerLayer.forEach((mark: any, i: number) => {
+          const markTransformList = mark.style.transform.replace('translate3d(', '').split(',');
+          mark.style.transform = '';
+
+          if (markTransformList.length > 1) {
+            const markX = parseFloat(markTransformList[0].replace('px', ''));
+            mark.style.left = `${markX}px`;
+            const markY = parseFloat(markTransformList[1].replace('px', ''));
+            mark.style.top = `${markY}px`;
+            markers[i] = { markX, markY };
+          }
+        });
+      }
+
+      // create the canvas from the leaflet map
+      const canvas: any = await html2canvas(document.getElementById("map"), { useCORS: true, svgRendering: true });
+
+      // return all the layers to their previous styles
+      controllers.style.display = 'initial';
+
+      if (markerLayer) {
+        markerLayer.forEach((mark: any, i: number) => {
+          const pos = markers[i];
+
+          mark.style.transform = `translate3d(${pos.markX}px,${pos.markY}px, 0px)`;
+          mark.style.top       = `${0}px`;
+          mark.style.left      = `${0}px`;
+        });
+      }
+
+      return canvas;
+    }
+
     public static stopDoubleClickOnPlugin(htmlElement: HTMLElement) {
         // Disable double-click
         htmlElement.addEventListener("dblclick", (eventData: any) => {
@@ -56,12 +101,12 @@ export default class Utils {
 
         styledLayerControllerElement.parentNode.removeChild(styledLayerControllerElement);
         customLayerController.appendChild(styledLayerControllerElement);
-        
+
         // Empty class list for this Form element
         // styledLayerControllerElement.firstElementChild.firstElementChild.classList = '';
     }
     static exportBlobFactory(
-        fileType: FILE_TYPES, 
+        fileType: FILE_TYPES,
         selectedLeafletObjects: { [key: string]: L.Layer },
         mapState: any,
         callback: string): Blob {
@@ -141,7 +186,7 @@ export default class Utils {
     }
     public static shapeOnClickHandler(manager: ShapeManagerInterface | null, clickEvent: any) {
         if (store.state.mapConfig.isSelectionDisable) { return; }
-            
+
         const groupId: string = clickEvent.target.groupId;
         let groupData: GroupData = null;
 
@@ -281,8 +326,8 @@ export default class Utils {
     //     // get all selected object
     //     let allSelectedObjects: ShapeStore[] = [];
     //     _.forEach(store.idToSelectedObjectsMap, (selectedObjectsValue: SelectedObjectsValue) => {
-            
-            
+
+
 
     //         const selectedShapeStore: ShapeStore = this.getShapeStoreByShapeId(shapeIds.shapeId, shapeIds.groupId);
     //         allSelectedObjects.push(selectedShapeStore);
@@ -347,7 +392,7 @@ export default class Utils {
                         [key]: store.groupIdToShapeStoreMap[selectedObjectsValue.groupId][key]
                     }
                     break;
-            
+
                 default:
                     break;
             }
@@ -395,7 +440,7 @@ export default class Utils {
                         [key]: store.groupIdToShapeStoreMap[selectedObjectsValue.groupId][key]
                     }
                     break;
-            
+
                 default:
                     break;
             }
@@ -404,7 +449,7 @@ export default class Utils {
 
                 if (!!highlightMarkerCluster) {
                     const cluster = highlightMarkerCluster && highlightMarkerCluster.getVisibleParent(shapeStore.leafletRef);
-                    
+
                     let isSelected = false;
                     if (store.idToSelectedObjectsMap.hasOwnProperty(shapeStore.leafletRef.groupId)
                         || store.idToSelectedObjectsMap.hasOwnProperty(shapeStore.leafletRef.id)) {

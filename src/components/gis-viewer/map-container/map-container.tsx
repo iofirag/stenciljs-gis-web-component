@@ -1,5 +1,5 @@
 import { Component, Prop, Element, Method } from '@stencil/core';
-import { MAP_CONTAINER_TAG, ZOOM_TO_EXTENT_PLUGIN_TAG, MAX_NORTH_EAST, 
+import { MAP_CONTAINER_TAG, ZOOM_TO_EXTENT_PLUGIN_TAG, MAX_NORTH_EAST,
   MAX_SOUTH_WEST } from '../../../utils/statics';
 import Utils from '../../../utils/utilities';
 import { GisViewerProps, CoordinateSystemType, DistanceUnitType, ShapeDefinition, Coordinate, ShapeIds, ShapeStore, ShapeLayerContainer_Dev } from '../../../models';
@@ -69,7 +69,7 @@ export class MapContainer {
     )
 
   }
-  
+
   componentWillLoad() {
     Utils.log_componentWillLoad(this.compName);
     // Set first base map as working tile
@@ -111,7 +111,7 @@ export class MapContainer {
               config={store.state.mapPluginsConfig.mouseCoordinateConfig}
             />
           ) : ('')
-        }  
+        }
       </div>
     )
   }
@@ -158,7 +158,7 @@ export class MapContainer {
     // Zoom event
     // if (hasOnBoundsChanged) {// O.A
     //   store.gisMap.on('moveend', (e: any) => {
-    //     // store.state.onBoundsChanged(this.getBounds(), this.nextBoundsChangeIsProgrammatic);  
+    //     // store.state.onBoundsChanged(this.getBounds(), this.nextBoundsChangeIsProgrammatic);
     //     // this.nextBoundsChangeIsProgrammatic = false;
     //   });
     // }
@@ -182,7 +182,7 @@ export class MapContainer {
     store.gisMap.on('move', () => {
       // console.log(5)
     })
-    
+
     store.gisMap.on('zoomend', () => {
       // console.log(6)
     })
@@ -209,7 +209,7 @@ export class MapContainer {
     // this.context.map.on("overlayadd", ()=>{});
     // this.context.map.on("overlayremove", ()=>{});
   }
-  
+
   private createMap(): L.Map {
     // Map options
     const extendedOptions: any = {}; // this.tileLayersComp.setTileLayers(this.context.mapState.baseMaps, tileProps);
@@ -221,7 +221,7 @@ export class MapContainer {
     const northEast = L.latLng(MAX_NORTH_EAST.lat, MAX_NORTH_EAST.lng);
     const southWest = L.latLng(MAX_SOUTH_WEST.lat, MAX_SOUTH_WEST.lng);
     const bounds = new L.LatLngBounds(southWest, northEast);
-    
+
     Object.assign(extendedOptions, {
       noWrap: true,
       maxBounds: bounds,
@@ -251,7 +251,7 @@ export class MapContainer {
         shapeId: layer.id
       };
       const shapeStore: ShapeStore = store.groupIdToShapeStoreMap[layerIds.groupId][layerIds.shapeId];
-      
+
       const manager = ShapeManagerRepository.getManagerByType(_.get(shapeStore, 'shapeDef.shapeObject.type'));
       if (manager) {
         const latLng: Coordinate | Coordinate[] = layer._latlngs ? layer._latlngs : layer._latlng;
