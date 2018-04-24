@@ -29,6 +29,8 @@ import {
   DrawBarConfig,
   FullScreenConfig,
   GisViewerProps,
+  GroupData,
+  GroupIdToShapeStoreMap,
   LayerManagerConfig,
   MapBounds,
   MeasureConfig,
@@ -36,6 +38,10 @@ import {
   MouseCoordinateConfig,
   ScaleConfig,
   SearchConfig,
+  SelectedObjects,
+  SelectedObjectsValue,
+  ShapeDefinition,
+  ShapeStore,
   ToolbarConfig,
   ZoomToExtentConfig,
 } from './models';
@@ -85,6 +91,7 @@ declare global {
       'changeDistanceUnits': () => void;
       'exportMapImage': () => Promise<any>;
       'getBounds': () => MapBounds;
+      'getSelectedShapes': () => ShapeDefinition[];
       'getVersion': () => void;
       'gisViewerProps': GisViewerProps;
       'removeHighlightPOIs': () => void;
@@ -124,6 +131,7 @@ declare global {
       'changeCoordinateSystem': (unit?: CoordinateSystemType) => void;
       'changeDistanceUnits': () => void;
       'getBounds': () => MapBounds;
+      'getSelectedShapes': () => ShapeDefinition[];
       'gisViewerProps': GisViewerProps;
       'zoomToExtent': () => void;
     }
