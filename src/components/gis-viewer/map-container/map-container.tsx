@@ -82,12 +82,12 @@ export class MapContainer {
 
     if (_.isEmpty(toJS(selectedLeafletObjects))) { return; }
 
-    const selectedObjects: ShapeStore[] = Utils.getSelectedObjects(selectedLeafletObjects, groupIdToShapeStoreMap);
-
-    return _.map(selectedObjects, (shapeStore: ShapeStore) => {
+    const selectedObjects: ShapeDefinition[] = Utils.getSelectedObjects(selectedLeafletObjects, groupIdToShapeStoreMap).map((shapeStore: ShapeStore) => {
       shapeStore.shapeDef.data.isSelected = true;
       return toJS(shapeStore.shapeDef);
     });
+
+    return selectedObjects;
   }
 
   constructor() {
