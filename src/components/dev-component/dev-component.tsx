@@ -68,6 +68,7 @@ export class DevComponent {
           <input type='button' value='Change Coordinate System' onClick={e => this.testChangeCoordinateSystem(e)} />
           <input type='button' value='Add shape in props' onClick={e => this.testAddShapeInProps(e)} />
           <input type='button' value='Export image' onClick={ _ => this.testExportImage()} />
+          <input type='button' value='Get bounds' onClick={ _ => this.testExportBounds()} />
           {/* <input type='button' value='' onClick={() => {}} /> */}
 
           {/* <RaisedButton label='Export draw' primary={true} onClick={this.testExportDraw} />
@@ -105,6 +106,11 @@ export class DevComponent {
   }
 
   // @Event
+
+  testExportBounds(): void {
+		console.log(this.gisViewerEl.getBounds());
+  }
+
   testZoomToExtend(e: UIEvent) {
     console.log('Testing zoomToExtent command', e.type);
     this.gisViewerEl.zoomToExtent();

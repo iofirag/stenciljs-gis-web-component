@@ -2,7 +2,7 @@ import { Component, Prop, Element, Method } from '@stencil/core';
 import { MAP_CONTAINER_TAG, ZOOM_TO_EXTENT_PLUGIN_TAG, MAX_NORTH_EAST,
   MAX_SOUTH_WEST } from '../../../utils/statics';
 import Utils from '../../../utils/utilities';
-import { GisViewerProps, CoordinateSystemType, DistanceUnitType, ShapeDefinition, Coordinate, ShapeIds, ShapeStore, ShapeLayerContainer_Dev } from '../../../models';
+import { GisViewerProps, CoordinateSystemType, DistanceUnitType, ShapeDefinition, Coordinate, ShapeIds, ShapeStore, ShapeLayerContainer_Dev, MapBounds } from '../../../models';
 import _ from 'lodash';
 import L from 'leaflet';
 import store from '../../store/store';
@@ -54,6 +54,27 @@ export class MapContainer {
     if (index === coordinateSystemTypes.length ) index = 0;
     store.state.mapConfig.coordinateSystemType = coordinateSystemTypes[index];
   }
+
+  @Method()
+  getBounds(): MapBounds {
+    const bounds: L.LatLngBounds = store.gisMap.getBounds();
+
+    const boundsState = {
+        precision: store.gisMap.getZoom(),
+        bounds: {
+            topLeft: {
+                lat: bounds._northEast.lat,
+                lng: bounds._southWest.lng
+            },
+            bottomRight: {
+                lat: bounds._southWest.lat,
+                lng: bounds._northEast.lng
+            }
+        }
+    };
+
+    return boundsState;
+}
 
   constructor() {
     reaction(() => store.idToSelectedObjectsMap,
@@ -225,7 +246,7 @@ export class MapContainer {
     Object.assign(extendedOptions, {
       noWrap: true,
       maxBounds: bounds,
-      minZoom: 2, // _.max([extendedOptions.minZoom, 2]),
+      minZoom: 3, // _.max([extendedOptions.minZoom, 2]),
       maxBoundsViscosity: 1.0,
       //   doubleClickZoom: false,
       bounceAtZoomLimits: false,

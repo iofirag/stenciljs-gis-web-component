@@ -101,7 +101,7 @@ declare module 'leaflet' {
             static extend(arg0: any): any;
         }
         class LinearCore extends Control {
-            static extend(arg0: any): any;            
+            static extend(arg0: any): any;
         }
     }
 
@@ -122,11 +122,11 @@ declare module 'leaflet' {
     //     }
     // }
 
-    
-    // interface LatLngBounds {
-    //     _northEast: Coordinate;
-    //     _southWest: Coordinate;
-    // }
+
+    interface LatLngBounds {
+        _northEast: Coordinate;
+        _southWest: Coordinate;
+    }
     interface Circle {
         initialize: any;
     }
@@ -136,7 +136,7 @@ declare module 'leaflet' {
         _icon?: any;
         __parent?: any;
     }
-    interface Label extends Marker { 
+    interface Label extends Marker {
 
     }
     interface Polygon {

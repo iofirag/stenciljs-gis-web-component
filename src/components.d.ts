@@ -30,6 +30,7 @@ import {
   FullScreenConfig,
   GisViewerProps,
   LayerManagerConfig,
+  MapBounds,
   MeasureConfig,
   MiniMapConfig,
   MouseCoordinateConfig,
@@ -83,6 +84,7 @@ declare global {
       'changeCoordinateSystem': () => void;
       'changeDistanceUnits': () => void;
       'exportMapImage': () => Promise<any>;
+      'getBounds': () => MapBounds;
       'getVersion': () => void;
       'gisViewerProps': GisViewerProps;
       'zoomToExtent': () => void;
@@ -120,6 +122,7 @@ declare global {
     interface MapContainer {
       'changeCoordinateSystem': (unit?: CoordinateSystemType) => void;
       'changeDistanceUnits': () => void;
+      'getBounds': () => MapBounds;
       'gisViewerProps': GisViewerProps;
       'zoomToExtent': () => void;
     }
