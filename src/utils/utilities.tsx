@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { FILE_TYPES, DEFAULT_OSM_TILE, MIN_ZOOM, MAX_ZOOM, FILE_TYPES_ARRAY, GENERATED_ID } from "./statics";
 import { TileLayerDefinition, BaseMap, ShapeLayerContainer_Dev, ShapeLayerDefinition,
-    ShapeType, MapLayers, GroupData, ShapeStore, SelectedObjects, ShapeData, SelectedObjectsValue } from "../models";
+    ShapeType, MapLayers, GroupData, ShapeStore, SelectedObjects, ShapeData, SelectedObjectsValue, GroupIdToShapeStoreMap } from "../models";
 import L from "leaflet";
 import html2canvas from "html2canvas";
 import LayersFactory from "./LayersFactory";
@@ -322,18 +322,28 @@ export default class Utils {
 
         return shapeLayers;
     }
-    // public static getSelectedObjects(): ShapeStore[] {
-    //     // get all selected object
-    //     let allSelectedObjects: ShapeStore[] = [];
-    //     _.forEach(store.idToSelectedObjectsMap, (selectedObjectsValue: SelectedObjectsValue) => {
+    public static getSelectedObjects(selectedLeafletObjects: SelectedObjects, groupIdToShapeStoreMap: GroupIdToShapeStoreMap): ShapeStore[] {
+        // get all selected object
+      const selectedShapes:ShapeStore[] = [];
+      // running on selectedLeafletObjects to pull out all selected shapeDef from groupIdToShapeStoreMap
+      _.forIn(selectedLeafletObjects, (value: SelectedObjectsValue, key: string) => {
+        if (value.selectionType === 'group') {
+          const group: GroupData = groupIdToShapeStoreMap[value.groupId];
 
+          _.forIn(group, (value: ShapeStore) => selectedShapes.push(value));
+        } else if (value.selectionType === 'single') {
+          const defaultGroup: GroupData = groupIdToShapeStoreMap[GENERATED_ID.DEFAULT_GROUP];
+          const drawGroup:    GroupData = groupIdToShapeStoreMap[GENERATED_ID.DRAW_LAYER_GROUP_ID];
+          const valueInGroup: GroupData = defaultGroup || drawGroup;
 
+          if (valueInGroup) {
+            selectedShapes.push(valueInGroup[key]);
+          }
+        }
+      });
 
-    //         const selectedShapeStore: ShapeStore = this.getShapeStoreByShapeId(shapeIds.shapeId, shapeIds.groupId);
-    //         allSelectedObjects.push(selectedShapeStore);
-    //     })
-    //     return allSelectedObjects;
-    // }
+      return selectedShapes;
+    }
     public static getShapeStoreByShapeId(shapeId: string, groupId?: string): ShapeStore {
         let groupDataList: GroupData[] = [];
         if (groupId) {

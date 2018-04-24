@@ -1,9 +1,7 @@
 import { Component, Prop, Element, Method } from '@stencil/core';
-import { MAP_CONTAINER_TAG, ZOOM_TO_EXTENT_PLUGIN_TAG, MAX_NORTH_EAST,
-  MAX_SOUTH_WEST,
-  GENERATED_ID} from '../../../utils/statics';
+import { MAP_CONTAINER_TAG, ZOOM_TO_EXTENT_PLUGIN_TAG, MAX_NORTH_EAST, MAX_SOUTH_WEST } from '../../../utils/statics';
 import Utils from '../../../utils/utilities';
-import { GisViewerProps, CoordinateSystemType, DistanceUnitType, ShapeDefinition, Coordinate, ShapeIds, ShapeStore, ShapeLayerContainer_Dev, MapBounds, SelectedObjects, GroupIdToShapeStoreMap, SelectedObjectsValue, GroupData } from '../../../models';
+import { GisViewerProps, CoordinateSystemType, DistanceUnitType, ShapeDefinition, Coordinate, ShapeIds, ShapeStore, ShapeLayerContainer_Dev, MapBounds, SelectedObjects, GroupIdToShapeStoreMap } from '../../../models';
 import _ from 'lodash';
 import L from 'leaflet';
 import store from '../../store/store';
@@ -79,38 +77,17 @@ export class MapContainer {
 
   @Method()
   getSelectedShapes(): ShapeDefinition[] {
-    const groupIdToShapeStoreMap: GroupIdToShapeStoreMap = store.groupIdToShapeStoreMap;
     const selectedLeafletObjects: SelectedObjects = store.idToSelectedObjectsMap;
+    const groupIdToShapeStoreMap: GroupIdToShapeStoreMap = store.groupIdToShapeStoreMap;
 
     if (_.isEmpty(toJS(selectedLeafletObjects))) { return; }
 
-    const selectedShapes:ShapeDefinition[] = [];
-    // running on selectedLeafletObjects to pull out all selected shapeDef from groupIdToShapeStoreMap
-    _.forIn(selectedLeafletObjects, (value: SelectedObjectsValue, key: string) => {
-      if (value.selectionType === 'group') {
-        const group: GroupData = groupIdToShapeStoreMap[value.groupId];
+    const selectedObjects: ShapeStore[] = Utils.getSelectedObjects(selectedLeafletObjects, groupIdToShapeStoreMap);
 
-        _.forIn(group, (value: ShapeStore) => {
-          value.shapeDef.data.isSelected = true;
-          selectedShapes.push(toJS(value.shapeDef));
-        });
-      } else if (value.selectionType === 'single') {
-        const defaultGroup: GroupData = groupIdToShapeStoreMap[GENERATED_ID.DEFAULT_GROUP];
-        const drawGroup:    GroupData = groupIdToShapeStoreMap[GENERATED_ID.DRAW_LAYER_GROUP_ID];
-        const valueInGroup: GroupData = defaultGroup || drawGroup;
-
-        if (valueInGroup) {
-          valueInGroup[key].shapeDef.data.isSelected = true;
-          selectedShapes.push(toJS(valueInGroup[key].shapeDef));
-        }
-      }
+    return _.map(selectedObjects, (shapeStore: ShapeStore) => {
+      shapeStore.shapeDef.data.isSelected = true;
+      return toJS(shapeStore.shapeDef);
     });
-
-    // console.log('groupIdToShapeStoreMap', groupIdToShapeStoreMap);
-    // console.log('selectedLeafletObjects', selectedLeafletObjects);
-    // console.log('selectedShapes', selectedShapes);
-
-    return selectedShapes;
   }
 
   constructor() {
