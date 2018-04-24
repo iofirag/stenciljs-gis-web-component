@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { FILE_TYPES, DEFAULT_OSM_TILE, MIN_ZOOM, MAX_ZOOM, FILE_TYPES_ARRAY, GENERATED_ID } from "./statics";
 import { TileLayerDefinition, BaseMap, ShapeLayerContainer_Dev, ShapeLayerDefinition, 
-    ShapeType, MapLayers, GroupData, ShapeStore, SelectedObjects, ShapeData, SelectedObjectsValue } from "../models";
+    ShapeType, MapLayers, GroupData, ShapeStore, SelectedObjects, ShapeData, SelectedObjectsValue, ShapeIds } from "../models";
 import L from "leaflet";
 import LayersFactory from "./LayersFactory";
 import { ShapeEventHandlers, ShapeManagerInterface } from "./shapes/ShapeManager";
@@ -141,23 +141,37 @@ export default class Utils {
     }
     public static shapeOnClickHandler(manager: ShapeManagerInterface | null, clickEvent: any) {
         if (store.state.mapConfig.isSelectionDisable) { return; }
-            
-        const groupId: string = clickEvent.target.groupId;
+        
+        Utils.removeHighlightPOIs();
+
         let groupData: GroupData = null;
 
-        if (groupId === GENERATED_ID.DEFAULT_GROUP || groupId === GENERATED_ID.DRAW_LAYER_GROUP_ID) {
+        const shapeIds: ShapeIds = {
+            groupId: clickEvent.target.groupId,
+            shapeId: clickEvent.target.id
+        }
+        
+        if (clickEvent.originalEvent.ctrlKey) {
+            store.toggleSelectionMode(shapeIds);
+        }
+        if (shapeIds.groupId === GENERATED_ID.DEFAULT_GROUP || shapeIds.groupId === GENERATED_ID.DRAW_LAYER_GROUP_ID) {
             groupData = {
-                [clickEvent.target.id]: store.groupIdToShapeStoreMap[groupId][clickEvent.target.id]
+                [shapeIds.shapeId]: store.groupIdToShapeStoreMap[shapeIds.groupId][shapeIds.shapeId]
             }
         } else {
-            groupData = store.groupIdToShapeStoreMap[clickEvent.target.groupId];
+            groupData = store.groupIdToShapeStoreMap[shapeIds.groupId];
         }
         _.forEach(groupData, (shapeStore: ShapeStore) => {
             manager.toggleHighlight(shapeStore.leafletRef);
             if (clickEvent.originalEvent.ctrlKey) {
-                manager.toggleSelectShape(shapeStore.leafletRef);
+                // manager.toggleSelectShape(shapeStore.leafletRef);
                 manager.updateIsSelectedView(shapeStore.leafletRef);
                 Utils.updateBubble(shapeStore.leafletRef);
+
+                // Iterate all this cluster's leaflet ref childs and check if we need to remove 'cluster-selected' class
+                // if (_.get(element, '_icon.classList.contains("highlighted")', false)
+                // const b = shapeStore.leafletRef;
+                // console.log(b)
             }
         })
         // context.props.onSelectionDone([clickEvent.target.shapeDef]);
@@ -208,6 +222,29 @@ export default class Utils {
         _.forEach(highlighted, (elm: HTMLElement) => {
             elm.classList.remove('highlighted');
         });
+    }
+    public static highlightPOIsByElement(leaflet: L.Layer | L.FeatureGroup): void {
+        const shapeStore: ShapeStore = store.groupIdToShapeStoreMap[leaflet.groupId][leaflet.id];
+
+        const manager = ShapeManagerRepository.getManagerByType(_.get(shapeStore, 'shapeDef.shapeObject.type'));
+        const isMarkerManager: boolean = manager && (manager.getType() === ShapeType.MARKER);
+        const isIntercept: boolean = _.get(shapeStore, 'leafletRef._icon') && _.get(shapeStore, 'shapeDef.data.type') === 'intercept';
+        // const shouldBeHighLighted: boolean = groupId === _.get(shapeStore, 'shapeDef.data.groupId');
+        const highlightMarkerCluster = /* (shapeStore.shapeDef.data.groupId === groupId) &&  */_.get(shapeStore, 'leafletRef.__parent._group');
+        if (!!highlightMarkerCluster) {
+            const cluster = highlightMarkerCluster.getVisibleParent(shapeStore.leafletRef);
+            if (_.get(cluster, '_icon')) {
+                cluster._icon.classList.add('highlighted');
+            }
+        }
+
+        if (/* shouldBeHighLighted && */ isMarkerManager && isIntercept && _.get(shapeStore, 'leafletRef._icon')) {
+            // add highilight
+            (shapeStore.leafletRef as any)._icon.classList.add('highlighted');
+        } else if (isMarkerManager && isIntercept && _.get(shapeStore, 'leafletRef._icon')) {
+            // remove highilight from preveus highlighted intercepts
+            (shapeStore.leafletRef as any)._icon.classList.remove('highlighted');
+        }
     }
     public static highlightPOIsByGroupId(groupId: string): void {
         if (!groupId) { return; }
@@ -318,12 +355,7 @@ export default class Utils {
     //         // this.selectedIds[shapeIds.groupId] = { groupId: '', shapeId: '' };
     //     }
     // }
-    public static clustersReselection() {
-        const clusters: any = store.gisMap.getContainer().querySelectorAll('.selected-cluster') || [];
-        _.forEach(clusters, ((cluster) => cluster.classList.remove('selected-cluster')));
-        Utils.selectClustersBySelectedLeafletObjects(store.idToSelectedObjectsMap); // O.A
-    }
-    public static updateViewForSelectedObjects() {
+    public static updateViewForSelectedObjects(changedObjects: SelectedObjects) {
         // const selectedObjects: ShapeStore[] = Utils.getSelectedObjects();
         // // TBD check e for inner shapes instead of iterate all visibleLayers
         // selectedObjects.forEach((shapeStore: ShapeStore) => {
@@ -334,7 +366,7 @@ export default class Utils {
         //         }
         //     }
         // });
-        _.forEach(store.idToSelectedObjectsMap, (selectedObjectsValue: SelectedObjectsValue, key: string) => {
+        _.forEach(changedObjects, (selectedObjectsValue: SelectedObjectsValue, key: string) => {
             let groupData: GroupData = {};
             switch (selectedObjectsValue.selectionType) {
                 case 'group':
@@ -403,7 +435,7 @@ export default class Utils {
                 const highlightMarkerCluster = _.get(shapeStore, 'leafletRef.__parent._group');
 
                 if (!!highlightMarkerCluster) {
-                    const cluster = highlightMarkerCluster && highlightMarkerCluster.getVisibleParent(shapeStore.leafletRef);
+                    const cluster = highlightMarkerCluster.getVisibleParent(shapeStore.leafletRef);
                     
                     let isSelected = false;
                     if (store.idToSelectedObjectsMap.hasOwnProperty(shapeStore.leafletRef.groupId)
@@ -491,7 +523,11 @@ export default class Utils {
         }
     };
     public static generatePopupMarkupFromData(shapeData: ShapeData) {
+
+        const isSelected: boolean = (store.idToSelectedObjectsMap[shapeData.groupId] || store.idToSelectedObjectsMap[shapeData.id])? true: false;
         const popupFields = _.omit(shapeData, ['id', 'groupId', /* 'isSelected', */ 'isSelectedFade', 'type', 'count']);
+        popupFields.isSelected = isSelected;
+
         let htmlTemplate = '';
         _.forIn(popupFields, (value: any, key: string) => {
             htmlTemplate +=

@@ -5,7 +5,7 @@
 // import Utils from '../utils';
 import _ from 'lodash';
 import { ShapeType, ShapeObject, ShapeDefinition, Coordinate, ShapeObjectOptions, 
-	ShapeStore, ShapeIds } from '../../models';
+	ShapeStore } from '../../models';
 import Utils from '../utilities';
 import store from '../../components/store/store';
 // import { GENERATED_ID } from '../statics';
@@ -81,11 +81,12 @@ export abstract class ShapeManagerBase implements ShapeManagerInterface {
 		// if (groupId === GENERATED_ID.DEFAULT_GROUP 
 		// 	|| groupId === GENERATED_ID.DRAW_LAYER_GROUP_ID) {
 			// Signle item
-			const shapeIds: ShapeIds = {
-				groupId: leafletObject.groupId,
-				shapeId: leafletObject.id
-			}
-			store.toggleSelectionMode(shapeIds);
+			// const shapeIds: ShapeIds = {
+			// 	groupId: leafletObject.groupId,
+			// 	shapeId: leafletObject.id
+			// }
+			// store.toggleSelectionMode(shapeIds);
+			console.log(leafletObject);
 		// } 
 		// else {
 		// 	// Item with group
@@ -148,17 +149,28 @@ export abstract class ShapeManagerBase implements ShapeManagerInterface {
 	}
 
 	toggleHighlight(element: any) {
-		Utils.removeHighlightPOIs();
-		const target = element._icon || element.path; // point or other svg shape
+		// Utils.removeHighlightPOIs();
+		// let target = element._icon || element.path; // point or other svg shape
 
-		if(!target || !_.get(element, 'groupId')) {return;}
+		
 
-		const isHighLighted = target.classList.contains('highlighted');
+		// element.__parent._group.refreshClusters(element)
+		// 
+		let isHighLighted: boolean = false;
+		if (_.get(element, '_icon.classList.contains("highlighted")', false)
+			|| _.get(element, 'path.classList.contains("highlighted")', false)
+			|| _.get(element, '__parent._icon.classList.contains("highlighted")', false)
+		) {
+			isHighLighted = true;
+		}
+		// const isHighLighted = ;
 
-		if (isHighLighted) {
-			// Utils.removeHighlightPOIs();
-		} else {
-			Utils.highlightPOIsByGroupId(element.groupId);
+		if (!isHighLighted) {
+			// Utils.highlightPOIsByGroupId(element.groupId);
+			Utils.highlightPOIsByElement(element)
+
+			// target = element.__parent._icon
+			// element.__parent._icon.classList.add('highlighted');
 		}
 	}
 

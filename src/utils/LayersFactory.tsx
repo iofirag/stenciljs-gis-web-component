@@ -9,7 +9,7 @@ import 'leaflet.markercluster';
 
 import _ from 'lodash';
 import { ShapeLayerDefinition, Coordinate, ClusterOptions, ShapeLayerContainer_Dev, 
-	ShapeStore, ShapeType, ShapeData } from '../models';
+	ShapeStore, ShapeType, ShapeData, ShapeIds, SelectedObjects } from '../models';
 import { ShapeManagerInterface } from './shapes/ShapeManager';
 import { MIN_OPACITY, BUBBLE_TYPE, GENERATED_ID } from './statics';
 import { ShapeManagerRepository } from './shapes/ShapeManagerRepository';
@@ -189,7 +189,11 @@ export default class LayersFactory {
 			console.log('animationend')
 			// fix for selected cluters that don't need to be selected;
 			// Remove selected clusters that changed AND add again for the remaining selected clusters
-			Utils.clustersReselection();
+
+
+			// const clusters: any = store.gisMap.getContainer().querySelectorAll('.selected-cluster') || [];
+			// _.forEach(clusters, ((cluster) => cluster.classList.remove('selected-cluster')));
+			Utils.selectClustersBySelectedLeafletObjects(store.idToSelectedObjectsMap); // O.A
 			
 			// update shapes select view
 			const currentClusterLayers = e.target._featureGroup.getLayers();
@@ -205,49 +209,85 @@ export default class LayersFactory {
 
 		clusterLayer.on('clusterclick', (e: any) => {
 			if (!e.originalEvent.ctrlKey || store.state.mapConfig.isSelectionDisable) { return; }
-
+			debugger
 			// Update isSelected view
 			// const selectedLayersShapeDef: ShapeDefinition[] = [];
-			const isClusterSelected = e.layer.options.icon._icon.classList.contains('selected-cluster');
+			
 
-			// if (e.originalEvent.ctrlKey) {
-			const markersInsideCluster: any = e.layer.getAllChildMarkers();
+			if (e.originalEvent.ctrlKey) {
+				const isClusterSelected = e.layer.options.icon._icon.classList.contains('selected-cluster');
 
-			let selectedGroups: string[] = [];
+				// let processedIds: string[] = [];
+				const changedIds: SelectedObjects = {};
 
-			markersInsideCluster.forEach((layer: L.Layer | L.FeatureGroup) => {
-				const shapeStore: ShapeStore = store.groupIdToShapeStoreMap[layer.groupId][layer.id];
-				const shapeType: ShapeType = _.get(shapeStore, 'shapeDef.shapeObject.type');
-
-				const manager: ShapeManagerInterface = ShapeManagerRepository.getManagerByType(shapeType);
-				// const shapeIds: ShapeIds = {
-				// 	groupId: layer.groupId,
-				// 	shapeId: layer.id
-				// }
-				if (!isClusterSelected && !selectedGroups.includes(layer.groupId)) {
-					// store.toggleSelectionMode(shapeIds);// ??
-					// manager.selectShape(layer);
-					manager.toggleSelectShape(layer)
-					Utils.updateBubble(layer);
-					selectedGroups.push(layer.groupId);
-					// manager.updateIsSelectedView(layer);
-				}
-				/* if (!isClusterSelected) { O.A use action to change the isSelected and add to selectedObject
-					shapeStore.shapeDef.data.isSelected = true;
-					selectedLayersShapeDef.push(shapeStore.shapeDef);
-				} else {
-					if (shapeStore.shapeDef.data.isSelected) {
-						shapeStore.shapeDef.data.isSelected = false;
-						shapeStore.shapeDef.data.isSelectedFade = false;
-						selectedLayersShapeDef.push(shapeStore.shapeDef);
+				const markersInsideCluster: any = e.layer.getAllChildMarkers();
+				markersInsideCluster.forEach((layer: L.Layer | L.FeatureGroup) => {
+					const shapeIds: ShapeIds = {
+						groupId: layer.groupId,
+						shapeId: layer.id
 					}
-				} */
 
-				
-				// setTimeout(()=> {
-				// }, 0);
-			});
-			// }
+
+
+					// if (!changedIds[layer.groupId]) {
+
+					// 	// changedIds[layer.id]) {
+						
+					// 	// Need to be select
+					// 	// store.toggleSelectionMode(shapeIds);
+						
+					// 	store.setSelectionMode(shapeIds, !isClusterSelected);
+					// 	// manager.selectShape(layer);
+					// 	// manager.toggleSelectShape(layer);
+					// 	// Utils.updateBubble(layer);
+					// 	if (layer.groupId === GENERATED_ID.DEFAULT_GROUP
+					// 		|| layer.groupId === GENERATED_ID.DRAW_LAYER_GROUP_ID) {
+					// 		changedIds[layer.id] = { selectionType: 'single', groupId: shapeIds.groupId };
+					// 	} else {
+					// 		changedIds[layer.groupId] = { selectionType: 'group', groupId: shapeIds.groupId };;
+					// 	}
+					// 	// manager.updateIsSelectedView(layer);
+					// }
+
+					if (layer.groupId === GENERATED_ID.DEFAULT_GROUP
+						|| layer.groupId === GENERATED_ID.DRAW_LAYER_GROUP_ID) {
+						if (!changedIds[layer.id]) {
+							changedIds[layer.id] = { selectionType: 'single', groupId: shapeIds.groupId };
+							store.setSelectionMode(shapeIds, !isClusterSelected);
+						}
+					} else {
+						if (!changedIds[layer.groupId]) {
+							changedIds[layer.groupId] = { selectionType: 'group', groupId: shapeIds.groupId };;
+							store.setSelectionMode(shapeIds, !isClusterSelected);
+						}
+					}
+
+					
+					// manager.updateIsSelectedView(shapeStore.leafletRef);
+					// Utils.updateBubble(shapeStore.leafletRef);
+
+
+					/* if (!isClusterSelected) { O.A use action to change the isSelected and add to selectedObject
+						shapeStore.shapeDef.data.isSelected = true;
+						selectedLayersShapeDef.push(shapeStore.shapeDef);
+					} else {
+						if (shapeStore.shapeDef.data.isSelected) {
+							shapeStore.shapeDef.data.isSelected = false;
+							shapeStore.shapeDef.data.isSelectedFade = false;
+							selectedLayersShapeDef.push(shapeStore.shapeDef);
+						}
+					} */
+
+					
+					// setTimeout(()=> {
+					// }, 0);
+				});
+
+				// _.forEach(changedIds, (obj: SelectedObjectsValue) => {
+					
+				// })
+				Utils.updateViewForSelectedObjects(store.idToSelectedObjectsMap);
+			}
 			// context.props.onSelectionDone(selectedLayersShapeDef); // O.A
 		});
 

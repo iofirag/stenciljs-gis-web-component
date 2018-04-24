@@ -210,7 +210,7 @@ export class DevComponent {
 
           // Uniqe group id (samepoint1)
           {
-            shapeWkt: 'POINT(42 42)',
+            shapeWkt: 'POINT(39 38)', // roll back this
             data: {
               name: 'a in samepoint1',
               groupId: 'samepoint1',
@@ -288,7 +288,7 @@ export class DevComponent {
             }
           },
           {
-            shapeWkt: 'POINT(39 38)',
+            shapeWkt: 'POINT(42 42)', // roll back
             data: {
               name: 'd3 in default group',
               id: 'd3',

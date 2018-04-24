@@ -164,11 +164,9 @@ export class MapContainer {
     // }
     store.gisMap.on('zoomstart', () => {
       // console.log(1)
-      Utils.clustersReselection();
     })
     store.gisMap.on('movestart', () => {
       // console.log(2)
-      // Utils.clustersReselection();
     })
 
     // store.gisMap.on('zoomlevelschange', () => {
@@ -185,12 +183,16 @@ export class MapContainer {
     
     store.gisMap.on('zoomend', () => {
       // console.log(6)
+      // const clusters: any = store.gisMap.getContainer().querySelectorAll('.selected-cluster') || [];
+      // _.forEach(clusters, ((cluster) => cluster.classList.remove('selected-cluster')));
     })
     store.gisMap.on('moveend', () => { // O.A
       console.log('moveend')
       // console.log(7)
+      const clusters: any = store.gisMap.getContainer().querySelectorAll('.selected-cluster') || [];
+      _.forEach(clusters, ((cluster) => cluster.classList.remove('selected-cluster')));
       Utils.selectClustersBySelectedLeafletObjects(store.idToSelectedObjectsMap); // O.A
-      Utils.updateViewForSelectedObjects();
+      Utils.updateViewForSelectedObjects(store.idToSelectedObjectsMap);
     });
 
     // Leaflet mouse wheel zoom only after click on map
