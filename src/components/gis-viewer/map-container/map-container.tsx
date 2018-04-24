@@ -82,6 +82,7 @@ export class MapContainer {
 
     if (_.isEmpty(toJS(selectedLeafletObjects))) { return; }
 
+    // converting array of ShapeStore to an array of ShapeDefinition
     const selectedObjects: ShapeDefinition[] = Utils.getSelectedObjects(selectedLeafletObjects, groupIdToShapeStoreMap).map((shapeStore: ShapeStore) => {
       shapeStore.shapeDef.data.isSelected = true;
       return toJS(shapeStore.shapeDef);
