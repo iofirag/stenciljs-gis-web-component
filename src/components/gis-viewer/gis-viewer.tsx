@@ -55,6 +55,13 @@ export class GisViewer {
   @Method()
   getBounds(): MapBounds {
 		return this.verifyIsMapExist() ? this.mapContainerEl.getBounds() : undefined;
+  }
+
+  @Method()
+  removeHighlightPOIs() {
+		if (this.verifyIsMapExist()) {
+			Utils.removeHighlightPOIs();
+		}
 	}
 
   componentWillLoad() {

@@ -69,6 +69,7 @@ export class DevComponent {
           <input type='button' value='Add shape in props' onClick={e => this.testAddShapeInProps(e)} />
           <input type='button' value='Export image' onClick={ _ => this.testExportImage()} />
           <input type='button' value='Get bounds' onClick={ _ => this.testExportBounds()} />
+          <input type='button' value='Remove Highlight' onClick={ _ => this.testRemoveHighlightPOIs()} />
           {/* <input type='button' value='' onClick={() => {}} /> */}
 
           {/* <RaisedButton label='Export draw' primary={true} onClick={this.testExportDraw} />
@@ -106,6 +107,10 @@ export class DevComponent {
   }
 
   // @Event
+
+  testRemoveHighlightPOIs() {
+		this.gisViewerEl.removeHighlightPOIs();
+	}
 
   testExportBounds(): void {
 		console.log(this.gisViewerEl.getBounds());

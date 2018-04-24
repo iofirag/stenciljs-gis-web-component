@@ -87,6 +87,7 @@ declare global {
       'getBounds': () => MapBounds;
       'getVersion': () => void;
       'gisViewerProps': GisViewerProps;
+      'removeHighlightPOIs': () => void;
       'zoomToExtent': () => void;
     }
   }
