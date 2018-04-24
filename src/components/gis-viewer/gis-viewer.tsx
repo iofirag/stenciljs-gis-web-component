@@ -1,7 +1,7 @@
 import { Component, Prop, Method } from '@stencil/core';
 import { GIS_VIEWER_TAG } from '../../utils/statics';
 import Utils from '../../utils/utilities';
-import { GisViewerProps } from '../../models';
+import { GisViewerProps, MapBounds, ShapeDefinition } from '../../models';
 import store from '../store/store';
 
 // import '../../../package';
@@ -47,6 +47,27 @@ export class GisViewer {
     this.mapContainerEl.changeCoordinateSystem();
   }
 
+  @Method()
+  exportMapImage() {
+    return Utils.exportMapImage();
+  }
+
+  @Method()
+  getBounds(): MapBounds {
+		return this.verifyIsMapExist() ? this.mapContainerEl.getBounds() : undefined;
+  }
+
+  @Method()
+  removeHighlightPOIs() {
+		if (this.verifyIsMapExist()) {
+			Utils.removeHighlightPOIs();
+		}
+  }
+
+  @Method()
+  getSelectedShapes(): ShapeDefinition[] {
+		return this.verifyIsMapExist() ? this.mapContainerEl.getSelectedShapes() : undefined;
+	}
 
   componentWillLoad() {
     store.initState(this.gisViewerProps);
@@ -69,4 +90,12 @@ export class GisViewer {
     this.mapContainerEl = document.querySelector("map-container");
     this.getVersion();
   }
+
+  private verifyIsMapExist(): boolean {
+		if (!this.mapContainerEl) {
+			console.warn(`Map is not initial, please instantiate map before trigger map's commands or callbacks`);
+			return false;
+		}
+		return true;
+	}
 }

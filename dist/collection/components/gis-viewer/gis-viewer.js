@@ -26,6 +26,20 @@ export class GisViewer {
     changeCoordinateSystem() {
         this.mapContainerEl.changeCoordinateSystem();
     }
+    exportMapImage() {
+        return Utils.exportMapImage();
+    }
+    getBounds() {
+        return this.verifyIsMapExist() ? this.mapContainerEl.getBounds() : undefined;
+    }
+    removeHighlightPOIs() {
+        if (this.verifyIsMapExist()) {
+            Utils.removeHighlightPOIs();
+        }
+    }
+    getSelectedShapes() {
+        return this.verifyIsMapExist() ? this.mapContainerEl.getSelectedShapes() : undefined;
+    }
     componentWillLoad() {
         store.initState(this.gisViewerProps);
         // Set first base map as working tile
@@ -45,7 +59,14 @@ export class GisViewer {
         this.mapContainerEl = document.querySelector("map-container");
         this.getVersion();
     }
+    verifyIsMapExist() {
+        if (!this.mapContainerEl) {
+            console.warn(`Map is not initial, please instantiate map before trigger map's commands or callbacks`);
+            return false;
+        }
+        return true;
+    }
     static get is() { return "gis-viewer"; }
-    static get properties() { return { "changeCoordinateSystem": { "method": true }, "changeDistanceUnits": { "method": true }, "getVersion": { "method": true }, "gisViewerProps": { "type": "Any", "attr": "gis-viewer-props" }, "zoomToExtent": { "method": true } }; }
+    static get properties() { return { "changeCoordinateSystem": { "method": true }, "changeDistanceUnits": { "method": true }, "exportMapImage": { "method": true }, "getBounds": { "method": true }, "getSelectedShapes": { "method": true }, "getVersion": { "method": true }, "gisViewerProps": { "type": "Any", "attr": "gis-viewer-props" }, "removeHighlightPOIs": { "method": true }, "zoomToExtent": { "method": true } }; }
     static get style() { return "/**style-placeholder:gis-viewer:**/"; }
 }

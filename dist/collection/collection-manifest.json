@@ -261,7 +261,19 @@
           "name": "changeDistanceUnits"
         },
         {
+          "name": "exportMapImage"
+        },
+        {
+          "name": "getBounds"
+        },
+        {
+          "name": "getSelectedShapes"
+        },
+        {
           "name": "getVersion"
+        },
+        {
+          "name": "removeHighlightPOIs"
         },
         {
           "name": "zoomToExtent"
@@ -343,6 +355,12 @@
         },
         {
           "name": "changeDistanceUnits"
+        },
+        {
+          "name": "getBounds"
+        },
+        {
+          "name": "getSelectedShapes"
         },
         {
           "name": "zoomToExtent"
@@ -607,8 +625,8 @@
   "collections": [],
   "compiler": {
     "name": "@stencil/core",
-    "version": "0.7.24",
-    "typescriptVersion": "2.8.1"
+    "version": "0.7.25",
+    "typescriptVersion": "2.8.3"
   },
   "bundles": [
     {

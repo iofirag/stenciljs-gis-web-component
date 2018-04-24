@@ -30,12 +30,17 @@ import {
   DrawBarConfig,
   FullScreenConfig,
   GisViewerProps,
+  GroupIdToShapeStoreMap,
   LayerManagerConfig,
+  MapBounds,
   MeasureConfig,
   MiniMapConfig,
   MouseCoordinateConfig,
   ScaleConfig,
   SearchConfig,
+  SelectedObjects,
+  ShapeDefinition,
+  ShapeStore,
   ToolbarConfig,
   ZoomToExtentConfig,
 } from './models';
@@ -83,8 +88,12 @@ declare global {
     interface GisViewer {
       'changeCoordinateSystem': () => void;
       'changeDistanceUnits': () => void;
+      'exportMapImage': () => Promise<any>;
+      'getBounds': () => MapBounds;
+      'getSelectedShapes': () => ShapeDefinition[];
       'getVersion': () => void;
       'gisViewerProps': GisViewerProps;
+      'removeHighlightPOIs': () => void;
       'zoomToExtent': () => void;
     }
   }
@@ -120,6 +129,8 @@ declare global {
     interface MapContainer {
       'changeCoordinateSystem': (unit?: CoordinateSystemType) => void;
       'changeDistanceUnits': () => void;
+      'getBounds': () => MapBounds;
+      'getSelectedShapes': () => ShapeDefinition[];
       'gisViewerProps': GisViewerProps;
       'zoomToExtent': () => void;
     }

@@ -1,5 +1,5 @@
 import '../../stencil.core';
-import { GisViewerProps } from '../../models';
+import { GisViewerProps, MapBounds, ShapeDefinition } from '../../models';
 export declare class GisViewer {
     compName: string;
     mapContainerEl: HTMLMapContainerElement;
@@ -8,8 +8,13 @@ export declare class GisViewer {
     zoomToExtent(): void;
     changeDistanceUnits(): void;
     changeCoordinateSystem(): void;
+    exportMapImage(): Promise<any>;
+    getBounds(): MapBounds;
+    removeHighlightPOIs(): void;
+    getSelectedShapes(): ShapeDefinition[];
     componentWillLoad(): void;
     componentWillUpdate(): void;
     render(): JSX.Element;
     componentDidLoad(): void;
+    private verifyIsMapExist();
 }

@@ -1,5 +1,5 @@
 import '../../../stencil.core';
-import { GisViewerProps, CoordinateSystemType } from '../../../models';
+import { GisViewerProps, CoordinateSystemType, ShapeDefinition, MapBounds } from '../../../models';
 export declare class MapContainer {
     compName: string;
     gisViewerProps: GisViewerProps;
@@ -7,6 +7,8 @@ export declare class MapContainer {
     zoomToExtent(): void;
     changeDistanceUnits(): void;
     changeCoordinateSystem(unit?: CoordinateSystemType): void;
+    getBounds(): MapBounds;
+    getSelectedShapes(): ShapeDefinition[];
     constructor();
     componentWillLoad(): void;
     render(): JSX.Element;

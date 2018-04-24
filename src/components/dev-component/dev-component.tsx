@@ -67,6 +67,10 @@ export class DevComponent {
           <input type='button' value='Change Units distance' onClick={e => this.testChangeDistanceUnits(e)} />
           <input type='button' value='Change Coordinate System' onClick={e => this.testChangeCoordinateSystem(e)} />
           <input type='button' value='Add shape in props' onClick={e => this.testAddShapeInProps(e)} />
+          <input type='button' value='Export image' onClick={ e => this.testExportImage(e)} />
+          <input type='button' value='Get bounds' onClick={ e => this.testExportBounds(e)} />
+          <input type='button' value='Remove Highlight' onClick={ e => this.testRemoveHighlightPOIs(e)} />
+          <input type='button' value='Get All Selected Shapes' onClick={ e => this.testGetAllSelectedShape(e)} />
           {/* <input type='button' value='' onClick={() => {}} /> */}
 
           {/* <RaisedButton label='Export draw' primary={true} onClick={this.testExportDraw} />
@@ -104,23 +108,47 @@ export class DevComponent {
   }
 
   // @Event
+
+  testGetAllSelectedShape(e: UIEvent): void {
+    console.log('Testing GetAllSelectedShape: ', e, this.gisViewerEl.getSelectedShapes());
+  }
+
+  testRemoveHighlightPOIs(e: UIEvent) {
+    console.log('Testing RemoveHighlightPOIs: ', e);
+		this.gisViewerEl.removeHighlightPOIs();
+	}
+
+  testExportBounds(e: UIEvent): void {
+    console.log('Testing getBounds: ', e);
+		console.log(this.gisViewerEl.getBounds());
+  }
+
   testZoomToExtend(e: UIEvent) {
-    console.log('Testing zoomToExtent command', e.type);
+    console.log('Testing zoomToExtent api method', e.type);
     this.gisViewerEl.zoomToExtent();
   }
   testChangeDistanceUnits(e: UIEvent) {
-    console.log('Testing ChangeDistanceUnits command', e.type);    
+    console.log('Testing ChangeDistanceUnits api method', e.type);
     this.gisViewerEl.changeDistanceUnits();
   }
 
-
+  testExportImage(e: UIEvent): void {
+    console.log('Testing ExportImage api method', e.type);
+		this.gisViewerEl.exportMapImage().then((canvasObj: any) => {
+			const img = document.createElement('img');
+			img.src = canvasObj.toDataURL('image/png');
+			document.body.appendChild(img);
+		}).catch((ex: any) => {
+			console.error("Error retrieving image data url", ex);
+		});
+	}
 
   testChangeCoordinateSystem(e: UIEvent) {
-    console.log('Testing changeCoordinateSystem command', e.type);
+    console.log('Testing changeCoordinateSystem api method', e.type);
     this.gisViewerEl.changeCoordinateSystem();
   }
   testAddShapeInProps(e: UIEvent) {
-    console.log('Testing testChangeCoordinateSystemInProps command', e.type);
+    console.log('Testing ChangeCoordinateSystemInProps api method', e.type);
     this.gisViewerState.shapeLayers[0].shapes.push({
       shapeWkt: 'POLYGON((-14.765625 17.052584352706003,-12.83203125 15.703433338617463,-15.99609375 15.534142999890243,-14.765625 17.052584352706003))',
       data: {
@@ -132,7 +160,7 @@ export class DevComponent {
   }
 
 
-  
+
 
   createDevState(): GisViewerProps {
 
@@ -162,7 +190,7 @@ export class DevComponent {
         minZoom: 1,
         maxZoom: 20,
         attributionControl: false
-      }, 
+      },
       {
         name: 'Rail Ways',
         tilesURI: 'http://www.openptmap.org/tiles/{z}/{x}/{y}.png',
@@ -295,9 +323,9 @@ export class DevComponent {
             }
           },
 
-          
 
-          
+
+
           // {
           //   shapeWkt: 'POLYGON((0 0 0,0 5 0,5 5 0,5 0 0,0 0 0))',
           //   data: {
@@ -315,9 +343,9 @@ export class DevComponent {
           //     id: 'cell2center',
           //     type: 'intercept',
           //   }
-          // }, 
+          // },
         ]
-      }, 
+      },
       // {
       //   layerName: 'Test data 2',
       //   isDisplay: false,

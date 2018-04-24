@@ -209,7 +209,6 @@ export default class LayersFactory {
 
 		clusterLayer.on('clusterclick', (e: any) => {
 			if (!e.originalEvent.ctrlKey || store.state.mapConfig.isSelectionDisable) { return; }
-			debugger
 			// Update isSelected view
 			// const selectedLayersShapeDef: ShapeDefinition[] = [];
 			
