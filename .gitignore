@@ -10,3 +10,5 @@ www/
 .versions/
 .history/
 node_modules/
+src/components.d.ts
+package-lock.json

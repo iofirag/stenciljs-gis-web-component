@@ -36,7 +36,7 @@
     "mobx": "^4.1.1"
   },
   "devDependencies": {
-    "@stencil/core": "^0.7.24",
+    "@stencil/core": "0.7.26",
     "@stencil/dev-server": "latest",
     "@stencil/sass": "0.0.3",
     "@stencil/utils": "latest",

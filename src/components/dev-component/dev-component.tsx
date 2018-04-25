@@ -71,6 +71,7 @@ export class DevComponent {
           <input type='button' value='Get bounds' onClick={ _ => this.testExportBounds()} />
           <input type='button' value='Remove Highlight' onClick={ _ => this.testRemoveHighlightPOIs()} />
           <input type='button' value='Get All Selected Shapes' onClick={ _ => this.testGetAllSelectedShape()} />
+          <input type='button' value='Toggle Shape Selection' onClick={ _ => this.toggleShapeSelectionById()} />
           {/* <input type='button' value='' onClick={() => {}} /> */}
 
           {/* <RaisedButton label='Export draw' primary={true} onClick={this.testExportDraw} />
@@ -108,6 +109,10 @@ export class DevComponent {
   }
 
   // @Event
+
+  toggleShapeSelectionById(): void {
+    this.gisViewerEl.toggleShapeSelectionById([{id: 'cell1coverage', isSelected: true}, {groupId: 'group0', isSelected: false}]);
+  }
 
   testGetAllSelectedShape(): void {
 		console.log('Selected Shapes: ', this.gisViewerEl.getSelectedShapes());
