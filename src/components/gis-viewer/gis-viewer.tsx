@@ -76,6 +76,13 @@ export class GisViewer {
     this.mapContainerEl.toggleShapeSelectionById(shapeDataArr);
   }
 
+  @Method()
+  highlightPOIsByGroupId(groupId: string): void {
+    if (!this.verifyIsMapExist()) { return; }
+    
+    Utils.highlightPOIsByGroupId(groupId);
+  }
+
   componentWillLoad() {
     store.initState(this.gisViewerProps);
     // Set first base map as working tile

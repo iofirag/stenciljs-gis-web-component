@@ -333,9 +333,25 @@ $clusterBoxShadow: rgba(80, 80, 80, 0.7);
   }
 }
 
+path.highlighted { //
+  animation: highlighted-path .8s infinite; //
+} //
+
 .leaflet-left, .leaflet-right, .leaflet-top, .leaflet-bottom {
   z-index: 99999;
 }
+
+@keyframes highlighted-path { //
+  0% {
+    stroke-width: 1px; //
+  } //
+  50% {
+    stroke-width: 5px; //
+  }//
+  100% {
+    stroke-width: 1px; //
+  } //
+} //
 
 @keyframes pulse-me-cluster {
   0% {
