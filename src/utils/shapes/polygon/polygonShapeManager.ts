@@ -1,8 +1,7 @@
-import { ShapeObject, PolygonShape, ShapeType, ShapeDefinition, PolygonShapeOptions, Coordinate, ShapeStore } from '../../../models';
+import { ShapeObject, PolygonShape, ShapeType, ShapeDefinition, PolygonShapeOptions, Coordinate } from '../../../models';
 import { ShapeEventHandlers, ShapeManagerBase } from "../ShapeManager";
 import _ from 'lodash';
 import L from 'leaflet';
-import store from '../../../components/store/store';
 
 export class PolygonShapeManager extends ShapeManagerBase {
 
@@ -114,46 +113,6 @@ export class PolygonShapeManager extends ShapeManagerBase {
       return null;
     }
     // tbd , use _.defaults for default options
-  }
-
-  highlightElement(polygon: L.Polygon) {
-    let isHighLighted: boolean = false;
-    if (_.get(polygon, '_icon.classList.contains("highlighted")', false)
-      || _.get(polygon, 'path.classList.contains("highlighted")', false)
-      || _.get(polygon, '__parent._icon.classList.contains("highlighted")', false)
-    ) {
-      isHighLighted = true;
-    }
-    // const isHighLighted = ;
-
-    if (!isHighLighted) {
-      // Utils.highlightPOIsByGroupId(element.groupId);
-      // Utils.highlightPOIsByElement(element)
-
-      // target = element.__parent._icon
-      // element.__parent._icon.classList.add('highlighted');
-
-      const shapeStore: ShapeStore = store.groupIdToShapeStoreMap[polygon.groupId][polygon.id];
-
-      // const manager = ShapeManagerRepository.getManagerByType(_.get(shapeStore, 'shapeDef.shapeObject.type'));
-      // const shouldBeHighLighted: boolean = groupId === _.get(shapeStore, 'shapeDef.data.groupId');
-      const highlightMarkerCluster = /* (shapeStore.shapeDef.data.groupId === groupId) &&  */_.get(shapeStore, 'leafletRef.__parent._group');
-      if (!!highlightMarkerCluster) {
-        const cluster = highlightMarkerCluster.getVisibleParent(shapeStore.leafletRef);
-        if (_.get(cluster, '_icon')) {
-          cluster._icon.classList.add('highlighted');
-        }
-      }
-
-      if (polygon._path) {
-        // add highilight
-        polygon._path.classList.add('highlighted');
-      }
-      // else if (isIntercept && marker._icon) {
-      // 	// remove highilight from preveus highlighted intercepts
-      // 	marker._icon.classList.remove('highlighted');
-      // }
-    }
   }
   
   getShapeObjectFromDrawingLayer(layer: L.Polygon): ShapeObject {

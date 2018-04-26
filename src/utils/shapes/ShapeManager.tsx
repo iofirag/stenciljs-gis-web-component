@@ -101,7 +101,44 @@ export abstract class ShapeManagerBase implements ShapeManagerInterface {
 	}
 
 	highlightElement(element: L.Layer | L.FeatureGroup) {
-		_.noop(element);
+		let isHighLighted: boolean = false;
+		if (_.get(element, '_icon.classList.contains("highlighted")', false)
+			|| _.get(element, 'path.classList.contains("highlighted")', false)
+			|| _.get(element, '__parent._icon.classList.contains("highlighted")', false)
+		) {
+			isHighLighted = true;
+		}
+		// const isHighLighted = ;
+
+		if (!isHighLighted) {
+			// Utils.highlightPOIsByGroupId(element.groupId);
+			// Utils.highlightPOIsByElement(element)
+
+			// target = element.__parent._icon
+			// element.__parent._icon.classList.add('highlighted');
+
+			const shapeStore: ShapeStore = store.groupIdToShapeStoreMap[element.groupId][element.id];
+
+			// const manager = ShapeManagerRepository.getManagerByType(_.get(shapeStore, 'shapeDef.shapeObject.type'));
+			// const shouldBeHighLighted: boolean = groupId === _.get(shapeStore, 'shapeDef.data.groupId');
+			const highlightMarkerCluster = /* (shapeStore.shapeDef.data.groupId === groupId) &&  */_.get(element, '__parent._group');
+			if (!!highlightMarkerCluster) {
+				const cluster = highlightMarkerCluster.getVisibleParent(shapeStore.leafletRef);
+				if (_.get(cluster, '_icon')) {
+					cluster._icon.classList.add('highlighted');
+				}
+			}
+			
+			if ((element as L.Layer)._icon && _.get(shapeStore, 'shapeDef.data.type') === 'intercept') {
+				// add highilight
+				const marker = (element as L.Marker);
+				marker._icon.classList.add('highlighted');
+			} else if ((element as L.FeatureGroup)._path) {
+				// add highilight
+				const elementHasPath = element as L.FeatureGroup;
+				elementHasPath._path.classList.add('highlighted');
+			}
+		}
 	}
 	/* toggleHighlight(element: L.Layer | L.FeatureGroup) {
 		// Implemented only in marker
@@ -129,7 +166,8 @@ export abstract class ShapeManagerBase implements ShapeManagerInterface {
 			// target = element.__parent._icon
 			// element.__parent._icon.classList.add('highlighted');
 		}
-	} */
+	}*/
+
 
 	getCoordinateList(shapeObject: ShapeObject): Coordinate[] {
 		_.noop(shapeObject)

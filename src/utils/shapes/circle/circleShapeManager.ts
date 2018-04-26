@@ -38,6 +38,7 @@ export class CircleShapeManager extends ShapeManagerBase {
 			throw new Error("Please check if you have circle coordinate point and radius");
 		}
 	}
+	
 	shapeWktToObject(shapeWkt: string): ShapeObject {
 		let stripped = shapeWkt.replace(/[^0-9\,\.\ \-]/g, '');
 		let circlePointsArr = stripped.split(',');

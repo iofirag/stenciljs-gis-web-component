@@ -44,46 +44,6 @@ export class MarkerShapeManager extends ShapeManagerBase {
 		}
 	}
 
-	highlightElement(marker: L.Marker) {
-		let isHighLighted: boolean = false;
-		if (_.get(marker, '_icon.classList.contains("highlighted")', false)
-			|| _.get(marker, 'path.classList.contains("highlighted")', false)
-			|| _.get(marker, '__parent._icon.classList.contains("highlighted")', false)
-		) {
-			isHighLighted = true;
-		}
-		// const isHighLighted = ;
-
-		if (!isHighLighted) {
-			// Utils.highlightPOIsByGroupId(element.groupId);
-			// Utils.highlightPOIsByElement(element)
-
-			// target = element.__parent._icon
-			// element.__parent._icon.classList.add('highlighted');
-
-			const shapeStore: ShapeStore = store.groupIdToShapeStoreMap[marker.groupId][marker.id];
-
-			// const manager = ShapeManagerRepository.getManagerByType(_.get(shapeStore, 'shapeDef.shapeObject.type'));
-			const isIntercept: boolean = marker._icon && _.get(shapeStore, 'shapeDef.data.type') === 'intercept';
-			// const shouldBeHighLighted: boolean = groupId === _.get(shapeStore, 'shapeDef.data.groupId');
-			const highlightMarkerCluster = /* (shapeStore.shapeDef.data.groupId === groupId) &&  */_.get(shapeStore, 'leafletRef.__parent._group');
-			if (!!highlightMarkerCluster) {
-				const cluster = highlightMarkerCluster.getVisibleParent(shapeStore.leafletRef);
-				if (_.get(cluster, '_icon')) {
-					cluster._icon.classList.add('highlighted');
-				}
-			}
-
-			if (isIntercept && marker._icon) {
-				// add highilight
-				marker._icon.classList.add('highlighted');
-			} 
-			// else if (isIntercept && marker._icon) {
-			// 	// remove highilight from preveus highlighted intercepts
-			// 	marker._icon.classList.remove('highlighted');
-			// }
-		}
-	}
 	isWktOfType(wkt: string): boolean {
 		return (wkt.indexOf('POINT(') > -1);
 	}
