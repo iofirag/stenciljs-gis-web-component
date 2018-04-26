@@ -3,6 +3,7 @@ import Utils from "../../../../../utils/utilities";
 import { Component, Prop, State, Method, Event, EventEmitter } from "@stencil/core";
 import L from 'leaflet';
 import { ZoomToExtentConfig } from "../../../../../models";
+import store from "../../../../store/store";
 
 
 @Component({
@@ -68,7 +69,7 @@ export class ZoomToExtentPlugin {
     }
     private zoomToExtentClickHandler() {
         console.log(`${this.compName} zoomToExtentClickHandler`);
-        // TBD
-        this.zoomToExtentDoneEm.emit();
+        Utils.zoomToExtend(store.mapLayers, store.gisMap);
+        // this.zoomToExtentDoneEm.emit();
     }
 }

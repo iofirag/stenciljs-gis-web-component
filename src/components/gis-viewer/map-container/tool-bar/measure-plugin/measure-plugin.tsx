@@ -6,6 +6,7 @@ import Utils from "../../../../../utils/utilities";
 import { MeasureConfig, DistanceUnitType, MeasureOptions } from "../../../../../models";
 import store from "../../../../store/store";
 import { reaction } from "mobx";
+import _ from "lodash";
 
 
 @Component({
@@ -42,7 +43,7 @@ export class MeasurePlugin {
     
     componentDidLoad() {
         Utils.log_componentDidLoad(this.compName);
-        Utils.doNothing(measure);        
+        _.noop(measure);        
         this.gisMap.addControl(this.control);
     }
 

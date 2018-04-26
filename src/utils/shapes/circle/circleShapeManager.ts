@@ -1,8 +1,9 @@
 import { ShapeEventHandlers, ShapeManagerBase } from "../ShapeManager";
 // import _ from 'lodash';
 import L from 'leaflet';
-import { ShapeDefinition, CircleShape, CircleShapeOptions, ShapeType, ShapeObject, ShapeObjectOptions, Coordinate } from '../../../models';
-import Utils from "../../utilities";
+import { ShapeDefinition, CircleShape, CircleShapeOptions, ShapeType, ShapeObject, 
+	ShapeObjectOptions, Coordinate } from '../../../models';
+import _ from "lodash";
 
 export class CircleShapeManager extends ShapeManagerBase {
 
@@ -11,7 +12,7 @@ export class CircleShapeManager extends ShapeManagerBase {
 	}
 
 	shapeObjectToWkt(shapeObject: ShapeObject, shapeObjectOptions: ShapeObjectOptions): string {
-		Utils.doNothing(shapeObjectOptions)
+		_.noop(shapeObjectOptions)
 		const circle = <CircleShape>shapeObject.shape;
 
 		if (circle.coordinate && (circle.radius >= 0)) {
@@ -28,7 +29,7 @@ export class CircleShapeManager extends ShapeManagerBase {
 			const pR = null // Utils.computeNewCoordinateFromCoordinateAndDistance(centerPoint, RIGHT_ANGLE, radius);
 			const pB = null // Utils.computeNewCoordinateFromCoordinateAndDistance(centerPoint, BOTTOM_ANGLE, radius);
 			const pL = null // Utils.computeNewCoordinateFromCoordinateAndDistance(centerPoint, LEFT_ANGLE, radius);
-			Utils.doNothing([radius, centerPoint, RIGHT_ANGLE, BOTTOM_ANGLE, LEFT_ANGLE, INITIAL_ANGLE])
+			_.noop([radius, centerPoint, RIGHT_ANGLE, BOTTOM_ANGLE, LEFT_ANGLE, INITIAL_ANGLE])
 			// const pT = Utils.computeNewCoordinateFromCoordinateAndDistance(centerPoint, TOP_ANGLE, radius);
 
 			// return 'CIRCULARSTRING(' + pR + ',' + pB + ',' + pL + ',' + pT + ',' + pi  + ')';
@@ -73,7 +74,7 @@ export class CircleShapeManager extends ShapeManagerBase {
 	}
 
 	createShape(shapeDef: ShapeDefinition, eventHandlers: ShapeEventHandlers): L.Layer {
-		Utils.doNothing(eventHandlers)
+		_.noop(eventHandlers)
 		if (shapeDef.shapeObject) {
 			// Create Circle from shape values
 			const circleShape:        CircleShape        = <CircleShape>shapeDef.shapeObject.shape;

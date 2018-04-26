@@ -48,7 +48,6 @@ class Store {
         this.idToSelectedObjectsMap = { ...this.idToSelectedObjectsMap };
     }
     
-
     // @computed get coordinateSystemType(): CoordinateSystemType {
     //     return this.state.mapConfig.coordinateSystemType;
     // }
@@ -105,50 +104,16 @@ class Store {
             || shapeStore.shapeDef.data.isSelected) {   // initiate as selected
             this.setSelectionMode(shapeIds, true);
         }
-        
-
-
-        // if (Object.keys(this.groupIdToShapeStoreMap[shapeIds.groupId]).length > 1) {
-
-        // }
-        // const needToFixIsSelected: boolean = _.some(this.groupIdToShapeStoreMap[shapeIds.groupId], (value: ShapeStore) => {
-        //     return !value.shapeDef.data.isSelected
-        // })
-        // if (needToFixIsSelected) {
-
-
-        // // Fix flows of  isSelected not consist of group selection
-        // if (this.idToSelectedObjectsMap.hasOwnProperty(shapeIds.groupId)/*  || shapeStore.shapeDef.data.isSelected */) {
-        //     // Fix isSelected of firsts object
-        //     if (!this.groupIdToShapeStoreMap[shapeIds.groupId][shapeIds.shapeId].shapeDef.data.isSelected) {
-        //         this.groupIdToShapeStoreMap[shapeIds.groupId][shapeIds.shapeId].shapeDef.data.isSelected = true;
-        //     }
-            
-        //     // Fix isSelected for other objects
-        //     const needToFixIsSelected: boolean = _.some(this.groupIdToShapeStoreMap[shapeIds.groupId], (value: ShapeStore) => {
-        //         return !value.shapeDef.data.isSelected
-        //     })
-        //     if (needToFixIsSelected) {
-        //         const groupId: GroupData = this.groupIdToShapeStoreMap[shapeIds.groupId];
-        //         _.forEach(groupId, (groupItem: ShapeStore) => {
-        //             groupItem.shapeDef.data.isSelected = true;
-        //         });
-        //     }
-        // }
-        //  else {
-        //     /* not selected 
-        //     or first selected shape in group 
-        //     or single selected */
-        //     // Set shape selection
-        //     if (shapeStore.shapeDef.data.isSelected) {
-        //         this.setSelectionMode(shapeIds, shapeStore.shapeDef.data.isSelected);
-        //     }
-        // }
-
-
-
-        // this.selectedIds[shapeIds.shapeId] = shapeIds;
     }
+    
+    @action
+    removeGroup(groupName: string): void {
+        delete this.groupIdToShapeStoreMap[groupName];
+    }
+    removeSelectedShapeById(shapeId: string): void {
+        delete this.idToSelectedObjectsMap[shapeId];
+    }
+
     @action
     setSelectionMode(shapeIds: ShapeIds, isSelected: boolean) {
         if (isSelected) {
@@ -184,7 +149,6 @@ class Store {
         this.idToSelectedObjectsMap = {};
         // this.coordinateSystemType = 'gps';
         // this.distanceUnitType = 'km';
-        
     }
 
     private getDefaultMapLayers(): MapLayers {

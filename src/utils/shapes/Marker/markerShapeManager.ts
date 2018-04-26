@@ -5,7 +5,6 @@ import _ from 'lodash';
 import L from 'leaflet';
 import { interceptSvg } from './intercept';
 import { markerSvg } from './maker';
-import Utils from '../../utilities';
 import store from '../../../components/store/store';
 
 export class MarkerShapeManager extends ShapeManagerBase {
@@ -50,7 +49,7 @@ export class MarkerShapeManager extends ShapeManagerBase {
 	}
 
 	createShape(shapeDef: ShapeDefinition, eventHandlers: ShapeEventHandlers): L.Layer {
-		Utils.doNothing(eventHandlers);
+		_.noop(eventHandlers);
 		if (shapeDef.shapeObject) {
 			// Create Marker from shape values
 			const markerShape:        MarkerShape        = <MarkerShape>shapeDef.shapeObject.shape;
@@ -244,7 +243,7 @@ export class MarkerShapeManager extends ShapeManagerBase {
 	}
 
 	public getAreaSize(shapeObject: ShapeObject): number {
-		Utils.doNothing(shapeObject)
+		_.noop(shapeObject)
 		return 0;
 	}
 

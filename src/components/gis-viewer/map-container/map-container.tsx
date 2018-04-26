@@ -1,11 +1,11 @@
 import { Component, Prop, Element, Method } from '@stencil/core';
-import { MAP_CONTAINER_TAG, ZOOM_TO_EXTENT_PLUGIN_TAG, MAX_NORTH_EAST, MAX_SOUTH_WEST } from '../../../utils/statics';
+import { MAP_CONTAINER_TAG, ZOOM_TO_EXTENT_PLUGIN_TAG, MAX_NORTH_EAST, MAX_SOUTH_WEST, GENERATED_ID, DRAW_BAR_PLUGIN_TAG } from '../../../utils/statics';
 import Utils from '../../../utils/utilities';
 import { GisViewerProps, CoordinateSystemType, DistanceUnitType, ShapeDefinition, Coordinate, ShapeIds, ShapeStore, ShapeLayerContainer_Dev, MapBounds, SelectedObjects, GroupIdToShapeStoreMap } from '../../../models';
 import _ from 'lodash';
 import L from 'leaflet';
 import store from '../../store/store';
-import { ShapeManagerRepository } from '../../../utils/shapes/ShapeManagerRepository';
+// import { ShapeManagerRepository } from '../../../utils/shapes/ShapeManagerRepository';
 import { reaction, toJS } from 'mobx';
 // import { reaction } from 'mobx';
 
@@ -91,10 +91,15 @@ export class MapContainer {
     return selectedObjects;
   }
 
+  @Method()
+  clearDrawLayer() {
+    const drawBarEl: HTMLDrawBarPluginElement = this.el.querySelector(DRAW_BAR_PLUGIN_TAG);
+    drawBarEl.clear();
+  }
+
   constructor() {
     reaction(() => store.idToSelectedObjectsMap,
       () => {
-        // console.log(e)
         _.forEach(store.mapLayers.initialLayers, (initialLayer: ShapeLayerContainer_Dev) => {
           let leafletClusterLayer = initialLayer.leafletClusterLayer;
           for (let cluster in leafletClusterLayer._featureGroup._layers) {
@@ -103,7 +108,6 @@ export class MapContainer {
         })
       }
     )
-
   }
 
   componentWillLoad() {
@@ -280,35 +284,46 @@ export class MapContainer {
   private areaSelection(event: any): void {
     if (store.state.mapConfig.isSelectionDisable) { return; }
 
-    const shapeDefSelectedList: ShapeDefinition[] = [];
+    // const shapeDefSelectedList: ShapeDefinition[] = [];
+    const changedIds: SelectedObjects = {};
+    
     const visibleLayers = Utils.getVisibleLayers(store.mapLayers, store.gisMap);
-
     visibleLayers.forEach((layer: L.Layer) => {
-      const layerIds: ShapeIds = {
+      const shapeIds: ShapeIds = {
         groupId: layer.groupId,
         shapeId: layer.id
       };
-      const shapeStore: ShapeStore = store.groupIdToShapeStoreMap[layerIds.groupId][layerIds.shapeId];
+      // const shapeStore: ShapeStore = store.groupIdToShapeStoreMap[layerIds.groupId][layerIds.shapeId];
 
-      const manager = ShapeManagerRepository.getManagerByType(_.get(shapeStore, 'shapeDef.shapeObject.type'));
-      if (manager) {
-        const latLng: Coordinate | Coordinate[] = layer._latlngs ? layer._latlngs : layer._latlng;
-        const isSelected: boolean = store.idToSelectedObjectsMap.hasOwnProperty(layerIds.shapeId)/* shapeStore.shapeDef.data.isSelected; */
+      // const manager = ShapeManagerRepository.getManagerByType(_.get(shapeStore, 'shapeDef.shapeObject.type'));
+      // if (manager) {
+      const latLng: Coordinate | Coordinate[] = layer._latlngs ? layer._latlngs : layer._latlng;
+      const isSelected: boolean = store.idToSelectedObjectsMap.hasOwnProperty(shapeIds.shapeId)/* shapeStore.shapeDef.data.isSelected; */
 
-        // Object found in bounds
-        if (latLng && event.boxZoomBounds.contains(latLng)) {
-          if (!isSelected) {
-            manager.toggleSelectShape(layer);
-            manager.updateIsSelectedView(layer);
-            Utils.updateBubble(layer);
-            // shapeDefSelectedList.push(shapeStore.shapeDef);
+      // Object found in bounds
+      if (latLng && event.boxZoomBounds.contains(latLng)) {
+        if (!isSelected) {
+
+          if (layer.groupId === GENERATED_ID.DEFAULT_GROUP
+            || layer.groupId === GENERATED_ID.DRAW_LAYER_GROUP_ID) {
+            if (!changedIds[layer.id]) {
+              changedIds[layer.id] = { selectionType: 'single', groupId: shapeIds.groupId };
+              store.setSelectionMode(shapeIds, true);
+            }
+          } else {
+            if (!changedIds[layer.groupId]) {
+              changedIds[layer.groupId] = { selectionType: 'group', groupId: shapeIds.groupId };;
+              store.setSelectionMode(shapeIds, true);
+            }
           }
+
         }
       }
+      Utils.updateViewForSelectedObjects(changedIds);
     });
     // Execute onGetSelected callback
-    if (shapeDefSelectedList.length) {
-      // this.context.props.onSelectionDone(shapeDefSelectedList);  // O.A
-    }
+    // if (shapeDefSelectedList.length) {
+    //   // this.context.props.onSelectionDone(shapeDefSelectedList);  // O.A
+    // }
   }
 }

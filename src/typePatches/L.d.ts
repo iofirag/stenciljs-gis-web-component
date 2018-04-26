@@ -185,13 +185,13 @@ declare module 'leaflet' {
 
     interface FeatureGroup {
         groupId?: string;
-        id?: string;
-        __parent?: any;
+        id?: string
+        __parent?: any
         // _layers: any;
         // _latlng?: any;
         // _latlngs?: any[];
         // shapeDef?: ShapeDef_Dev;
-        layerName?: string;
+        layerName?: string
     }
 }
 

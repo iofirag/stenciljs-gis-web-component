@@ -59,7 +59,7 @@ export class MouseCoordinagePlugin {
         this.gisMap.addControl(this.controlUtm);
         this.gisMap.addControl(this.controlUtmref);
         this.changeCoordinateSystemHandler(store.state.mapConfig.coordinateSystemType)
-        Utils.doNothing(mousecoordinatesystems);
+        _.noop(mousecoordinatesystems);
 
     }
 

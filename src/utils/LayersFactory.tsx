@@ -34,7 +34,7 @@ export default class LayersFactory {
 	};
 
 	public static createHeatAndClusterLayer(shapeLayerDef: ShapeLayerDefinition): ShapeLayerContainer_Dev  {
-		// Utils.doNothing(context)
+		// _.noop(context)
 		const layerContainer: ShapeLayerContainer_Dev = {
 		  	layerDefinition: shapeLayerDef,
 		    leafletHeatLayer: null,
@@ -123,13 +123,6 @@ export default class LayersFactory {
 			shapeDef.data.groupId = _.get(shapeDef, 'data.groupId', GENERATED_ID.DEFAULT_GROUP);
 			shapeDef.data.id = _.get(shapeDef, 'data.id', shapeIdGenerator.newId());
 			
-
-			// if (store.idToSelectedObjectsMap.hasOwnProperty(shapeDef.data.groupId)) {
-			// 	// Set isSelected=true for shapes that doesnt has it, in already selcted group 
-			// 	// Fix isSelected to be true, because one or more another objects in same group is already selected
-			// 	// O.A
-			// 	shapeDef.data.isSelected = true;
-			// }
 			// Iterate all shapes in this layer (some object types)
 			const manager: ShapeManagerInterface | null = ShapeManagerRepository.getManagerByShapeDefinition(shapeDef);
 
@@ -137,21 +130,11 @@ export default class LayersFactory {
 				console.log(isDisplay)
 				const leafletObject: L.Layer | L.FeatureGroup = manager.createShape(shapeDef);
 
-				// Set group-id and shape-id on layer
-				// leafletObject.groupId = shapeDef.data.groupId;
-				// leafletObject.id = shapeDef.data.id;
-
-				// console.log(leafletObject)
-				
-				// console.log(groupIdExist);
 				const shapeStore: ShapeStore = {
 					leafletRef: leafletObject,
 					shapeDef: shapeDef
 				}
-				// let shapeIds: ShapeIds = {
-				// 	groupId: shapeDef.data.groupId,
-				// 	shapeId: shapeDef.data.id
-				// }
+
 				store.addShape(shapeStore);
 
 				// Add shape to cluster layer
@@ -159,8 +142,8 @@ export default class LayersFactory {
 
 				// Set shape events
 				Utils.setEventsOnLeafletLayer(leafletObject, {
-					click: Utils.shapeOnClickHandler.bind(this, manager),
-					mouseover: (e) => {this.shapeHoverTooltipHandler(e); },
+					click: Utils.shapeOnClickHandler.bind(this),
+					mouseover: (e) => { this.shapeHoverTooltipHandler(e); },
 					// mouseout: () => { this.onOutShape(leafletObject, managerType); },
 				});
 				// if (isDisplay) {
@@ -190,9 +173,6 @@ export default class LayersFactory {
 			// fix for selected cluters that don't need to be selected;
 			// Remove selected clusters that changed AND add again for the remaining selected clusters
 
-
-			// const clusters: any = store.gisMap.getContainer().querySelectorAll('.selected-cluster') || [];
-			// _.forEach(clusters, ((cluster) => cluster.classList.remove('selected-cluster')));
 			Utils.selectClustersBySelectedLeafletObjects(store.idToSelectedObjectsMap); // O.A
 			
 			// update shapes select view
@@ -209,8 +189,6 @@ export default class LayersFactory {
 
 		clusterLayer.on('clusterclick', (e: any) => {
 			if (!e.originalEvent.ctrlKey || store.state.mapConfig.isSelectionDisable) { return; }
-			// Update isSelected view
-			// const selectedLayersShapeDef: ShapeDefinition[] = [];
 			
 
 			if (e.originalEvent.ctrlKey) {
@@ -226,28 +204,6 @@ export default class LayersFactory {
 						shapeId: layer.id
 					}
 
-
-
-					// if (!changedIds[layer.groupId]) {
-
-					// 	// changedIds[layer.id]) {
-						
-					// 	// Need to be select
-					// 	// store.toggleSelectionMode(shapeIds);
-						
-					// 	store.setSelectionMode(shapeIds, !isClusterSelected);
-					// 	// manager.selectShape(layer);
-					// 	// manager.toggleSelectShape(layer);
-					// 	// Utils.updateBubble(layer);
-					// 	if (layer.groupId === GENERATED_ID.DEFAULT_GROUP
-					// 		|| layer.groupId === GENERATED_ID.DRAW_LAYER_GROUP_ID) {
-					// 		changedIds[layer.id] = { selectionType: 'single', groupId: shapeIds.groupId };
-					// 	} else {
-					// 		changedIds[layer.groupId] = { selectionType: 'group', groupId: shapeIds.groupId };;
-					// 	}
-					// 	// manager.updateIsSelectedView(layer);
-					// }
-
 					if (layer.groupId === GENERATED_ID.DEFAULT_GROUP
 						|| layer.groupId === GENERATED_ID.DRAW_LAYER_GROUP_ID) {
 						if (!changedIds[layer.id]) {
@@ -261,31 +217,8 @@ export default class LayersFactory {
 						}
 					}
 
-					
-					// manager.updateIsSelectedView(shapeStore.leafletRef);
-					// Utils.updateBubble(shapeStore.leafletRef);
-
-
-					/* if (!isClusterSelected) { O.A use action to change the isSelected and add to selectedObject
-						shapeStore.shapeDef.data.isSelected = true;
-						selectedLayersShapeDef.push(shapeStore.shapeDef);
-					} else {
-						if (shapeStore.shapeDef.data.isSelected) {
-							shapeStore.shapeDef.data.isSelected = false;
-							shapeStore.shapeDef.data.isSelectedFade = false;
-							selectedLayersShapeDef.push(shapeStore.shapeDef);
-						}
-					} */
-
-					
-					// setTimeout(()=> {
-					// }, 0);
 				});
-
-				// _.forEach(changedIds, (obj: SelectedObjectsValue) => {
-					
-				// })
-				Utils.updateViewForSelectedObjects(store.idToSelectedObjectsMap);
+				Utils.updateViewForSelectedObjects(changedIds);	// update the unselected objects
 			}
 			// context.props.onSelectionDone(selectedLayersShapeDef); // O.A
 		});

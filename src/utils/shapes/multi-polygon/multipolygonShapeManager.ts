@@ -2,7 +2,7 @@ import { ShapeDefinition, PolygonShape, ShapeType, ShapeObject, Coordinate, Mult
 // import _ from 'lodash';
 import L from 'leaflet';
 import { ShapeEventHandlers, ShapeManagerBase } from "../ShapeManager";
-import Utils from '../../utilities';
+import _ from 'lodash';
 
 export class MultiPolygonShapeManager extends ShapeManagerBase {
 
@@ -71,7 +71,7 @@ export class MultiPolygonShapeManager extends ShapeManagerBase {
   }
 
   createShape(shapeDef: ShapeDefinition, eventHandlers: ShapeEventHandlers): L.FeatureGroup {
-      Utils.doNothing(eventHandlers)
+    _.noop(eventHandlers)
     if (shapeDef.shapeObject) {
       // Create Circle from shape values
       const multiPolygonShape: MultiPolygonShape = <MultiPolygonShape>shapeDef
@@ -120,7 +120,7 @@ export class MultiPolygonShapeManager extends ShapeManagerBase {
   }
 
   public getAreaSize(shapeObject: ShapeObject): number {
-    Utils.doNothing(shapeObject)
+    _.noop(shapeObject)
     console.log("TBD getAreaSize() for multipolygon");
     return 0;
   }

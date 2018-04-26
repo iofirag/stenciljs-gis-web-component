@@ -87,6 +87,7 @@ declare global {
     interface GisViewer {
       'changeCoordinateSystem': () => void;
       'changeDistanceUnits': () => void;
+      'clearDrawLayer': () => void;
       'exportMapImage': () => Promise<any>;
       'getBounds': () => MapBounds;
       'getSelectedShapes': () => ShapeDefinition[];
@@ -128,6 +129,7 @@ declare global {
     interface MapContainer {
       'changeCoordinateSystem': (unit?: CoordinateSystemType) => void;
       'changeDistanceUnits': () => void;
+      'clearDrawLayer': () => void;
       'getBounds': () => MapBounds;
       'getSelectedShapes': () => ShapeDefinition[];
       'gisViewerProps': GisViewerProps;
@@ -378,6 +380,7 @@ declare global {
 
   namespace StencilComponents {
     interface DrawBarPlugin {
+      'clear': () => void;
       'config': DrawBarConfig;
       'getControl': () => Control;
       'gisMap': L.Map;

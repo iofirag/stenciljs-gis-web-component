@@ -2,7 +2,6 @@ import { ShapeObject, PolygonShape, ShapeType, ShapeDefinition, PolygonShapeOpti
 import { ShapeEventHandlers, ShapeManagerBase } from "../ShapeManager";
 import _ from 'lodash';
 import L from 'leaflet';
-import Utils from '../../utilities';
 
 export class PolygonShapeManager extends ShapeManagerBase {
 
@@ -75,7 +74,7 @@ export class PolygonShapeManager extends ShapeManagerBase {
   }
 
   createShape(shapeDef: ShapeDefinition, eventHandlers: ShapeEventHandlers): L.FeatureGroup {
-    Utils.doNothing(eventHandlers)
+    _.noop(eventHandlers)
     if (shapeDef.shapeObject) {
       // Create Circle from shape values
       const polygonShape: PolygonShape = <PolygonShape>shapeDef.shapeObject.shape;

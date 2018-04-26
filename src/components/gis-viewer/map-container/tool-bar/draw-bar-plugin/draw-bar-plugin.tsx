@@ -1,8 +1,9 @@
 import { Component, Prop, State, Method } from "@stencil/core";
 import { DrawBarConfig, ShapeStore, ShapeType, ShapeDefinition, ShapeData, ShapeObject } from "../../../../../models";
-import * as leafletDraw from 'leaflet-draw';
+// import * as leafletDraw from 'leaflet-draw';
+import * as leafletDrawDrag from 'leaflet-draw-drag';
 import L from "leaflet";
-import { DRAW_BAR_PLUGIN_TAG, LAYER_MANAGER_PLUGIN_TAG } from "../../../../../utils/statics";
+import { DRAW_BAR_PLUGIN_TAG, LAYER_MANAGER_PLUGIN_TAG, GENERATED_ID } from "../../../../../utils/statics";
 import Utils from "../../../../../utils/utilities";
 import _ from "lodash";
 import store from "../../../../store/store";
@@ -10,6 +11,7 @@ import { reaction } from "mobx";
 import { ShapeManagerRepository } from "../../../../../utils/shapes/ShapeManagerRepository";
 import { ShapeManagerInterface } from "../../../../../utils/shapes/ShapeManager";
 import Generator from 'id-generator';
+import { markerSvg } from "../../../../../utils/shapes/Marker/maker";
 const drawIdGenerator = new Generator(() => { return 'draw_layer' })
 
 @Component({
@@ -32,12 +34,26 @@ export class DrawBarPlugin {
     getControl(): L.Control {
         return this.control;
     }
+    @Method()
+    clear(): void {
+        // Remove from selected objects
+        this.drawnLayer.eachLayer((l: L.Layer | L.FeatureGroup) => {
+            store.removeSelectedShapeById(l.id);
+        })
+
+        // Remove from shapes data
+        store.removeGroup(GENERATED_ID.DRAW_LAYER_GROUP_ID);
+
+        // Clear shapes from layer
+        this.drawnLayer.clearLayers();
+    }
 
     constructor() {
         reaction(
             () => store.state.mapConfig.distanceUnitType,
             distanceUnitType => console.log(`${this.compName} ${distanceUnitType}`)
         );
+        _.noop(leafletDrawDrag);
     }
     
     componentWillLoad() {
@@ -50,6 +66,25 @@ export class DrawBarPlugin {
             featureGroup: this.drawnLayer,
             remove: _.get(this, 'config.drawBarOptions.edit.remove', true)
         }
+
+        var MyCustomMarker = L.Icon.extend({
+            options: {
+                shadowUrl: null,
+                iconAnchor: new L.Point(12, 12),
+                iconSize: new L.Point(20, 27),
+                iconUrl: `data:image/svg+xml;utf8,${markerSvg}`
+            }
+        });
+
+        // set custom marker
+        if (_.get(drawBarCloneOptions, 'draw.marker')) {
+            _.merge(drawBarCloneOptions.draw, {
+                marker: {
+                    icon: new MyCustomMarker()
+                }
+            });
+        }
+
         this.control = new L.Control.Draw(drawBarCloneOptions);
     }
     componentDidLoad() {
@@ -57,7 +92,6 @@ export class DrawBarPlugin {
         this.layerManagerEl = this.gisMap.getContainer().querySelector(LAYER_MANAGER_PLUGIN_TAG);
         this.gisMap.addLayer(this.drawnLayer);
         this.layerManagerEl.addingDrawableLayerToLayerController(this.drawnLayer);  // check
-        Utils.doNothing(leafletDraw);
         
         this.gisMap.addControl(this.control);
         
@@ -92,8 +126,38 @@ export class DrawBarPlugin {
         // const wktShape: WktShape = this.getWktShapeFromWkt(e.layer);
         // this.context.props.onDrawCreated(wktShape);
         
+        // const markerShape: MarkerShape = <MarkerShape>shapeDef.shapeObject.shape;
+
+		// const markerShapeOptions: MarkerShapeOptions = shapeDef.options as MarkerShapeOptions || {};
+        // const {lat, lng } = markerShape.coordinate;
+
+
+
+        /* const markerIcon = L.divIcon({
+            html: markerSvg,
+            className: 'marker-svg',
+            iconSize: new L.Point(20, 27)
+        });
+        // console.log(markerIcon);
+        e.layer.options.icon = markerIcon */
+        // debugger
+
+
+
+        // _.assign(markerShapeOptions, {icon: interceptIcon});
+
+        // const leafletObject: L.Layer = new L.Marker([lat, lng], markerShapeOptions);
+    
+    
+    
         // Add shape to layer
         this.drawnLayer.addLayer(e.layer);
+    
+            // Set shape events
+        Utils.setEventsOnLeafletLayer(e.layer, {
+            click: Utils.shapeOnClickHandler.bind(this)
+            // mouseout: () => { this.onOutShape(leafletObject, managerType); },
+        });
 
         ///////////
         const shapeStore: ShapeStore = {
@@ -112,7 +176,7 @@ export class DrawBarPlugin {
         // Create WktShape from wkt, id, area size
         const shapeWkt: string = manager.shapeObjectToWkt(shapeObject);
         const shapeData: ShapeData = {
-            groupId: 'draw_group',
+            groupId: GENERATED_ID.DRAW_LAYER_GROUP_ID,
             id: drawIdGenerator.newId(),
             name: 'Editable layer', 
             isSelected: false,

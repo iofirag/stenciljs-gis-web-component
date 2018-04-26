@@ -2,7 +2,6 @@ import { PolylineShape, ShapeObject, ShapeType, PolylineShapeOptions, ShapeDefin
 import { ShapeEventHandlers, ShapeManagerBase } from "../ShapeManager";
 import _ from 'lodash';
 import L from 'leaflet';
-import Utils from '../../utilities';
 
 export class PolylineShapeManager extends ShapeManagerBase {
 
@@ -50,7 +49,7 @@ export class PolylineShapeManager extends ShapeManagerBase {
 	}
 
 	createShape(shapeDef: ShapeDefinition, eventHandlers: ShapeEventHandlers): L.FeatureGroup {
-		Utils.doNothing(eventHandlers)
+		_.noop(eventHandlers)
 		if (shapeDef.shapeObject) {
 			// Create Circle from shape values
 			const polylineShape:        PolylineShape        = <PolylineShape>shapeDef.shapeObject.shape;

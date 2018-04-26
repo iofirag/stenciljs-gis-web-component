@@ -81,4 +81,6 @@ export const GENERATED_ID = {
     SHAPE_ID: 'shapeId',
     DRAW_LAYER_GROUP_ID: 'draw_layer_groupId',
     DEFAULT_GROUP: 'default_group'
-}
+};
+
+export const ZOOM_TO_EXTEND_PADDING: L.PointExpression = [20, 20];

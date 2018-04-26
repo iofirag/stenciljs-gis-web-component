@@ -4,6 +4,7 @@ import { Component, Prop, Method, State } from "@stencil/core";
 import L from "leaflet";
 import * as fullscreen from "leaflet-fullscreen";
 import { FullScreenConfig } from "../../../../../models";
+import _ from "lodash";
 
 @Component({
   tag: "full-screen-plugin",
@@ -68,7 +69,7 @@ export class FullScreenPlugin {
   }
   buttonClickHandler() {
     console.log(`${this.compName} click`);
-    Utils.doNothing(fullscreen);
+    _.noop(fullscreen);
     this.gisMap.toggleFullscreen();
     // this.distanceUnitsEm.emit('mile');
     // this.distanceUnitsEm.emit('km');

@@ -23,8 +23,8 @@ export interface ShapeManagerInterface {
 	updateIsSelectedView(leafletObject: any): void;
 	toggleHighlight(element: any): void;
 	shapeWktToObject(shapeWkt: string): ShapeObject;
-	toggleSelectShape(leafletObject: any): void;
-	selectShape(leafletObject: any): void;
+	// toggleSelectShape(leafletObject: any): void;
+	// selectShape(leafletObject: any): void;
 
 	// data layer
 	createShape(shapeDef: ShapeDefinition, eventHandlers?: ShapeEventHandlers): L.Layer | L.FeatureGroup;
@@ -71,56 +71,8 @@ export abstract class ShapeManagerBase implements ShapeManagerInterface {
 	}
 
 	getHeatLayerPoints(shapeObject: ShapeObject): Coordinate {
-		Utils.doNothing(shapeObject)
+		_.noop(shapeObject)
 		return null;
-	}
-
-	toggleSelectShape(leafletObject: L.FeatureGroup | L.Layer): void {
-		// const groupId: string = leafletObject.groupId;
-		
-		// if (groupId === GENERATED_ID.DEFAULT_GROUP 
-		// 	|| groupId === GENERATED_ID.DRAW_LAYER_GROUP_ID) {
-			// Signle item
-			// const shapeIds: ShapeIds = {
-			// 	groupId: leafletObject.groupId,
-			// 	shapeId: leafletObject.id
-			// }
-			// store.toggleSelectionMode(shapeIds);
-			console.log(leafletObject);
-		// } 
-		// else {
-		// 	// Item with group
-		// 	const groupIdData: GroupData = store.groupIdToShapeStoreMap[groupId];
-		// 	if (groupIdData) {
-		// 		_.forEach(groupIdData, (shapeStore: ShapeStore) => {
-		// 			const shapeIds: ShapeIds = {
-		// 				groupId: shapeStore.leafletRef.groupId,
-		// 				shapeId: shapeStore.leafletRef.id
-		// 			}
-		// 			// Change isSelected state
-		// 			store.toggleSelectionMode(shapeIds);
-		// 			debugger
-		// 			// const manager = ShapeManagerRepository.getManagerByType(_.get(shapeStore, 'shapeDef.shapeObject.type'));
-		// 			// if (manager) {
-		// 			// 	manager.updateIsSelectedView(shapeStore.leafletRef);
-		// 			// }
-
-
-		// 			/* if (shapeStore.shapeDef.data.isSelectedFade) { // O.A
-		// 				shapeStore.shapeDef.data.isSelectedFade = false;
-		// 			} */
-		// 			// Handle Selected-leaflet-shpae-list
-		// 			// Utils.selectedLeafletObjectHandler(context, leafletObject); // O.A
-		// 		})
-		// 	}
-		// }
-	}
-	selectShape(leafletObject: L.FeatureGroup | L.Layer): void {
-		Utils.doNothing([leafletObject])
-		// Change isSelected state
-		// leafletObject.shapeDef.data.isSelected = !leafletObject.shapeDef.data.isSelected;
-		// Handle Selected-leaflet-shpae-list
-		// Utils.selectedLeafletObjectHandler(context, leafletObject);
 	}
 
 	updateIsSelectedView(leafletObject: L.Layer): void {
@@ -175,12 +127,12 @@ export abstract class ShapeManagerBase implements ShapeManagerInterface {
 	}
 
 	getCoordinateList(shapeObject: ShapeObject): Coordinate[] {
-		Utils.doNothing(shapeObject)
+		_.noop(shapeObject)
 		return [];
 	};
 
 	getMiddleCoordinate(shapeObject: ShapeObject): any {
-		Utils.doNothing(shapeObject)
+		_.noop(shapeObject)
 		// TBD get middle coordinate for selecting with shift and mouse - zoomboxend
 		return null;
 	};

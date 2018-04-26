@@ -9,6 +9,7 @@ import _ from "lodash";
 import store from "../../../../store/store";
 import { reaction } from "mobx";
 import { FeatureGroup } from "leaflet";
+// require('material-design-lite/material.min.js');
 
 
 @Component({
@@ -101,7 +102,7 @@ export class layerManagerPlugin {
 
     componentDidLoad() {
         Utils.log_componentDidLoad(this.compName);
-        Utils.doNothing([this.config, styledLayerControl, /* materialDesign */, this.onChangeImport]);
+        _.noop([this.config, styledLayerControl, /* materialDesign */, this.onChangeImport]);
 
         this.gisMap.addControl(this.control);
 
@@ -397,7 +398,7 @@ export class layerManagerPlugin {
         if (!content) { throw 'Empty content'; }
 
         try {
-            Utils.doNothing(fileNames);
+            _.noop(fileNames);
             //     const kmlAsXml = new DOMParser().parseFromString(content);
             //     const geoJsonOfKml: L.GeoJSON = togeojson.kml(kmlAsXml);
 
@@ -414,7 +415,7 @@ export class layerManagerPlugin {
         if (!content) { throw 'Empty content'; }
 
         try {
-            Utils.doNothing(fileNames);
+            _.noop(fileNames);
             // csv2geojson.csv2geojson(content, this.csv2geojsonCB.bind(this, fileNames));
         } catch (ex) {
             console.error('Csv File failed to load: ', ex);
@@ -423,8 +424,8 @@ export class layerManagerPlugin {
 
     public onReadShp(fileNames: FileNames, onLoadEvent: any): void {
         const buffer: ArrayBuffer = onLoadEvent.target.result;
-        Utils.doNothing(buffer)
-        Utils.doNothing(fileNames);
+        _.noop(buffer)
+        _.noop(fileNames);
         // shp(buffer).then((geojsons: any) => {
         //     let geoJsonList: any[];
 

@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { FILE_TYPES, DEFAULT_OSM_TILE, MIN_ZOOM, MAX_ZOOM, FILE_TYPES_ARRAY, GENERATED_ID } from "./statics";
+import { FILE_TYPES, DEFAULT_OSM_TILE, MIN_ZOOM, MAX_ZOOM, FILE_TYPES_ARRAY, GENERATED_ID, ZOOM_TO_EXTEND_PADDING } from "./statics";
 // <<<<<<< HEAD
 import { TileLayerDefinition, BaseMap, ShapeLayerContainer_Dev, ShapeLayerDefinition, 
     ShapeType, MapLayers, GroupData, ShapeStore, SelectedObjects, ShapeData, SelectedObjectsValue, ShapeIds, 
@@ -24,9 +24,6 @@ export default class Utils {
     }
     public static log_componentDidUnload(compName: string) {
         console.log(`componentDidUnload ${compName}`);
-    }
-    public static doNothing(imports: any) {
-        !!imports
     }
     public static appendHtmlWithContext = function (elm: HTMLElement, dom: string, context: any) {
         elm.innerHTML = dom;
@@ -116,7 +113,7 @@ export default class Utils {
         selectedLeafletObjects: { [key: string]: L.Layer },
         mapState: any,
         callback: string): Blob {
-            this.doNothing([fileType, selectedLeafletObjects, mapState, callback])
+            _.noop([fileType, selectedLeafletObjects, mapState, callback])
         // const relevantExportedLayers: L.Layer[] = Utils.getRelevantExportedLayers(selectedLeafletObjects, mapState, map);
         // const geoJsonList: L.GeoJSON[] = Utils.shapeListToGeoJson(relevantExportedLayers);
 
@@ -190,26 +187,21 @@ export default class Utils {
             });
         }
     }
-    public static shapeOnClickHandler(manager: ShapeManagerInterface | null, clickEvent: any) {
+    public static shapeOnClickHandler(clickEvent: any) {
         if (store.state.mapConfig.isSelectionDisable) { return; }
-// <<<<<<< HEAD
         
+        // Remove last highlight
         Utils.removeHighlightPOIs();
-
-// =======
-
-//         const groupId: string = clickEvent.target.groupId;
-// >>>>>>> 6df301df83b46aae835fdc470c4128b13b9eb044
-        let groupData: GroupData = null;
-
+        // Toggle selection for this shape ids
         const shapeIds: ShapeIds = {
             groupId: clickEvent.target.groupId,
             shapeId: clickEvent.target.id
         }
-        
         if (clickEvent.originalEvent.ctrlKey) {
             store.toggleSelectionMode(shapeIds);
         }
+        
+        let groupData: GroupData = null;
         if (shapeIds.groupId === GENERATED_ID.DEFAULT_GROUP || shapeIds.groupId === GENERATED_ID.DRAW_LAYER_GROUP_ID) {
             groupData = {
                 [shapeIds.shapeId]: store.groupIdToShapeStoreMap[shapeIds.groupId][shapeIds.shapeId]
@@ -218,9 +210,11 @@ export default class Utils {
             groupData = store.groupIdToShapeStoreMap[shapeIds.groupId];
         }
         _.forEach(groupData, (shapeStore: ShapeStore) => {
+            const shapeType: ShapeType = _.get(shapeStore, 'shapeDef.shapeObject.type');
+            const manager: ShapeManagerInterface = ShapeManagerRepository.getManagerByType(shapeType);
             manager.toggleHighlight(shapeStore.leafletRef);
+
             if (clickEvent.originalEvent.ctrlKey) {
-                // manager.toggleSelectShape(shapeStore.leafletRef);
                 manager.updateIsSelectedView(shapeStore.leafletRef);
                 Utils.updateBubble(shapeStore.leafletRef);
 
@@ -451,11 +445,11 @@ export default class Utils {
             }
             _.forEach(groupData, (shapeStore: ShapeStore) => {
                 const manager = ShapeManagerRepository.getManagerByType(_.get(shapeStore, 'shapeDef.shapeObject.type'));
-                if (manager) {
+                if (manager && _.has(shapeStore, 'leafletRef.getLatLng')) {
                     if (store.gisMap.getBounds().contains((shapeStore.leafletRef as any).getLatLng())) {
                         manager.updateIsSelectedView(shapeStore.leafletRef);
                         // Fix for unselected shapes that theier group is selected
-                        Utils.updateBubble(shapeStore.leafletRef)
+                        Utils.updateBubble(shapeStore.leafletRef);
                     }
                 }
             });
@@ -546,37 +540,40 @@ export default class Utils {
     //         // Utils.zoomToExtend(store.selectedObjects, store.mapLayers, store.gisMap);
     //     }
     // }
-    // public static zoomToExtend(selectedLeafletObjects: SelectedObjects, mapState: MapLayers, map: L.Map): boolean {
-    //     let tempLayers: L.FeatureGroup = new L.FeatureGroup([]);
+    public static zoomToExtend(mapState: MapLayers, map: L.Map): boolean {
+        let tempLayers: L.FeatureGroup = new L.FeatureGroup([]);
 
-    //     const relevantShapes: L.Layer[] = this.getRelevantExportedLayers(selectedLeafletObjects, mapState, map);
-    //     relevantShapes.map((shape: L.Layer) => {
-    //         tempLayers.addLayer(shape);
-    //     });
+        const relevantShapes: L.Layer[] = this.getRelevantExportedLayers(mapState, map);
+        relevantShapes.map((shape: L.Layer) => {
+            tempLayers.addLayer(shape);
+        });
 
-    //     if (tempLayers.getLayers().length === 0) {
-    //         map.fitWorld();
-    //         return true;
-    //     } else {
-    //         const bounds: L.LatLngBounds = tempLayers.getBounds();
-    //         const boundsMaxZoom: number = map.getBoundsZoom(bounds);
-    //         if (bounds && bounds._northEast && bounds._southWest && boundsMaxZoom) {
-    //             map.fitBounds(bounds, { padding: ZOOM_TO_EXTEND_PADDING, maxZoom: boundsMaxZoom });
-    //             return true;
-    //         } else {
-    //             console.log('Currently there is not any shapes on any layer');
-    //         }
-    //     }
-    //     return false;
-    // }
-    // private static getRelevantExportedLayers(selectedLeafletObjects: { [key: string]: L.Layer }, mapState: MapLayers, map: L.Map): L.Layer[] {
-    //     // Check if there are selected objects
-    //     if (Object.keys(selectedLeafletObjects).length) {
-    //         return this.getSelectedObjects(selectedLeafletObjects);
-    //     } else {
-    //         return this.getVisibleLayers(mapState, map);
-    //     }
-    // }
+        if (tempLayers.getLayers().length) {
+            const bounds: L.LatLngBounds = tempLayers.getBounds();
+            const boundsMaxZoom: number = map.getBoundsZoom(bounds);
+            if (bounds && bounds._northEast && bounds._southWest && boundsMaxZoom) {
+                map.fitBounds(bounds, { padding: ZOOM_TO_EXTEND_PADDING, maxZoom: boundsMaxZoom });
+                return true;
+            } else {
+                console.log('Currently there is not any shapes on any layer');
+            }
+        } else {
+            map.fitWorld();
+            return true;
+        }
+        return false;
+    }
+    private static getRelevantExportedLayers(mapState: MapLayers, map: L.Map): L.Layer[] {
+        // Check if there are selected objects
+        if (Object.keys(store.idToSelectedObjectsMap).length) {
+            const selectedObjects: ShapeStore[] = this.getSelectedObjects(store.idToSelectedObjectsMap, store.groupIdToShapeStoreMap);
+            return _.map(selectedObjects, (shapeStore: ShapeStore)=>{
+                return shapeStore.leafletRef
+            })
+        } else {
+            return this.getVisibleLayers(mapState, map);
+        }
+    }
     public static createBubble(leafletObject: L.Layer, shapeData: ShapeData, type: string): void {
         // Create bubble
         const bubbleContent: string = Utils.generatePopupMarkupFromData(shapeData);

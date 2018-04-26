@@ -3,7 +3,6 @@ import { GIS_VIEWER_TAG } from '../../utils/statics';
 import Utils from '../../utils/utilities';
 import { GisViewerProps, MapBounds, ShapeDefinition } from '../../models';
 import store from '../store/store';
-
 // import '../../../package';
 // import {version} from '../../../../../stencil.config'
 
@@ -67,7 +66,14 @@ export class GisViewer {
   @Method()
   getSelectedShapes(): ShapeDefinition[] {
 		return this.verifyIsMapExist() ? this.mapContainerEl.getSelectedShapes() : undefined;
-	}
+  }
+  
+  @Method()
+  clearDrawLayer() {
+    if (this.verifyIsMapExist()) {
+      this.mapContainerEl.clearDrawLayer();
+    }
+  }
 
   componentWillLoad() {
     store.initState(this.gisViewerProps);

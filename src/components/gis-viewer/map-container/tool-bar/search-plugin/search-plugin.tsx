@@ -4,6 +4,7 @@ import * as search from 'leaflet-search';
 import { SEARCH_PLUGIN_TAG } from "../../../../../utils/statics";
 import { SearchConfig, SearchOptions } from "../../../../../models";
 import Utils from "../../../../../utils/utilities";
+import _ from "lodash";
 
 
 @Component({
@@ -32,7 +33,7 @@ export class SearchPlugin {
 
     componentDidLoad() {
         Utils.log_componentDidLoad(this.compName);
-        Utils.doNothing(search);
+        _.noop(search);
         this.gisMap.addControl(this.control);
         this.fixCss();
     }
@@ -42,7 +43,7 @@ export class SearchPlugin {
         this.gisMap.removeControl(this.control);
     }
     private createPlugin(options: SearchOptions): L.Control.Search {
-        Utils.doNothing(options);
+        _.noop(options);
 
         const searchController: any = new L.Control.Search({
             url: options.queryServerUrl,

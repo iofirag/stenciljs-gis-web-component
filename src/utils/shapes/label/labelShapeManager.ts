@@ -2,7 +2,6 @@ import { ShapeType, ShapeObject, ShapeDefinition, LabelShape, LabelShapeOptions,
 import _ from 'lodash';
 import L from 'leaflet';
 import { ShapeEventHandlers, ShapeManagerBase } from "../ShapeManager";
-import Utils from '../../utilities';
 
 export class LabelShapeManager extends ShapeManagerBase {
 
@@ -54,7 +53,7 @@ export class LabelShapeManager extends ShapeManagerBase {
 	}
 
 	createShape(shapeDef: ShapeDefinition, eventHandlers: ShapeEventHandlers): L.Layer {
-		Utils.doNothing(eventHandlers)
+		_.noop(eventHandlers)
 		if (shapeDef.shapeObject) { // everytime true, because shapeDef.shapeObject filled with value at shape initialize
 			// Create Circle from shape values
 			const labelShape: LabelShape = <LabelShape>shapeDef.shapeObject.shape;
@@ -85,7 +84,7 @@ export class LabelShapeManager extends ShapeManagerBase {
 	}
 
 	updateIsSelectedView(leafletObject: L.Label): void {
-		Utils.doNothing(leafletObject)
+		_.noop(leafletObject)
 		console.error('TBD for label');
 	}
 	getShapeObjectFromDrawingLayer(layer: L.Label): ShapeObject {
@@ -105,7 +104,7 @@ export class LabelShapeManager extends ShapeManagerBase {
 	}
 
 	public getAreaSize(shapeObject: ShapeObject): number {
-		Utils.doNothing(shapeObject)
+		_.noop(shapeObject)
 		return 0;
 	}
 
