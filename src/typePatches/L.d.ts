@@ -142,6 +142,7 @@ declare module 'leaflet' {
     interface Polygon {
         initialize: any;
         _rings?: any[];
+        _path?: any;
     }
     interface Polyline {
         initialize: any

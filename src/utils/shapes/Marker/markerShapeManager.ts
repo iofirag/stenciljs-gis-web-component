@@ -44,6 +44,46 @@ export class MarkerShapeManager extends ShapeManagerBase {
 		}
 	}
 
+	highlightElement(marker: L.Marker) {
+		let isHighLighted: boolean = false;
+		if (_.get(marker, '_icon.classList.contains("highlighted")', false)
+			|| _.get(marker, 'path.classList.contains("highlighted")', false)
+			|| _.get(marker, '__parent._icon.classList.contains("highlighted")', false)
+		) {
+			isHighLighted = true;
+		}
+		// const isHighLighted = ;
+
+		if (!isHighLighted) {
+			// Utils.highlightPOIsByGroupId(element.groupId);
+			// Utils.highlightPOIsByElement(element)
+
+			// target = element.__parent._icon
+			// element.__parent._icon.classList.add('highlighted');
+
+			const shapeStore: ShapeStore = store.groupIdToShapeStoreMap[marker.groupId][marker.id];
+
+			// const manager = ShapeManagerRepository.getManagerByType(_.get(shapeStore, 'shapeDef.shapeObject.type'));
+			const isIntercept: boolean = marker._icon && _.get(shapeStore, 'shapeDef.data.type') === 'intercept';
+			// const shouldBeHighLighted: boolean = groupId === _.get(shapeStore, 'shapeDef.data.groupId');
+			const highlightMarkerCluster = /* (shapeStore.shapeDef.data.groupId === groupId) &&  */_.get(shapeStore, 'leafletRef.__parent._group');
+			if (!!highlightMarkerCluster) {
+				const cluster = highlightMarkerCluster.getVisibleParent(shapeStore.leafletRef);
+				if (_.get(cluster, '_icon')) {
+					cluster._icon.classList.add('highlighted');
+				}
+			}
+
+			if (isIntercept && marker._icon) {
+				// add highilight
+				marker._icon.classList.add('highlighted');
+			} 
+			// else if (isIntercept && marker._icon) {
+			// 	// remove highilight from preveus highlighted intercepts
+			// 	marker._icon.classList.remove('highlighted');
+			// }
+		}
+	}
 	isWktOfType(wkt: string): boolean {
 		return (wkt.indexOf('POINT(') > -1);
 	}
@@ -151,76 +191,6 @@ export class MarkerShapeManager extends ShapeManagerBase {
 				marker.style.stroke = 'initial';
 			}
 		}
-
-		// const groupData: GroupData = store.groupIdToShapeStoreMap[leafletObject.groupId];
-		
-		// _.forEach(groupData, (shapeStore: ShapeStore) => {
-		// 	const leafletMarker = shapeStore.leafletRef as L.Marker;
-		// 	// const isSelected = _.get(shapeStore, 'shapeDef.data.isSelected');
-		// 	// const leafletObjectParent: any = leafletMarker.__parent && leafletMarker.__parent._group.getVisibleParent(leafletMarker);
-
-		// 	// if (isSelected && leafletObjectParent) {
-		// 	// 	leafletObjectParent._icon.classList.add('selected-cluster');
-		// 	// } else if (leafletObjectParent) {
-		// 	// 	leafletObjectParent._icon.classList.remove('selected-cluster');
-		// 	// }
-
-		// 	if (!leafletMarker._icon) { return; } // Object that hide under cluster
-
-		// 	// add or remove 'selected' css class
-		// 	const shapeData = _.get(shapeStore, 'shapeDef.data');
-		// 	const unselected = '#505050';
-		// 	const strokeSelected = 'rgba(0, 166, 218, 1)';
-		// 	const backGroundSelected = '#ffffcc';
-
-		// 	// set lcation styling must be inline styling,
-		// 	if (store.idToSelectedObjectsMap[shapeStore.leafletRef.groupId] 
-		// 		|| store.idToSelectedObjectsMap[shapeStore.leafletRef.id]) {
-		// 			// Importent - this layer is selected even thow shapeDef.data.isSelected is false 
-		// 		const interceptStroke = !shapeData.isSelectedFade ? strokeSelected : unselected;
-
-		// 		if (shapeData.type === 'intercept') {
-		// 			const circle = leafletMarker._icon.querySelector('#circle');
-
-		// 			if (!circle) { return; }
-
-		// 			const sign = leafletMarker._icon.querySelector('#v-sign');
-
-		// 			circle.style.strokeWidth = '2px';
-		// 			circle.style.fill = backGroundSelected;
-		// 			circle.style.stroke = interceptStroke;
-		// 			sign.style.stroke = interceptStroke;
-		// 		} else {
-		// 			const marker = leafletMarker._icon.querySelector('path');
-
-		// 			if (!marker) { return; }
-
-		// 			marker.style.fill = backGroundSelected;
-		// 			marker.style.stroke = interceptStroke;
-		// 		}
-
-		// 	} else {
-		// 		if (shapeData.type === 'intercept') {
-		// 			const circle = leafletMarker._icon.querySelector('#circle');
-
-		// 			if (!circle) { return; }
-
-		// 			const sign = leafletMarker._icon.querySelector('#v-sign');
-
-		// 			circle.style.fill = unselected;
-		// 			circle.style.stroke = 'white';
-		// 			circle.style.strokeWidth = "1px";
-		// 			sign.style.stroke = unselected;
-		// 		} else {
-		// 			const marker = leafletMarker._icon.querySelector('path');
-
-		// 			if (!marker) { return; }
-
-		// 			marker.style.fill = unselected;
-		// 			marker.style.stroke = 'initial';
-		// 		}
-		// 	}
-		// })
 	}
 
 	getShapeObjectFromDrawingLayer(layer: L.Marker): ShapeObject {

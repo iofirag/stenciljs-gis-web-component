@@ -188,8 +188,8 @@ export default class Utils {
         }
     }
     public static shapeOnClickHandler(clickEvent: any) {
-        if (store.state.mapConfig.isSelectionDisable) { return; }
-        
+        L.DomEvent.stopPropagation(clickEvent);
+
         // Remove last highlight
         Utils.removeHighlightPOIs();
         // Toggle selection for this shape ids
@@ -197,7 +197,7 @@ export default class Utils {
             groupId: clickEvent.target.groupId,
             shapeId: clickEvent.target.id
         }
-        if (clickEvent.originalEvent.ctrlKey) {
+        if (!store.state.mapConfig.isSelectionDisable && clickEvent.originalEvent.ctrlKey) {
             store.toggleSelectionMode(shapeIds);
         }
         
@@ -206,15 +206,20 @@ export default class Utils {
             groupData = {
                 [shapeIds.shapeId]: store.groupIdToShapeStoreMap[shapeIds.groupId][shapeIds.shapeId]
             }
+            // const shapeStore: ShapeStore = store.groupIdToShapeStoreMap[shapeIds.groupId][shapeIds.shapeId];
+            // const shapeType: ShapeType = _.get(shapeStore, 'shapeDef.shapeObject.type');
+            // const manager: ShapeManagerInterface = ShapeManagerRepository.getManagerByType(shapeType);
+            // manager.toggleHighlight(shapeStore.leafletRef);
         } else {
             groupData = store.groupIdToShapeStoreMap[shapeIds.groupId];
+            // Utils.highlightPOIsByGroupId(shapeIds.groupId);
         }
         _.forEach(groupData, (shapeStore: ShapeStore) => {
             const shapeType: ShapeType = _.get(shapeStore, 'shapeDef.shapeObject.type');
             const manager: ShapeManagerInterface = ShapeManagerRepository.getManagerByType(shapeType);
-            manager.toggleHighlight(shapeStore.leafletRef);
+            manager.highlightElement(shapeStore.leafletRef);
 
-            if (clickEvent.originalEvent.ctrlKey) {
+            if (!store.state.mapConfig.isSelectionDisable && clickEvent.originalEvent.ctrlKey) {
                 manager.updateIsSelectedView(shapeStore.leafletRef);
                 Utils.updateBubble(shapeStore.leafletRef);
 

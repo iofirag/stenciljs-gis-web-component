@@ -188,10 +188,8 @@ export default class LayersFactory {
 		});
 
 		clusterLayer.on('clusterclick', (e: any) => {
-			if (!e.originalEvent.ctrlKey || store.state.mapConfig.isSelectionDisable) { return; }
-			
 
-			if (e.originalEvent.ctrlKey) {
+			if (!store.state.mapConfig.isSelectionDisable && e.originalEvent.ctrlKey) {
 				const isClusterSelected = e.layer.options.icon._icon.classList.contains('selected-cluster');
 
 				// let processedIds: string[] = [];

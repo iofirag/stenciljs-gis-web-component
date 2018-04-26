@@ -6,7 +6,7 @@
 import _ from 'lodash';
 import { ShapeType, ShapeObject, ShapeDefinition, Coordinate, ShapeObjectOptions, 
 	ShapeStore } from '../../models';
-import Utils from '../utilities';
+// import Utils from '../utilities';
 import store from '../../components/store/store';
 // import { GENERATED_ID } from '../statics';
 // import { GENERATED_ID } from '../statics';
@@ -21,7 +21,7 @@ export interface ShapeManagerInterface {
 	isWktOfType(wkt: string): boolean;
 	shapeObjectToWkt(shapeObject: ShapeObject, shapeObjectOptions?: ShapeObjectOptions): string;
 	updateIsSelectedView(leafletObject: any): void;
-	toggleHighlight(element: any): void;
+	highlightElement(element: any): void;
 	shapeWktToObject(shapeWkt: string): ShapeObject;
 	// toggleSelectShape(leafletObject: any): void;
 	// selectShape(leafletObject: any): void;
@@ -100,7 +100,12 @@ export abstract class ShapeManagerBase implements ShapeManagerInterface {
 		(leafletObject as L.FeatureGroup).setStyle(styles as any);
 	}
 
-	toggleHighlight(element: any) {
+	highlightElement(element: L.Layer | L.FeatureGroup) {
+		_.noop(element);
+	}
+	/* toggleHighlight(element: L.Layer | L.FeatureGroup) {
+		// Implemented only in marker
+
 		// Utils.removeHighlightPOIs();
 		// let target = element._icon || element.path; // point or other svg shape
 
@@ -124,7 +129,7 @@ export abstract class ShapeManagerBase implements ShapeManagerInterface {
 			// target = element.__parent._icon
 			// element.__parent._icon.classList.add('highlighted');
 		}
-	}
+	} */
 
 	getCoordinateList(shapeObject: ShapeObject): Coordinate[] {
 		_.noop(shapeObject)
