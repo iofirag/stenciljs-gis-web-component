@@ -129,6 +129,7 @@ declare module 'leaflet' {
     }
     interface Circle {
         initialize: any;
+        // _path?: any;
     }
     interface Marker {
         // addClass: Function;
@@ -142,10 +143,11 @@ declare module 'leaflet' {
     interface Polygon {
         initialize: any;
         _rings?: any[];
-        _path?: any;
+        // _path?: any;
     }
     interface Polyline {
         initialize: any
+        // _path?: any;
     }
 
     interface GeoJSON {
@@ -182,6 +184,7 @@ declare module 'leaflet' {
         _layers?: any;
         // setStyle?: any;
         // toGeoJSON?: Function;
+        _icon?: any;
     }
 
     interface FeatureGroup {
@@ -193,6 +196,7 @@ declare module 'leaflet' {
         // _latlngs?: any[];
         // shapeDef?: ShapeDef_Dev;
         layerName?: string
+        _path?: any;
     }
 }
 
