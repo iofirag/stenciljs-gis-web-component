@@ -1,7 +1,7 @@
 import { Component, Prop, Method } from '@stencil/core';
 import { GIS_VIEWER_TAG } from '../../utils/statics';
 import Utils from '../../utils/utilities';
-import { GisViewerProps, MapBounds, ShapeDefinition } from '../../models';
+import { GisViewerProps, MapBounds, ShapeDefinition, ShapeData } from '../../models';
 import store from '../store/store';
 // import '../../../package';
 // import {version} from '../../../../../stencil.config'
@@ -67,12 +67,28 @@ export class GisViewer {
   getSelectedShapes(): ShapeDefinition[] {
 		return this.verifyIsMapExist() ? this.mapContainerEl.getSelectedShapes() : undefined;
   }
+<<<<<<< HEAD
   
   @Method()
   clearDrawLayer() {
     if (this.verifyIsMapExist()) {
       this.mapContainerEl.clearDrawLayer();
     }
+=======
+
+  @Method()
+  toggleShapeSelectionById(shapeDataArr: ShapeData[]): void {
+    if (!this.verifyIsMapExist()) { return; }
+
+    this.mapContainerEl.toggleShapeSelectionById(shapeDataArr);
+  }
+
+  @Method()
+  highlightPOIsByGroupId(groupId: string): void {
+    if (!this.verifyIsMapExist()) { return; }
+    
+    Utils.highlightPOIsByGroupId(groupId);
+>>>>>>> 2343df3168259865aacd92fcf9cbea58738612ac
   }
 
   componentWillLoad() {

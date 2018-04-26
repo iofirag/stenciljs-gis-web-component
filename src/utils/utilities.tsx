@@ -321,6 +321,12 @@ export default class Utils {
                 } else if (isMarkerManager && isIntercept && _.get(shapeStore, 'leafletRef._icon')) {
                     // remove highilight from preveus highlighted intercepts
                     (shapeStore.leafletRef as any)._icon.classList.remove('highlighted');
+                } else if (shouldBeHighLighted && (shapeStore.leafletRef as any)._path) {
+                  // add highlight to polygon
+                  (shapeStore.leafletRef as any)._path.classList.add('highlighted');
+                } else if ((shapeStore.leafletRef as any)._path) {
+                  // remove highlight from polygon
+                  (shapeStore.leafletRef as any)._path.classList.remove('highlighted');
                 }
             });
         }

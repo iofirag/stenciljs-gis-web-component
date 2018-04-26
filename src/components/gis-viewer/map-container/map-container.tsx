@@ -1,7 +1,7 @@
 import { Component, Prop, Element, Method } from '@stencil/core';
 import { MAP_CONTAINER_TAG, ZOOM_TO_EXTENT_PLUGIN_TAG, MAX_NORTH_EAST, MAX_SOUTH_WEST, GENERATED_ID, DRAW_BAR_PLUGIN_TAG } from '../../../utils/statics';
 import Utils from '../../../utils/utilities';
-import { GisViewerProps, CoordinateSystemType, DistanceUnitType, ShapeDefinition, Coordinate, ShapeIds, ShapeStore, ShapeLayerContainer_Dev, MapBounds, SelectedObjects, GroupIdToShapeStoreMap } from '../../../models';
+import { GisViewerProps, CoordinateSystemType, DistanceUnitType, ShapeDefinition, Coordinate, ShapeIds, ShapeStore, ShapeLayerContainer_Dev, MapBounds, SelectedObjects, GroupIdToShapeStoreMap, ShapeData } from '../../../models';
 import _ from 'lodash';
 import L from 'leaflet';
 import store from '../../store/store';
@@ -92,9 +92,27 @@ export class MapContainer {
   }
 
   @Method()
+<<<<<<< HEAD
   clearDrawLayer() {
     const drawBarEl: HTMLDrawBarPluginElement = this.el.querySelector(DRAW_BAR_PLUGIN_TAG);
     drawBarEl.clear();
+=======
+  toggleShapeSelectionById(shapeDataArr: ShapeData[]): void {
+    const visibleLayers: L.Layer[] = Utils.getVisibleLayers(store.mapLayers, store.gisMap);
+
+    shapeDataArr.forEach((item: ShapeData) => {
+      // TBD need to find better solution
+      visibleLayers.forEach((layer: L.Layer) => {
+        const shapeId: string = layer.id;
+        const groupId: string = layer.groupId;
+        const shapeIds: ShapeIds = {shapeId, groupId};
+
+        if (groupId === item.groupId || shapeId === item.id) {
+          store.setSelectionMode(shapeIds, item.isSelected);
+        }
+      })
+    })
+>>>>>>> 2343df3168259865aacd92fcf9cbea58738612ac
   }
 
   constructor() {
