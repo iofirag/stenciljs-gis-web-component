@@ -1,7 +1,3 @@
-dist/
-www/
-
-
 .git/
 .github/
 .idea/
@@ -9,6 +5,10 @@ www/
 .sass-cache/
 .versions/
 .history/
+
 node_modules/
+dist/
+www/
+
 src/components.d.ts
 package-lock.json

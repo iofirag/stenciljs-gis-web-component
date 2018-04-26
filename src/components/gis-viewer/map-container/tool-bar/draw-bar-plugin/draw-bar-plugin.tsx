@@ -1,5 +1,5 @@
 import { Component, Prop, State, Method } from "@stencil/core";
-import { DrawBarConfig, ShapeStore, ShapeType, ShapeDefinition, ShapeData, ShapeObject } from "../../../../../models";
+import { DrawBarConfig, ShapeStore, ShapeType, ShapeDefinition, ShapeData, ShapeObject, WktShape } from "../../../../../models";
 // import * as leafletDraw from 'leaflet-draw';
 import * as leafletDrawDrag from 'leaflet-draw-drag';
 import L from "leaflet";
@@ -34,6 +34,24 @@ export class DrawBarPlugin {
     getControl(): L.Control {
         return this.control;
     }
+    @Method()
+    public export(): WktShape[] {
+        const exportDrawableLayers: Array<WktShape> = [];
+        // const layers: (L.Layer | L.FeatureGroup)[] = this.drawnLayer.getLayers();
+
+        // layers.forEach((layer: L.Layer) => {
+        //     const manager: ShapeManagerInterface | null = ShapeManagerRepository.getManagerByShapeDefLayer(layer);
+        //     if (manager) {
+        //         const shape: ShapeObject = manager.getShapeObjectFromDrawingLayer(layer) as ShapeObject;
+		// 		const wkt: string   = manager.shapeObjectToWkt(shape);
+		// 		const id: number = L.Util.stamp(layer);	// Get leaflet layer id
+		// 		const areaSize: number = manager.getAreaSize(shape);
+		// 		exportDrawableLayers.push({wkt, id, areaSize });
+        //     }
+        // });
+        return exportDrawableLayers;
+    }
+
     @Method()
     clear(): void {
         // Remove from selected objects

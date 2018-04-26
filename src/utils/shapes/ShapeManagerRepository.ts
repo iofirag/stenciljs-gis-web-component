@@ -6,7 +6,6 @@ import { LabelShapeManager } from "./label/labelShapeManager";
 import { PolylineShapeManager } from "./polyline/polylineShapeManager";
 import { MultiPolygonShapeManager } from "./multi-polygon/multipolygonShapeManager";
 import { ShapeManagerInterface } from "./ShapeManager";
-// import * as _ from 'lodash';
 import { ShapeType, ShapeDefinition } from '../../models';
 import _ from "lodash";
 
