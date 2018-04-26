@@ -119,6 +119,7 @@ export class DrawBarPlugin {
         // Add shapeDef to layer
         // e.layer = this.addShapeDefToLayer(e.layer, shapeDef) as L.FeatureGroup;
         
+        
         // // Event handler
         // this.drawEventHandler(e);
         
