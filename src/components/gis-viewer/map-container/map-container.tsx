@@ -92,11 +92,12 @@ export class MapContainer {
   }
 
   @Method()
-<<<<<<< HEAD
   clearDrawLayer() {
     const drawBarEl: HTMLDrawBarPluginElement = this.el.querySelector(DRAW_BAR_PLUGIN_TAG);
     drawBarEl.clear();
-=======
+  }
+  
+  @Method()
   toggleShapeSelectionById(shapeDataArr: ShapeData[]): void {
     const visibleLayers: L.Layer[] = Utils.getVisibleLayers(store.mapLayers, store.gisMap);
 
@@ -112,7 +113,6 @@ export class MapContainer {
         }
       })
     })
->>>>>>> 2343df3168259865aacd92fcf9cbea58738612ac
   }
 
   constructor() {

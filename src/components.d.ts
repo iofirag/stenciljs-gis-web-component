@@ -38,7 +38,9 @@ import {
   ScaleConfig,
   SearchConfig,
   SelectedObjects,
+  ShapeData,
   ShapeDefinition,
+  ShapeIds,
   ShapeStore,
   ToolbarConfig,
   ZoomToExtentConfig,
@@ -93,7 +95,9 @@ declare global {
       'getSelectedShapes': () => ShapeDefinition[];
       'getVersion': () => void;
       'gisViewerProps': GisViewerProps;
+      'highlightPOIsByGroupId': (groupId: string) => void;
       'removeHighlightPOIs': () => void;
+      'toggleShapeSelectionById': (shapeDataArr: ShapeData[]) => void;
       'zoomToExtent': () => void;
     }
   }
@@ -133,6 +137,7 @@ declare global {
       'getBounds': () => MapBounds;
       'getSelectedShapes': () => ShapeDefinition[];
       'gisViewerProps': GisViewerProps;
+      'toggleShapeSelectionById': (shapeDataArr: ShapeData[]) => void;
       'zoomToExtent': () => void;
     }
   }

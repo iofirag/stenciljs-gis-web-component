@@ -16,7 +16,7 @@ import { ShapeManagerRepository } from './shapes/ShapeManagerRepository';
 import store from '../components/store/store';
 import Utils from './utilities';
 import Generator from 'id-generator';
-const shapeIdGenerator = new Generator(() => { return 'shapeId' });
+const shapeIdGenerator = new Generator(() => { return GENERATED_ID.SHAPE_ID });
 // const groupIdGenerator = new Generator(() => { return 'groupId' })
 // import Utils from './utilities';
 

@@ -67,28 +67,23 @@ export class GisViewer {
   getSelectedShapes(): ShapeDefinition[] {
 		return this.verifyIsMapExist() ? this.mapContainerEl.getSelectedShapes() : undefined;
   }
-<<<<<<< HEAD
-  
+
   @Method()
   clearDrawLayer() {
-    if (this.verifyIsMapExist()) {
-      this.mapContainerEl.clearDrawLayer();
-    }
-=======
+    if (!this.verifyIsMapExist()) { return; }
+    this.mapContainerEl.clearDrawLayer();
+  }
 
   @Method()
   toggleShapeSelectionById(shapeDataArr: ShapeData[]): void {
     if (!this.verifyIsMapExist()) { return; }
-
     this.mapContainerEl.toggleShapeSelectionById(shapeDataArr);
   }
 
   @Method()
   highlightPOIsByGroupId(groupId: string): void {
     if (!this.verifyIsMapExist()) { return; }
-    
     Utils.highlightPOIsByGroupId(groupId);
->>>>>>> 2343df3168259865aacd92fcf9cbea58738612ac
   }
 
   componentWillLoad() {

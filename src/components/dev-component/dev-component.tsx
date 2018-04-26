@@ -68,11 +68,13 @@ export class DevComponent {
         <input type='button' value='Change Units distance' onClick={e => this.testChangeDistanceUnits(e)} />
         <input type='button' value='Change Coordinate System' onClick={e => this.testChangeCoordinateSystem(e)} />
         <input type='button' value='Add shape in props' onClick={e => this.testAddShapeInProps(e)} />
-        <input type='button' value='Export image' onClick={ e => this.testExportImage(e)} />
-        <input type='button' value='Get bounds' onClick={ e => this.testExportBounds(e)} />
-        <input type='button' value='Remove Highlight' onClick={ e => this.testRemoveHighlightPOIs(e)} />
+        <input type='button' value='Export image' onClick={e => this.testExportImage(e)} />
+        <input type='button' value='Get bounds' onClick={e => this.testExportBounds(e)} />
+        <input type='button' value='Remove Highlight' onClick={e => this.testRemoveHighlightPOIs(e)} />
         <input type='button' value='Get All Selected Shapes' onClick={e => this.testGetAllSelectedShape(e)} />
-        <input type='button' value='Clear draw layer' onClick={ e => this.testClearDrawLayer(e)} />
+        <input type='button' value='Clear draw layer' onClick={e => this.testClearDrawLayer(e)} />
+        <input type='button' value='Toggle Shape Selection' onClick={e => this.testToggleShapeSelectionById(e)} />
+        <input type='button' value='Highlight Group' onClick={e => this.testHighlightPOIsByGroupId(e)} />
         {/* <input type='button' value='' onClick={() => {}} /> */}
 
         {/* <RaisedButton label='Export draw' primary={true} onClick={this.testExportDraw} />
@@ -92,40 +94,6 @@ export class DevComponent {
         {/* <input type='button' value='' onClick={() => {}} /> */}
       </header>
       <main class='gisWrapper'>
-=======
-      </div>
-      <div class='body'>
-        <div class='sideMenu'>
-          <input type='button' value='Zoom To Extend' onClick={e => this.testZoomToExtend(e)} />
-          <input type='button' value='Change Units distance' onClick={e => this.testChangeDistanceUnits(e)} />
-          <input type='button' value='Change Coordinate System' onClick={e => this.testChangeCoordinateSystem(e)} />
-          <input type='button' value='Add shape in props' onClick={e => this.testAddShapeInProps(e)} />
-          <input type='button' value='Export image' onClick={ _ => this.testExportImage()} />
-          <input type='button' value='Get bounds' onClick={ _ => this.testExportBounds()} />
-          <input type='button' value='Remove Highlight' onClick={ _ => this.testRemoveHighlightPOIs()} />
-          <input type='button' value='Get All Selected Shapes' onClick={ _ => this.testGetAllSelectedShape()} />
-          <input type='button' value='Toggle Shape Selection' onClick={ _ => this.testToggleShapeSelectionById()} />
-          <input type='button' value='Highlight Group' onClick={ _ => this.testHighlightPOIsByGroupId()} />
-          {/* <input type='button' value='' onClick={() => {}} /> */}
-
-          {/* <RaisedButton label='Export draw' primary={true} onClick={this.testExportDraw} />
-                      <RaisedButton label='Import user draw' primary={true} onClick={this.testImportUserDraw} />
-                      <RaisedButton label='Clear draws' primary={true} onClick={this.testClearDraws} />
-                      <RaisedButton label='Export bounds' primary={true} onClick={this.testExportBounds} />
-                      <RaisedButton label='test Export CSV' primary={true} onClick={this.testExportCSV} />
-                      <RaisedButton label='Get Selected Shapes' primary={true} onClick={this.testGetAllSelectedShape} />
-                      <RaisedButton label='Get Drawable Multipolygon wkt' primary={true} onClick={this.testGetMultiPolygon} />
-                      <RaisedButton label='Select shape by id' primary={true} onClick={this.testSelectShapeById} />
-                      <RaisedButton label='Zoom to extend' primary={true} onClick={this.testZoomToExtend} />
-                      <RaisedButton label='Export image' primary={true} onClick={this.testExportImage} />
-                      <RaisedButton label='Export KML' primary={true} onClick={this.exportKmlCMD} />
-                      <RaisedButton label='Add shape' primary={true} onClick={this.addShape} />
-                      <input type='file' id='fileInput' onChange={this.testImportKmlFormatByStringCMD} accept={ImportFileFormats} /> */}
-
-          {/* <input type='button' value='' onClick={() => {}} /> */}
-        </div>
-        <div class='gisWrapper'>
->>>>>>> 2343df3168259865aacd92fcf9cbea58738612ac
           <gis-viewer gisViewerProps={this.gisViewerState} />
       </main>
     </div>
@@ -146,30 +114,28 @@ export class DevComponent {
 
   // @Event
 
-<<<<<<< HEAD
-  testGetAllSelectedShape(e: UIEvent): void {
-    console.log('Testing GetAllSelectedShape: ', e, this.gisViewerEl.getSelectedShapes());
-=======
-  testHighlightPOIsByGroupId(): void {
+  testHighlightPOIsByGroupId(e: UIEvent): void {
+    console.log('Testing HighlightPOIsByGroupId: ', e.type);
     this.gisViewerEl.highlightPOIsByGroupId('cell1');
   }
 
-  testToggleShapeSelectionById(): void {
+  testToggleShapeSelectionById(e: UIEvent): void {
+    console.log('Testing ToggleShapeSelectionById: ', e.type);
     this.gisViewerEl.toggleShapeSelectionById([{id: 'cell1coverage', isSelected: true}, {groupId: 'group0', isSelected: false}]);
   }
 
-  testGetAllSelectedShape(): void {
-		console.log('Selected Shapes: ', this.gisViewerEl.getSelectedShapes());
->>>>>>> 2343df3168259865aacd92fcf9cbea58738612ac
+  testGetAllSelectedShape(e: UIEvent): void {
+    console.log('Testing GetAllSelectedShape: ', e.type);
+    console.log('Selected Shapes: ', this.gisViewerEl.getSelectedShapes());
   }
 
   testRemoveHighlightPOIs(e: UIEvent) {
-    console.log('Testing RemoveHighlightPOIs: ', e);
+    console.log('Testing RemoveHighlightPOIs: ', e.type);
 		this.gisViewerEl.removeHighlightPOIs();
 	}
 
   testExportBounds(e: UIEvent): void {
-    console.log('Testing getBounds: ', e);
+    console.log('Testing getBounds: ', e.type);
 		console.log(this.gisViewerEl.getBounds());
   }
 

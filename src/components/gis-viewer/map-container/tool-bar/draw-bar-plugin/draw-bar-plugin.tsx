@@ -12,7 +12,7 @@ import { ShapeManagerRepository } from "../../../../../utils/shapes/ShapeManager
 import { ShapeManagerInterface } from "../../../../../utils/shapes/ShapeManager";
 import Generator from 'id-generator';
 import { markerSvg } from "../../../../../utils/shapes/Marker/maker";
-const drawIdGenerator = new Generator(() => { return 'draw_layer' })
+const drawIdGenerator = new Generator(() => { return GENERATED_ID.DRAW_LAYER_GROUP_ID })
 
 @Component({
     tag: 'draw-bar-plugin',
@@ -119,7 +119,7 @@ export class DrawBarPlugin {
         // Add shapeDef to layer
         // e.layer = this.addShapeDefToLayer(e.layer, shapeDef) as L.FeatureGroup;
         
-        
+
         // // Event handler
         // this.drawEventHandler(e);
         
