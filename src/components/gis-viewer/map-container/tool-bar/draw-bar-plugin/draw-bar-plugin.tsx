@@ -37,18 +37,19 @@ export class DrawBarPlugin {
     @Method()
     public export(): WktShape[] {
         const exportDrawableLayers: Array<WktShape> = [];
-        // const layers: (L.Layer | L.FeatureGroup)[] = this.drawnLayer.getLayers();
+        const layers: (L.Layer | L.FeatureGroup)[] = this.drawnLayer.getLayers();
 
-        // layers.forEach((layer: L.Layer) => {
-        //     const manager: ShapeManagerInterface | null = ShapeManagerRepository.getManagerByShapeDefLayer(layer);
-        //     if (manager) {
-        //         const shape: ShapeObject = manager.getShapeObjectFromDrawingLayer(layer) as ShapeObject;
-		// 		const wkt: string   = manager.shapeObjectToWkt(shape);
-		// 		const id: number = L.Util.stamp(layer);	// Get leaflet layer id
-		// 		const areaSize: number = manager.getAreaSize(shape);
-		// 		exportDrawableLayers.push({wkt, id, areaSize });
-        //     }
-        // });
+        layers.forEach((layer: L.Layer) => {
+            const shapeStore: ShapeStore = store.groupIdToShapeStoreMap[layer.groupId][layer.id];
+            const shapeType: ShapeType = _.get(shapeStore, 'shapeDef.shapeObject.type');
+            const manager: ShapeManagerInterface = ShapeManagerRepository.getManagerByType(shapeType);
+            if (manager) {
+                const wkt: string = manager.shapeObjectToWkt(shapeStore.shapeDef.shapeObject);  // TBD can use the wkt that created at the creation of this layer. check can cause a wrong wkt if user has edit the shape
+				const id: number = L.Util.stamp(layer);	// TBD Get leaflet layer id / or use the unique id of the layer
+                const areaSize: number = manager.getAreaSize(shapeStore.shapeDef.shapeObject);
+				exportDrawableLayers.push({ wkt, id, areaSize });
+            }
+        });
         return exportDrawableLayers;
     }
 

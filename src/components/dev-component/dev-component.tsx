@@ -73,6 +73,7 @@ export class DevComponent {
         <input type='button' value='Remove Highlight' onClick={e => this.testRemoveHighlightPOIs(e)} />
         <input type='button' value='Get All Selected Shapes' onClick={e => this.testGetAllSelectedShape(e)} />
         <input type='button' value='Clear draw layer' onClick={e => this.testClearDrawLayer(e)} />
+        <input type='button' value='Export draw layer' onClick={e => this.testExportDrawLayer(e)} />
         <input type='button' value='Toggle Shape Selection' onClick={e => this.testToggleShapeSelectionById(e)} />
         <input type='button' value='Highlight Group' onClick={e => this.testHighlightPOIsByGroupId(e)} />
         {/* <input type='button' value='' onClick={() => {}} /> */}
@@ -177,6 +178,10 @@ export class DevComponent {
   testClearDrawLayer(e: UIEvent) {
     console.log('Testing ClearDrawLayer api method', e.type);
     this.gisViewerEl.clearDrawLayer();
+  }
+  testExportDrawLayer(e: UIEvent) {
+    console.log('Testing ExportDrawLayer api method', e.type);
+    console.log(this.gisViewerEl.exportDrawLayer());
   }
 
 

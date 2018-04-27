@@ -1,7 +1,7 @@
 import { Component, Prop, Method } from '@stencil/core';
 import { GIS_VIEWER_TAG } from '../../utils/statics';
 import Utils from '../../utils/utilities';
-import { GisViewerProps, MapBounds, ShapeDefinition, ShapeData } from '../../models';
+import { GisViewerProps, MapBounds, ShapeDefinition, ShapeData, WktShape } from '../../models';
 import store from '../store/store';
 // import '../../../package';
 // import {version} from '../../../../../stencil.config'
@@ -72,6 +72,11 @@ export class GisViewer {
   clearDrawLayer() {
     if (!this.verifyIsMapExist()) { return; }
     this.mapContainerEl.clearDrawLayer();
+  }
+  @Method()
+  exportDrawLayer(): WktShape[] {
+    if (!this.verifyIsMapExist()) { return; }
+    return this.mapContainerEl.exportDrawLayer();
   }
 
   @Method()

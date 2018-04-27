@@ -1,7 +1,7 @@
 import { Component, Prop, Element, Method } from '@stencil/core';
 import { MAP_CONTAINER_TAG, ZOOM_TO_EXTENT_PLUGIN_TAG, MAX_NORTH_EAST, MAX_SOUTH_WEST, GENERATED_ID, DRAW_BAR_PLUGIN_TAG } from '../../../utils/statics';
 import Utils from '../../../utils/utilities';
-import { GisViewerProps, CoordinateSystemType, DistanceUnitType, ShapeDefinition, Coordinate, ShapeIds, ShapeStore, ShapeLayerContainer_Dev, MapBounds, SelectedObjects, GroupIdToShapeStoreMap, ShapeData } from '../../../models';
+import { GisViewerProps, CoordinateSystemType, DistanceUnitType, ShapeDefinition, Coordinate, ShapeIds, ShapeStore, ShapeLayerContainer_Dev, MapBounds, SelectedObjects, GroupIdToShapeStoreMap, ShapeData, WktShape } from '../../../models';
 import _ from 'lodash';
 import L from 'leaflet';
 import store from '../../store/store';
@@ -95,6 +95,12 @@ export class MapContainer {
   clearDrawLayer() {
     const drawBarEl: HTMLDrawBarPluginElement = this.el.querySelector(DRAW_BAR_PLUGIN_TAG);
     drawBarEl.clear();
+  }
+  
+  @Method()
+  exportDrawLayer(): WktShape[] {
+    const drawBarEl: HTMLDrawBarPluginElement = this.el.querySelector(DRAW_BAR_PLUGIN_TAG);
+    return drawBarEl.export();
   }
   
   @Method()

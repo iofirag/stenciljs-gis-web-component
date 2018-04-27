@@ -3,7 +3,8 @@ import { FILE_TYPES, DEFAULT_OSM_TILE, MIN_ZOOM, MAX_ZOOM, FILE_TYPES_ARRAY, GEN
 // <<<<<<< HEAD
 import { TileLayerDefinition, BaseMap, ShapeLayerContainer_Dev, ShapeLayerDefinition, 
     ShapeType, MapLayers, GroupData, ShapeStore, SelectedObjects, ShapeData, SelectedObjectsValue, ShapeIds, 
-    GroupIdToShapeStoreMap } from "../models";
+    GroupIdToShapeStoreMap, 
+    Coordinate} from "../models";
 // =======
 // import { TileLayerDefinition, BaseMap, ShapeLayerContainer_Dev, ShapeLayerDefinition,
 //     ShapeType, MapLayers, GroupData, ShapeStore, SelectedObjects, ShapeData, SelectedObjectsValue, GroupIdToShapeStoreMap } from "../models";
@@ -616,5 +617,26 @@ export default class Utils {
         });
 
         return htmlTemplate;
+    }
+    public static computeNewCoordinateFromCoordinateAndDistance(vPoint: Coordinate, vAngle: number, vDistance: number) {
+        const EARTH_RADIUS_IN_METERS = 6371000; // maybe this real  6371000
+        const distance = vDistance / EARTH_RADIUS_IN_METERS;
+        const angle = Utils.toRad(vAngle);
+
+        const vLat1 = Utils.toRad(vPoint.lat);
+        const vLng1 = Utils.toRad(vPoint.lng);
+
+        const vNewLat = Math.asin(Math.sin(vLat1) * Math.cos(distance) +
+            Math.cos(vLat1) * Math.sin(distance) * Math.cos(angle));
+
+        const vNewLng = vLng1 + Math.atan2(Math.sin(angle) * Math.sin(distance) * Math.cos(vLat1), Math.cos(distance) - Math.sin(vLat1) * Math.sin(vNewLat));
+
+        return (isNaN(vNewLat) || isNaN(vNewLng)) ? null : Utils.toDeg(vNewLat) + ' ' + Utils.toDeg(vNewLng);  // vNewLatLng;
+    }
+    private static toRad(vInput: number) {
+        return vInput * Math.PI / 180;
+    }
+    private static toDeg(vInput: number) {
+        return vInput * 180 / Math.PI;
     }
 }

@@ -4,6 +4,7 @@ import L from 'leaflet';
 import { ShapeDefinition, CircleShape, CircleShapeOptions, ShapeType, ShapeObject, 
 	ShapeObjectOptions, Coordinate } from '../../../models';
 import _ from "lodash";
+import Utils from "../../utilities";
 
 export class CircleShapeManager extends ShapeManagerBase {
 
@@ -25,11 +26,11 @@ export class CircleShapeManager extends ShapeManagerBase {
 			const LEFT_ANGLE    = 270;
 			const INITIAL_ANGLE = 360;
 
-			const pi = null // Utils.computeNewCoordinateFromCoordinateAndDistance(centerPoint, INITIAL_ANGLE, radius);
-			const pR = null // Utils.computeNewCoordinateFromCoordinateAndDistance(centerPoint, RIGHT_ANGLE, radius);
-			const pB = null // Utils.computeNewCoordinateFromCoordinateAndDistance(centerPoint, BOTTOM_ANGLE, radius);
-			const pL = null // Utils.computeNewCoordinateFromCoordinateAndDistance(centerPoint, LEFT_ANGLE, radius);
-			_.noop([radius, centerPoint, RIGHT_ANGLE, BOTTOM_ANGLE, LEFT_ANGLE, INITIAL_ANGLE])
+			const pi = Utils.computeNewCoordinateFromCoordinateAndDistance(centerPoint, INITIAL_ANGLE, radius);
+			const pR = Utils.computeNewCoordinateFromCoordinateAndDistance(centerPoint, RIGHT_ANGLE, radius);
+			const pB = Utils.computeNewCoordinateFromCoordinateAndDistance(centerPoint, BOTTOM_ANGLE, radius);
+			const pL = Utils.computeNewCoordinateFromCoordinateAndDistance(centerPoint, LEFT_ANGLE, radius);
+			// _.noop([radius, centerPoint, RIGHT_ANGLE, BOTTOM_ANGLE, LEFT_ANGLE, INITIAL_ANGLE])
 			// const pT = Utils.computeNewCoordinateFromCoordinateAndDistance(centerPoint, TOP_ANGLE, radius);
 
 			// return 'CIRCULARSTRING(' + pR + ',' + pB + ',' + pL + ',' + pT + ',' + pi  + ')';
