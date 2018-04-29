@@ -1,6 +1,6 @@
 {
   "name": "gis-viewer",
-  "version": "0.0.8b35",
+  "version": "0.0.8b36",
   "description": "Stencil Component Starter",
   "main": "dist/gisviewer.js",
   "types": "dist/types/components.d.ts",
