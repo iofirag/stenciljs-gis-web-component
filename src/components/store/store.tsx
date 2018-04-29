@@ -1,9 +1,9 @@
 import { observable, action, toJS } from 'mobx';
-import { GisViewerProps, MapConfig, TileLayerDefinition, ShapeLayerDefinition, 
-    ScaleConfig, LayerManagerConfig, SearchConfig, MiniMapConfig, DrawBarConfig, 
-    MouseCoordinateConfig, MeasureConfig, ZoomToExtentConfig, UnitsChangerConfig, 
-    FullScreenConfig, ToolbarConfig, MapPluginsConfig, CoordinateSystemType, 
-    ClusterHeat, MapLayers, ShapeStore, ShapeIds, 
+import { GisViewerProps, MapConfig, TileLayerDefinition, ShapeLayerDefinition,
+    ScaleConfig, LayerManagerConfig, SearchConfig, MiniMapConfig, DrawBarConfig,
+    MouseCoordinateConfig, MeasureConfig, ZoomToExtentConfig, UnitsChangerConfig,
+    FullScreenConfig, ToolbarConfig, MapPluginsConfig, CoordinateSystemType,
+    ClusterHeat, MapLayers, ShapeStore, ShapeIds,
     SelectedObjects, GroupIdToShapeStoreMap } from '../../models';
 import _ from 'lodash';
 import { GENERATED_ID } from '../../utils/statics';
@@ -12,7 +12,7 @@ import { GENERATED_ID } from '../../utils/statics';
 
 
 class Store {
-    
+
     DEFAULT_VALUES: GisViewerProps;
     @observable state: GisViewerProps;
     @observable mapLayers: MapLayers;
@@ -23,12 +23,12 @@ class Store {
     // @observable zoom: number;
     @observable gisMap: L.Map;
 
-    @action 
+    @action
     toggleSelectionMode(shapeIds: ShapeIds) {
         // Toggle shape selection
-        // this.groupIdToShapeStoreMap[shapeIds.groupId][shapeIds.shapeId].shapeDef.data.isSelected = 
+        // this.groupIdToShapeStoreMap[shapeIds.groupId][shapeIds.shapeId].shapeDef.data.isSelected =
         //     !this.groupIdToShapeStoreMap[shapeIds.groupId][shapeIds.shapeId].shapeDef.data.isSelected;
-        
+
         // if (this.groupIdToShapeStoreMap[shapeIds.groupId][shapeIds.shapeId].shapeDef.data.isSelected) {
         //     if (shapeIds.groupId.indexOf(GENERATED_ID.DEFAULT_GROUP)===0
         //         || shapeIds.groupId.indexOf(GENERATED_ID.DRAW_LAYER_GROUP_ID)===0) {
@@ -47,17 +47,17 @@ class Store {
         // Importent - Destracture the object for set new reference.
         this.idToSelectedObjectsMap = { ...this.idToSelectedObjectsMap };
     }
-    
+
     // @computed get coordinateSystemType(): CoordinateSystemType {
     //     return this.state.mapConfig.coordinateSystemType;
     // }
     // @computed get clusterHeat(): ClusterHeat {
     //     return this.state.mapConfig.mode;
     // }
-    
+
     /**
      * Set state to our componrnt
-     * @param _state 
+     * @param _state
      */
     @action initState(_props: GisViewerProps) {
         this.state = _.cloneDeep(_props);
@@ -66,7 +66,7 @@ class Store {
 
     /**
      * User update props to our component
-     * @param _state 
+     * @param _state
      */
     @action updateState(_state: GisViewerProps) {
         this.state = _.merge(toJS(this.state), _state);
@@ -82,7 +82,7 @@ class Store {
         // Set group-id and shape-id on layer
         shapeStore.leafletRef.groupId = shapeStore.shapeDef.data.groupId;
         shapeStore.leafletRef.id = shapeStore.shapeDef.data.id;
-        
+
         const shapeIds: ShapeIds = {
             groupId: shapeStore.leafletRef.groupId,
             shapeId: shapeStore.leafletRef.id
@@ -95,8 +95,8 @@ class Store {
         this.groupIdToShapeStoreMap[shapeIds.groupId][shapeIds.shapeId] = shapeStore;
 
 
-        /* not selected 
-            or first selected shape in group 
+        /* not selected
+            or first selected shape in group
             or single selected */
         // Set shape selection
         if (this.idToSelectedObjectsMap[shapeIds.groupId] // group already selected flow
@@ -105,7 +105,7 @@ class Store {
             this.setSelectionMode(shapeIds, true);
         }
     }
-    
+
     @action
     removeGroup(groupName: string): void {
         delete this.groupIdToShapeStoreMap[groupName];
@@ -117,7 +117,7 @@ class Store {
     @action
     setSelectionMode(shapeIds: ShapeIds, isSelected: boolean) {
         if (isSelected) {
-            if (shapeIds.groupId === GENERATED_ID.DEFAULT_GROUP 
+            if (shapeIds.groupId === GENERATED_ID.DEFAULT_GROUP
                 || shapeIds.groupId === GENERATED_ID.DRAW_LAYER_GROUP_ID) {
                 // Add shape-id to selected list with group id (DEFAULT_GROUP / DRAW_LAYER_GROUP_ID)
                 this.idToSelectedObjectsMap[shapeIds.shapeId] = { selectionType: 'single', groupId: shapeIds.groupId };
@@ -202,8 +202,27 @@ class Store {
 
         const shapeLayers: ShapeLayerDefinition[] = [];
 
+        const drawBarConfig: DrawBarConfig = {
+          enable: true,
+          drawBarOptions: {
+              draw: {
+                  polyline: true,
+                  polygon: true, // Turns off this drawing tool
+                  circle: true, // Turns off this drawing tool
+                  rectangle: true, // Turns off this drawing tool
+                  marker: true, // Turns off this drawing tool
+                  // circlemarker: false,
+                  // textualMarker: false // Turns off this drawing tool
+              },
+              edit: {
+                  remove: true // Turns on remove button
+              }
+          }
+      };
+      
         const layerManagerConfig: LayerManagerConfig = {
             enable: true,
+            drawBarConfig,
             isImport: true
         };
 
@@ -233,23 +252,7 @@ class Store {
         //   enable: true
         // };
 
-        const drawBarConfig: DrawBarConfig = {
-            enable: true,
-            drawBarOptions: {
-                draw: {
-                    polyline: true,
-                    polygon: true, // Turns off this drawing tool
-                    circle: true, // Turns off this drawing tool
-                    rectangle: true, // Turns off this drawing tool
-                    marker: true, // Turns off this drawing tool
-                    // circlemarker: false,
-                    // textualMarker: false // Turns off this drawing tool
-                },
-                edit: {
-                    remove: true // Turns on remove button
-                }
-            }
-        };
+
 
         const mouseCoordinateConfig: MouseCoordinateConfig = {
             enable: true,
@@ -286,7 +289,7 @@ class Store {
             toolbarPluginsConfig: {
                 layerManagerConfig, fullScreenConfig, measureConfig,
                 unitsChangerConfig, zoomToExtentConfig,
-                drawBarConfig, searchConfig
+                searchConfig
             }
 
         };

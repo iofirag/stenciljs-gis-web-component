@@ -1,6 +1,6 @@
 import { Component, Prop, State, Element } from '@stencil/core';
-import { TOOL_BAR_TAG, DRAW_BAR_PLUGIN_TAG, ZOOM_TO_EXTENT_PLUGIN_TAG, SEARCH_PLUGIN_TAG, 
-    MEASURE_PLUGIN_TAG, LAYER_MANAGER_PLUGIN_TAG, FULL_SCREEN_PLUGIN_TAG, DROP_DOWN_PLUGIN_TAG, 
+import { TOOL_BAR_TAG, DRAW_BAR_PLUGIN_TAG, ZOOM_TO_EXTENT_PLUGIN_TAG, SEARCH_PLUGIN_TAG,
+    MEASURE_PLUGIN_TAG, LAYER_MANAGER_PLUGIN_TAG, FULL_SCREEN_PLUGIN_TAG, DROP_DOWN_PLUGIN_TAG,
     CUSTOM_DROP_DOWN_PLUGIN_TAG, CUSTOM_SETTINGS_TAG, CUSTOM_EXPORT_TAG } from '../../../../utils/statics';
 import _ from 'lodash';
 import { ToolbarConfig } from '../../../../models';
@@ -23,7 +23,7 @@ export class ToolBar {
     // @Prop() isZoomControl: boolean;
     // @Prop() mouseCoordinateConfig: MouseCoordinateConfig;
     // @Prop() clusterHeatMode: ClusterHeat;
-    
+
     @Element() el: HTMLElement;
     // @State() isZoomControlState;
     @State() element: L.Control;
@@ -37,46 +37,46 @@ export class ToolBar {
     componentWillLoad() {
         this.element = this.createElement();
     }
-    
+
     render() {
 
         return (
             <div>
                 <layer-manager-plugin gisMap={this.gisMap} config={this.config.toolbarPluginsConfig.layerManagerConfig} />
                 {
-                    _.get(this, 'config.isSettings') ? (
+                    _.get(this, 'config.isSettings', false) ? (
                         <custom-settings gisMap={this.gisMap} />
-                    ) : ('')
+                    ) : null
                 }
                 {
-                    _.get(this, 'config.isExport') ? (
+                    _.get(this, 'config.isExport', false) ? (
                         <custom-export gisMap={this.gisMap} />
-                    ) : ('')
+                    ) : null
                 }
-                {
+                {/* {
                     _.get(this, 'config.toolbarPluginsConfig.drawBarConfig.enable') ? (
                         <draw-bar-plugin gisMap={this.gisMap} config={this.config.toolbarPluginsConfig.drawBarConfig} />
-                    ) : ('')
-                }
+                    ) : null
+                } */}
                 {
-                    _.get(this, "config.toolbarPluginsConfig.zoomToExtentConfig.enable") ? (
+                    _.get(this, 'config.toolbarPluginsConfig.zoomToExtentConfig.enable', false) ? (
                         <zoom-to-extent-plugin gisMap={this.gisMap} config={this.config.toolbarPluginsConfig.zoomToExtentConfig} />
-                    ) : ('')
+                    ) : null
                 }
                 {
-                    _.get(this, "config.toolbarPluginsConfig.fullScreenConfig.enable") ? (
+                    _.get(this, 'config.toolbarPluginsConfig.fullScreenConfig.enable', false) ? (
                         <full-screen-plugin gisMap={this.gisMap} config={this.config.toolbarPluginsConfig.fullScreenConfig} />
-                    ) : ('')
+                    ) : null
                 }
                 {
-                    _.get(this, "config.toolbarPluginsConfig.measureConfig.enable") ? (
+                    _.get(this, 'config.toolbarPluginsConfig.measureConfig.enable', false) ? (
                         <measure-plugin gisMap={this.gisMap} config={this.config.toolbarPluginsConfig.measureConfig} />
-                    ) : ('')
+                    ) : null
                 }
                 {
-                    _.get(this, "config.toolbarPluginsConfig.searchConfig.enable") ? (
+                    _.get(this, 'config.toolbarPluginsConfig.searchConfig.enable', false) ? (
                         <search-plugin gisMap={this.gisMap} config={this.config.toolbarPluginsConfig.searchConfig} />
-                    ) : ('')
+                    ) : null
                 }
             </div>
         );
@@ -128,16 +128,16 @@ export class ToolBar {
             [CUSTOM_EXPORT_TAG]: [controllerImportExportGroup],
             [CUSTOM_SETTINGS_TAG]: [controllerSettingsGroup],
         };
-        
+
         let toolbarPlugins: Element = this.el.children[0];
         _.forEach(toolbarPlugins.children, (plugin: HTMLElement) => {
-            
+
             let htmlElement: HTMLElement = null;
             let container: HTMLElement;
             let controlList: HTMLElement[];
 
             switch(plugin.tagName.toLowerCase()) {
-                
+
                 case CUSTOM_SETTINGS_TAG: {
                     let settingsTag = (plugin as HTMLCustomSettingsElement);
                     let customDropDownPluginEl: HTMLCustomDropDownPluginElement = settingsTag.querySelector(`${CUSTOM_DROP_DOWN_PLUGIN_TAG}`);
@@ -153,19 +153,10 @@ export class ToolBar {
                 }
 
                 case LAYER_MANAGER_PLUGIN_TAG: {
-                    htmlElement = (plugin as HTMLLayerManagerPluginElement).getHtmlBtEl();
-                    if (htmlElement) {
-                        controlList = controllerGroupMap[LAYER_MANAGER_PLUGIN_TAG];
-                        controlList.forEach(cg => {
-                            cg.appendChild(htmlElement);
-                        });    
-                    }
-                    break;
-                }
-
-                case DRAW_BAR_PLUGIN_TAG: {
-                    container = (plugin as HTMLDrawBarPluginElement).getControl().getContainer();
-                    let drawBar: HTMLElement = container.childNodes[0] as HTMLElement;
+                  let drawBarPluginEl: HTMLDrawBarPluginElement = (plugin as HTMLLayerManagerPluginElement).querySelector(`${DRAW_BAR_PLUGIN_TAG}`);
+                  if (drawBarPluginEl) {
+                    container = drawBarPluginEl.getControl().getContainer();
+                    const drawBar: HTMLElement = container.childNodes[0] as HTMLElement;
                     drawBar.id = "draw-shapes-section"; // setting id for future styling purposes
 
                     controlList = controllerGroupMap[DRAW_BAR_PLUGIN_TAG];
@@ -175,7 +166,17 @@ export class ToolBar {
                             cg.appendChild(childs[0]);
                         }
                     });
-                    break;
+                  }
+
+                  // Layer manager
+                  htmlElement = (plugin as HTMLLayerManagerPluginElement).getHtmlBtEl();
+                  if (htmlElement) {
+                      controlList = controllerGroupMap[LAYER_MANAGER_PLUGIN_TAG];
+                      controlList.forEach(cg => {
+                          cg.appendChild(htmlElement);
+                      });
+                  }
+                  break;
                 }
 
                 case ZOOM_TO_EXTENT_PLUGIN_TAG: {

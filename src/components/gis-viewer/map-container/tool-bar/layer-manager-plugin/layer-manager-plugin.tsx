@@ -29,6 +29,7 @@ export class layerManagerPlugin {
     @State() htmlBtEl: HTMLElement;
     @State() control: L.Control.StyledLayerControl;
 
+
     @Method()
     getControl(): L.Control {
         return this.control;
@@ -45,7 +46,7 @@ export class layerManagerPlugin {
         // Turn on this layer
         this.control.selectLayer(drawableLayer);
     }
-    
+
 
     constructor() {
         // reaction(
@@ -77,7 +78,7 @@ export class layerManagerPlugin {
                     }
                 });
             }
-        )        
+        )
     }
     componentWillLoad() {
         this.control = this.createPlugin();
@@ -100,13 +101,24 @@ export class layerManagerPlugin {
         // this.initiateLayers();
     }
 
+    render() {
+      return (
+        <div>
+          {
+            _.get(this, 'config.drawBarConfig.enable', false) ? (
+              <draw-bar-plugin gisMap={this.gisMap} config={this.config.drawBarConfig} />
+            ) : null
+          }
+        </div>
+      )
+    }
     componentDidLoad() {
         Utils.log_componentDidLoad(this.compName);
         _.noop([this.config, styledLayerControl, /* materialDesign */, this.onChangeImport]);
 
         this.gisMap.addControl(this.control);
 
-        
+
 
 
         // Stop double click on plugin
@@ -116,13 +128,13 @@ export class layerManagerPlugin {
         _.forEach(elementList, (item: HTMLElement) => Utils.stopDoubleClickOnPlugin(item));
 
 
-        
+
         // Set first base map as working tile, set min zoom, max zoom
         const tileName: string = Object.keys(store.mapLayers.baseMaps)[0];
         this.control.selectLayer(store.mapLayers.baseMaps[tileName]); // turn on layer
         // this.gisMap.setMinZoom(store.mapLayers.baseMaps[tileName].options.minZoom); // set min zoom
         // this.gisMap.setMaxZoom(store.mapLayers.baseMaps[tileName].options.maxZoom); // set MAX zoom
-        
+
         // Init Layers
         _.forEach(store.mapLayers.initialLayers, (shapeLayerContainer: ShapeLayerContainer_Dev) => {
             this.addingNewLayerToLayerManager(shapeLayerContainer, LayerNames.INITIAL_LAYERS);
@@ -177,7 +189,7 @@ export class layerManagerPlugin {
 
 
 
-    
+
     private fixCss() {
         // Fix css
         let formEl: HTMLElement = this.gisMap.getContainer().querySelector('.leaflet-control-layers-scrollbar');
