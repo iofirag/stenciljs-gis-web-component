@@ -96,13 +96,13 @@ export class MapContainer {
     const drawBarEl: HTMLDrawBarPluginElement = this.el.querySelector(DRAW_BAR_PLUGIN_TAG);
     drawBarEl.clear();
   }
-  
+
   @Method()
   exportDrawLayer(): WktShape[] {
     const drawBarEl: HTMLDrawBarPluginElement = this.el.querySelector(DRAW_BAR_PLUGIN_TAG);
     return drawBarEl.export();
   }
-  
+
   @Method()
   toggleShapeSelectionById(shapeDataArr: ShapeData[]): void {
     const visibleLayers: L.Layer[] = Utils.getVisibleLayers(store.mapLayers, store.gisMap);
@@ -158,7 +158,7 @@ export class MapContainer {
               gisMap={store.gisMap}
               config={store.state.mapPluginsConfig.scaleConfig}
             />
-          ) : ('')
+          ) : null
         }
 
         {_.get(this, "gisViewerProps.mapPluginsConfig.miniMapConfig.enable") ? (
@@ -166,7 +166,7 @@ export class MapContainer {
               gisMap={store.gisMap}
               config={store.state.mapPluginsConfig.miniMapConfig}
             />
-          ) : ('')
+          ) : null
         }
 
         {_.get(this, "gisViewerProps.mapPluginsConfig.mouseCoordinateConfig.enable") ? (
@@ -174,7 +174,7 @@ export class MapContainer {
               gisMap={store.gisMap}
               config={store.state.mapPluginsConfig.mouseCoordinateConfig}
             />
-          ) : ('')
+          ) : null
         }
       </div>
     )
@@ -310,7 +310,7 @@ export class MapContainer {
 
     // const shapeDefSelectedList: ShapeDefinition[] = [];
     const changedIds: SelectedObjects = {};
-    
+
     const visibleLayers = Utils.getVisibleLayers(store.mapLayers, store.gisMap);
     visibleLayers.forEach((layer: L.Layer) => {
       const shapeIds: ShapeIds = {

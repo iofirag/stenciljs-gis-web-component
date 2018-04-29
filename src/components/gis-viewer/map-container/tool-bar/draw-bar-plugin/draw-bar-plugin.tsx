@@ -74,11 +74,11 @@ export class DrawBarPlugin {
         );
         _.noop(leafletDrawDrag);
     }
-    
+
     componentWillLoad() {
         // Dedicated Draw layer
         this.drawnLayer = new L.FeatureGroup();
-        store.mapLayers.drawableLayers.push(this.drawnLayer);   // can bring leak
+        // store.mapLayers.drawableLayers.push(this.drawnLayer);   // can bring leak
 
         let drawBarCloneOptions: any = this.config.drawBarOptions;
         drawBarCloneOptions.edit = {
@@ -111,11 +111,8 @@ export class DrawBarPlugin {
         this.layerManagerEl = this.gisMap.getContainer().querySelector(LAYER_MANAGER_PLUGIN_TAG);
         this.gisMap.addLayer(this.drawnLayer);
         this.layerManagerEl.addingDrawableLayerToLayerController(this.drawnLayer);  // check
-        
+
         this.gisMap.addControl(this.control);
-        
-
-
         this.gisMap.on(L.Draw.Event.CREATED, this.onDrawCreated.bind(this));
         this.gisMap.on(L.Draw.Event.EDITED, (/* e: any */) => {
             // this.drawnLayer.addLayer(e.layer);
@@ -131,21 +128,21 @@ export class DrawBarPlugin {
     }
 
     private onDrawCreated(e: any): void {
-        
+
         const layerEnumType: ShapeType = ShapeManagerRepository.getTypeNumberByDrawableTypeName(e.layerType);
         const shapeDef: ShapeDefinition = this.createShapeDefFromDrawLayer(e.layer, layerEnumType);
 
         // Add shapeDef to layer
         // e.layer = this.addShapeDefToLayer(e.layer, shapeDef) as L.FeatureGroup;
-        
+
 
         // // Event handler
         // this.drawEventHandler(e);
-        
+
         // // Use callback of onDrawCreated
         // const wktShape: WktShape = this.getWktShapeFromWkt(e.layer);
         // this.context.props.onDrawCreated(wktShape);
-        
+
         // const markerShape: MarkerShape = <MarkerShape>shapeDef.shapeObject.shape;
 
 		// const markerShapeOptions: MarkerShapeOptions = shapeDef.options as MarkerShapeOptions || {};
@@ -167,12 +164,12 @@ export class DrawBarPlugin {
         // _.assign(markerShapeOptions, {icon: interceptIcon});
 
         // const leafletObject: L.Layer = new L.Marker([lat, lng], markerShapeOptions);
-    
-    
-    
+
+
+
         // Add shape to layer
         this.drawnLayer.addLayer(e.layer);
-    
+
             // Set shape events
         Utils.setEventsOnLeafletLayer(e.layer, {
             click: Utils.shapeOnClickHandler.bind(this)
@@ -198,10 +195,10 @@ export class DrawBarPlugin {
         const shapeData: ShapeData = {
             groupId: GENERATED_ID.DRAW_LAYER_GROUP_ID,
             id: drawIdGenerator.newId(),
-            name: 'Editable layer', 
+            name: 'Editable layer',
             isSelected: false,
-            count: 1, 
-            type: 'marker'     
+            count: 1,
+            type: 'marker'
         };
         return { shapeObject, shapeWkt, data: shapeData };
     }

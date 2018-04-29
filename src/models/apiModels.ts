@@ -133,7 +133,6 @@ export type ToolbarPluginsConfig = {
     searchConfig?: SearchConfig
     measureConfig?: MeasureConfig
     unitsChangerConfig?: UnitsChangerConfig
-    drawBarConfig?: DrawBarConfig
 }
 export type MapPluginsConfig = {
     miniMapConfig?: MiniMapConfig
@@ -145,6 +144,7 @@ export type MapPluginsConfig = {
 /* Layers Controller */
 export type LayerManagerConfig = BasePluginConfig & {
     layersControllerOptions?: LayerManagerOptions
+    drawBarConfig?: DrawBarConfig
     isImport?: boolean
 }
 export type LayerManagerOptions = BaseControlOptions & {
@@ -207,7 +207,7 @@ export type DrawBarOptionsDraw = boolean | {
     polygon?: boolean,   // Turns off this drawing tool
     circle?: boolean,    // Turns off this drawing tool
     rectangle?: boolean, // Turns off this drawing tool
-    marker?: boolean,     // Turns off this drawing tool  
+    marker?: boolean,     // Turns off this drawing tool
     circlemarker?: boolean,
     textualMarker?: boolean
 }
@@ -391,8 +391,8 @@ export type SelectionMode = 'selectLayer' | 'unSelectLayer'
 
 
 export type GroupIdToShapeStoreMap = { [groupId: string]: GroupData }
-export type GroupData = { 
-    [id: string]: ShapeStore 
+export type GroupData = {
+    [id: string]: ShapeStore
 }
 export type ShapeStore = {
     leafletRef: Layer | FeatureGroup
@@ -401,13 +401,13 @@ export type ShapeStore = {
 
 export type SelectedObjects = { [id: string]: SelectedObjectsValue }
 export type SelectedObjectsValue = {
-    selectionType: SelectionType, 
+    selectionType: SelectionType,
     groupId: string
 }
 export type SelectionType = 'group' | 'single'
 
 
 export type ShapeIds = {
-    groupId: string, 
+    groupId: string,
     shapeId: string
 }
