@@ -32,7 +32,7 @@ export class ScalePlugin {
       distanceUnitType => this.showScaleUnitsElementByType(distanceUnitType)
     );
   }
-  private showScaleUnitsElementByType(globalDistanceUnitType: DistanceUnitType) { 
+  private showScaleUnitsElementByType(globalDistanceUnitType: DistanceUnitType) {
     this.pluginSupportedUnits.forEach((unit:string) => {
       this.setScaleUnitsElementVisibility(unit, globalDistanceUnitType);
     })

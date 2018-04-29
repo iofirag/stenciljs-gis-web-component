@@ -153,7 +153,8 @@ export class MapContainer {
         // isZoomControl={store.state.mapConfig.isZoomControl}
         />
 
-        {_.get(this, "gisViewerProps.mapPluginsConfig.scaleConfig.enable") ? (
+        {
+          _.get(this, 'gisViewerProps.mapPluginsConfig.scaleConfig.enable', false) ? (
             <scale-plugin
               gisMap={store.gisMap}
               config={store.state.mapPluginsConfig.scaleConfig}
@@ -161,7 +162,8 @@ export class MapContainer {
           ) : null
         }
 
-        {_.get(this, "gisViewerProps.mapPluginsConfig.miniMapConfig.enable") ? (
+        {
+          _.get(this, 'gisViewerProps.mapPluginsConfig.miniMapConfig.enable', false) ? (
             <mini-map-plugin
               gisMap={store.gisMap}
               config={store.state.mapPluginsConfig.miniMapConfig}
@@ -169,7 +171,8 @@ export class MapContainer {
           ) : null
         }
 
-        {_.get(this, "gisViewerProps.mapPluginsConfig.mouseCoordinateConfig.enable") ? (
+        {
+          _.get(this, 'gisViewerProps.mapPluginsConfig.mouseCoordinateConfig.enable', false) ? (
             <mouse-coordinate-plugin
               gisMap={store.gisMap}
               config={store.state.mapPluginsConfig.mouseCoordinateConfig}

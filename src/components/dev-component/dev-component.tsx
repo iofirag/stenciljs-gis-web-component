@@ -418,7 +418,7 @@ export class DevComponent {
         }
       }
     };
-    
+
     const layerManagerConfig: LayerManagerConfig = {
       enable: true,
       drawBarConfig,

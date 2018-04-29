@@ -27,23 +27,22 @@ export class MeasurePlugin {
     getControl() {
         return this.control;
     }
-    
+
     constructor() {
         reaction(
             () => store.state.mapConfig.distanceUnitType,
             distanceUnitType => this.changePluginUnits(distanceUnitType)
         );
     }
-    
 
     componentWillLoad() {
         Utils.log_componentWillLoad(this.compName);
         this.control = this.createPlugin(this.config.measureOptions);
     }
-    
+
     componentDidLoad() {
         Utils.log_componentDidLoad(this.compName);
-        _.noop(measure);        
+        _.noop(measure);
         this.gisMap.addControl(this.control);
     }
 
@@ -52,7 +51,6 @@ export class MeasurePlugin {
         this.gisMap.removeControl(this.control);
     }
 
-    
     private createPlugin(options: MeasureOptions): L.Control {
         const clonedOptions: PolylineMeasureOptions_Dev = Object.assign(
             { showUnitControl: true },

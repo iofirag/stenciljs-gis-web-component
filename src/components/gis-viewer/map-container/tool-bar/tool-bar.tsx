@@ -44,39 +44,34 @@ export class ToolBar {
             <div>
                 <layer-manager-plugin gisMap={this.gisMap} config={this.config.toolbarPluginsConfig.layerManagerConfig} />
                 {
-                    _.get(this, 'config.isSettings', false) ? (
-                        <custom-settings gisMap={this.gisMap} />
-                    ) : null
+                  _.get(this, 'config.isSettings', false) ? (
+                      <custom-settings gisMap={this.gisMap} />
+                  ) : null
                 }
                 {
-                    _.get(this, 'config.isExport', false) ? (
-                        <custom-export gisMap={this.gisMap} />
-                    ) : null
-                }
-                {/* {
-                    _.get(this, 'config.toolbarPluginsConfig.drawBarConfig.enable') ? (
-                        <draw-bar-plugin gisMap={this.gisMap} config={this.config.toolbarPluginsConfig.drawBarConfig} />
-                    ) : null
-                } */}
-                {
-                    _.get(this, 'config.toolbarPluginsConfig.zoomToExtentConfig.enable', false) ? (
-                        <zoom-to-extent-plugin gisMap={this.gisMap} config={this.config.toolbarPluginsConfig.zoomToExtentConfig} />
-                    ) : null
+                  _.get(this, 'config.isExport', false) ? (
+                      <custom-export gisMap={this.gisMap} />
+                  ) : null
                 }
                 {
-                    _.get(this, 'config.toolbarPluginsConfig.fullScreenConfig.enable', false) ? (
-                        <full-screen-plugin gisMap={this.gisMap} config={this.config.toolbarPluginsConfig.fullScreenConfig} />
-                    ) : null
+                  _.get(this, 'config.toolbarPluginsConfig.zoomToExtentConfig.enable', false) ? (
+                      <zoom-to-extent-plugin gisMap={this.gisMap} config={this.config.toolbarPluginsConfig.zoomToExtentConfig} />
+                  ) : null
                 }
                 {
-                    _.get(this, 'config.toolbarPluginsConfig.measureConfig.enable', false) ? (
-                        <measure-plugin gisMap={this.gisMap} config={this.config.toolbarPluginsConfig.measureConfig} />
-                    ) : null
+                  _.get(this, 'config.toolbarPluginsConfig.fullScreenConfig.enable', false) ? (
+                      <full-screen-plugin gisMap={this.gisMap} config={this.config.toolbarPluginsConfig.fullScreenConfig} />
+                  ) : null
                 }
                 {
-                    _.get(this, 'config.toolbarPluginsConfig.searchConfig.enable', false) ? (
-                        <search-plugin gisMap={this.gisMap} config={this.config.toolbarPluginsConfig.searchConfig} />
-                    ) : null
+                  _.get(this, 'config.toolbarPluginsConfig.measureConfig.enable', false) ? (
+                      <measure-plugin gisMap={this.gisMap} config={this.config.toolbarPluginsConfig.measureConfig} />
+                  ) : null
+                }
+                {
+                  _.get(this, 'config.toolbarPluginsConfig.searchConfig.enable', false) ? (
+                      <search-plugin gisMap={this.gisMap} config={this.config.toolbarPluginsConfig.searchConfig} />
+                  ) : null
                 }
             </div>
         );
