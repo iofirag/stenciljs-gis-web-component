@@ -457,8 +457,8 @@ export class DevComponent {
     const measureConfig: MeasureConfig = {
       enable: true,
       measureOptions: {
-        // showMeasurementsClearControl: true,
-        // clearMeasurementsOnStop: false
+        showMeasurementsClearControl: true,
+        clearMeasurementsOnStop: false
       }
     };
 
