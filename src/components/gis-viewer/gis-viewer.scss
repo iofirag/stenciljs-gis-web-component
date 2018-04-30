@@ -62,7 +62,7 @@ $clusterBoxShadow: rgba(80, 80, 80, 0.7);
   filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.5));
 }
 
-.intecept-svg {
+.intecept-svg, .marker-svg {
   outline: none;
   filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.5));
   .first-circle,
@@ -71,7 +71,11 @@ $clusterBoxShadow: rgba(80, 80, 80, 0.7);
     display: none;
   }
 
-  .circle-1 {
+  .sub-markers {
+    display: none;
+  }
+
+  .circle-1, .marker-1 {
     fill: transparent;
     display: none;
     stroke: rgba(0, 166, 218, 1);
@@ -80,11 +84,11 @@ $clusterBoxShadow: rgba(80, 80, 80, 0.7);
     transform-origin: center center;
     animation: pulse-me 1.5s linear infinite;
   }
-  .circle-2 {
+  .circle-2, .marker-2 {
     @extend .circle-1;
     animation-delay: 0.5s;
   }
-  .circle-3 {
+  .circle-3, .marker-3 {
     @extend .circle-1;
     animation-delay: 1s;
   }
@@ -100,7 +104,10 @@ $clusterBoxShadow: rgba(80, 80, 80, 0.7);
   &.highlighted {
     .circle-1,
     .circle-2,
-    .circle-3 {
+    .circle-3,
+    .marker-1,
+    .marker-2,
+    .marker-3, .sub-markers {
       display: block;
     }
 

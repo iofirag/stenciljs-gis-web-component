@@ -1,4 +1,4 @@
-import { MarkerShape, ShapeObject, ShapeType, MarkerShapeOptions, 
+import { MarkerShape, ShapeObject, ShapeType, MarkerShapeOptions,
 	ShapeDefinition, Coordinate, ShapeStore } from '../../../models';
 import { ShapeManagerBase, ShapeEventHandlers } from '../ShapeManager';
 import _ from 'lodash';
@@ -60,14 +60,14 @@ export class MarkerShapeManager extends ShapeManagerBase {
 			const interceptIcon = L.divIcon({
 				html: isInercept ? interceptSvg : markerSvg,
 				className: isInercept ? 'intecept-svg' : 'marker-svg',
-				iconSize: isInercept ? new L.Point(30, 30) : new L.Point(20, 27)
+				iconSize: isInercept ? new L.Point(30, 30) : new L.Point(33, 40)
 			});
 
 			_.assign(markerShapeOptions, { icon: interceptIcon});
 
 			const leafletObject: L.Layer = new L.Marker([lat, lng], markerShapeOptions);
 
-			
+
 			/* leafletObject.shapeDef = _.merge(shapeDef, {// O.A
 				data: {
 					isSelected: _.get(shapeDef, 'data.isSelected', false),
@@ -96,7 +96,7 @@ export class MarkerShapeManager extends ShapeManagerBase {
 		// 	leafletObjectParent._icon.classList.remove('selected-cluster');
 		// }
 
-		if (!leafletMarker._icon) { return; } // Object that hide under cluster
+    if (!leafletMarker._icon) { return; } // Object that hide under cluster
 
 		// add or remove 'selected' css class
 		const shapeData = _.get(shapeStore, 'shapeDef.data');
@@ -107,7 +107,7 @@ export class MarkerShapeManager extends ShapeManagerBase {
 		// set lcation styling must be inline styling,
 		if (store.idToSelectedObjectsMap[shapeStore.leafletRef.groupId]
 			|| store.idToSelectedObjectsMap[shapeStore.leafletRef.id]) {
-			// Importent - this layer is selected even thow shapeDef.data.isSelected is false 
+			// Importent - this layer is selected even thow shapeDef.data.isSelected is false
 			const interceptStroke = !shapeData.isSelectedFade ? strokeSelected : unselected;
 
 			if (shapeData.type === 'intercept') {
@@ -122,7 +122,7 @@ export class MarkerShapeManager extends ShapeManagerBase {
 				circle.style.stroke = interceptStroke;
 				sign.style.stroke = interceptStroke;
 			} else {
-				const marker = leafletMarker._icon.querySelector('path');
+				const marker = leafletMarker._icon.querySelector('.main-marker path');
 
 				if (!marker) { return; }
 
@@ -143,7 +143,7 @@ export class MarkerShapeManager extends ShapeManagerBase {
 				circle.style.strokeWidth = "1px";
 				sign.style.stroke = unselected;
 			} else {
-				const marker = leafletMarker._icon.querySelector('path');
+				const marker = leafletMarker._icon.querySelector('.main-marker path');
 
 				if (!marker) { return; }
 

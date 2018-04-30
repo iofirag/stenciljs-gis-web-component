@@ -1,9 +1,9 @@
 import _ from "lodash";
 import { FILE_TYPES, DEFAULT_OSM_TILE, MIN_ZOOM, MAX_ZOOM, FILE_TYPES_ARRAY, GENERATED_ID, ZOOM_TO_EXTEND_PADDING } from "./statics";
 // <<<<<<< HEAD
-import { TileLayerDefinition, BaseMap, ShapeLayerContainer_Dev, ShapeLayerDefinition, 
-    ShapeType, MapLayers, GroupData, ShapeStore, SelectedObjects, ShapeData, SelectedObjectsValue, ShapeIds, 
-    GroupIdToShapeStoreMap, 
+import { TileLayerDefinition, BaseMap, ShapeLayerContainer_Dev, ShapeLayerDefinition,
+    ShapeType, MapLayers, GroupData, ShapeStore, SelectedObjects, ShapeData, SelectedObjectsValue, ShapeIds,
+    GroupIdToShapeStoreMap,
     Coordinate} from "../models";
 // =======
 // import { TileLayerDefinition, BaseMap, ShapeLayerContainer_Dev, ShapeLayerDefinition,
@@ -201,7 +201,7 @@ export default class Utils {
         if (!store.state.mapConfig.isSelectionDisable && clickEvent.originalEvent.ctrlKey) {
             store.toggleSelectionMode(shapeIds);
         }
-        
+
         let groupData: GroupData = null;
         if (shapeIds.groupId === GENERATED_ID.DEFAULT_GROUP || shapeIds.groupId === GENERATED_ID.DRAW_LAYER_GROUP_ID) {
             groupData = {
@@ -509,7 +509,7 @@ export default class Utils {
                 if (!!highlightMarkerCluster) {
 // <<<<<<< HEAD
                     const cluster = highlightMarkerCluster.getVisibleParent(shapeStore.leafletRef);
-                    
+
 // =======
 //                     const cluster = highlightMarkerCluster && highlightMarkerCluster.getVisibleParent(shapeStore.leafletRef);
 

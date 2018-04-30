@@ -131,8 +131,7 @@ export class DrawBarPlugin {
         var MyCustomMarker = L.Icon.extend({
             options: {
                 shadowUrl: null,
-                iconAnchor: new L.Point(12, 12),
-                iconSize: new L.Point(20, 27),
+                iconSize: new L.Point(33, 40),
                 iconUrl: `data:image/svg+xml;utf8,${markerSvg}`
             }
         });
@@ -178,7 +177,7 @@ export class DrawBarPlugin {
           const markerIcon = L.divIcon({
             html: markerSvg,
             className: 'marker-svg',
-            iconSize: new L.Point(20, 27)
+            iconSize: new L.Point(33, 40)
           });
           _.merge(shapeDef, {options: {icon: markerIcon}});
 

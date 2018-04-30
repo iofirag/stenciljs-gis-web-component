@@ -4,7 +4,7 @@
 // import { GisPluginContext } from '../pluginBase';
 // import Utils from '../utils';
 import _ from 'lodash';
-import { ShapeType, ShapeObject, ShapeDefinition, Coordinate, ShapeObjectOptions, 
+import { ShapeType, ShapeObject, ShapeDefinition, Coordinate, ShapeObjectOptions,
 	ShapeStore } from '../../models';
 // import Utils from '../utilities';
 import store from '../../components/store/store';
@@ -78,11 +78,11 @@ export abstract class ShapeManagerBase implements ShapeManagerInterface {
 	updateIsSelectedView(leafletObject: L.Layer): void {
 		const shapeStore: ShapeStore = store.groupIdToShapeStoreMap[leafletObject.groupId][leafletObject.id];
 		let isSelected = false;
-		if (store.idToSelectedObjectsMap.hasOwnProperty(leafletObject.groupId) 
+		if (store.idToSelectedObjectsMap.hasOwnProperty(leafletObject.groupId)
 			|| store.idToSelectedObjectsMap.hasOwnProperty(leafletObject.id)) {
 			isSelected = true;
 		}
-		
+
 		// const leafletObjectParent:any = leafletObject.__parent && leafletObject.__parent._group.getVisibleParent(leafletObject);
 
 		const color = isSelected ? 'orange' : '#38f';
@@ -128,8 +128,8 @@ export abstract class ShapeManagerBase implements ShapeManagerInterface {
 					cluster._icon.classList.add('highlighted');
 				}
 			}
-			
-			if ((element as L.Layer)._icon && _.get(shapeStore, 'shapeDef.data.type') === 'intercept') {
+
+			if ((element as L.Layer)._icon) {
 				// add highilight
 				const marker = (element as L.Marker);
 				marker._icon.classList.add('highlighted');
@@ -146,10 +146,10 @@ export abstract class ShapeManagerBase implements ShapeManagerInterface {
 		// Utils.removeHighlightPOIs();
 		// let target = element._icon || element.path; // point or other svg shape
 
-		
+
 
 		// element.__parent._group.refreshClusters(element)
-		// 
+		//
 		let isHighLighted: boolean = false;
 		if (_.get(element, '_icon.classList.contains("highlighted")', false)
 			|| _.get(element, 'path.classList.contains("highlighted")', false)
