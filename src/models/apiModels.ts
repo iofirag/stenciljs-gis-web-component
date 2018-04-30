@@ -87,7 +87,7 @@ export type DefaultMarkerIcon = {
 export type WktShape = {
     wkt: string
     areaSize?: number
-    id?: number
+    id?: string
 }
 
 export type Coordinate = {

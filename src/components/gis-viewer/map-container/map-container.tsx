@@ -104,6 +104,12 @@ export class MapContainer {
   }
 
   @Method()
+  importDrawState(wktShapes: Array<WktShape>): void {
+    const drawBarEl: HTMLDrawBarPluginElement = this.el.querySelector(DRAW_BAR_PLUGIN_TAG);
+    drawBarEl.import(wktShapes);
+  }
+
+  @Method()
   toggleShapeSelectionById(shapeDataArr: ShapeData[]): void {
     const visibleLayers: L.Layer[] = Utils.getVisibleLayers(store.mapLayers, store.gisMap);
 

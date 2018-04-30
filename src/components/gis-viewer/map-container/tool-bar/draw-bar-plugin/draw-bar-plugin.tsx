@@ -43,14 +43,56 @@ export class DrawBarPlugin {
             const shapeStore: ShapeStore = store.groupIdToShapeStoreMap[layer.groupId][layer.id];
             const shapeType: ShapeType = _.get(shapeStore, 'shapeDef.shapeObject.type');
             const manager: ShapeManagerInterface = ShapeManagerRepository.getManagerByType(shapeType);
-            if (manager) {
-                const wkt: string = manager.shapeObjectToWkt(shapeStore.shapeDef.shapeObject);  // TBD can use the wkt that created at the creation of this layer. check can cause a wrong wkt if user has edit the shape
-				const id: number = L.Util.stamp(layer);	// TBD Get leaflet layer id / or use the unique id of the layer
-                const areaSize: number = manager.getAreaSize(shapeStore.shapeDef.shapeObject);
-				exportDrawableLayers.push({ wkt, id, areaSize });
-            }
+            if (!manager) { return; }
+
+            //const wkt: string = manager.shapeObjectToWkt(shapeStore.shapeDef.shapeObject);  // TBD can use the wkt that created at the creation of this layer. check can cause a wrong wkt if user has edit the shape
+            const wkt: string = shapeStore.shapeDef.shapeWkt;
+            const id: string = layer.id;
+            const areaSize: number = manager.getAreaSize(shapeStore.shapeDef.shapeObject);
+            exportDrawableLayers.push({ wkt, id, areaSize });
         });
         return exportDrawableLayers;
+    }
+
+    @Method()
+    public import(wktShapesArr: Array<WktShape>) {
+      // Iterate all imported WktShapes
+      wktShapesArr.forEach((item: WktShape) => {
+        const shapeWkt: string = item.wkt;
+        const id: string = item.id;
+        const manager: ShapeManagerInterface | null = ShapeManagerRepository.getManagerByWkt(shapeWkt);
+
+        if (!manager) { return; };
+
+        const shapeObject: ShapeObject = manager.shapeWktToObject(shapeWkt);
+        const data: ShapeData = {
+          groupId: GENERATED_ID.DRAW_LAYER_GROUP_ID,
+          id,
+          name: 'Editable layer',
+          isSelected: false,
+          count: 1
+        };
+
+        const shapeDef: ShapeDefinition = { shapeWkt, shapeObject, data };
+        const leafletRef: L.Layer | L.FeatureGroup = manager.createShape(shapeDef);
+        const shapeStore: ShapeStore = { leafletRef, shapeDef };
+
+        // Add shape to layer
+        this.drawnLayer.addLayer(leafletRef);
+
+        // Set shape events
+        Utils.setEventsOnLeafletLayer(leafletRef, {
+          click: Utils.shapeOnClickHandler.bind(this)
+          // mouseout: () => { this.onOutShape(leafletObject, managerType); },
+        });
+
+        // register shape to store
+        store.addShape(shapeStore);
+      });
+
+      // Run onEndImportDraw Callback
+      // const allDrawableLayers: WktShape[] = this.export();
+      // this.context.props.onEndImportDraw(allDrawableLayers);
     }
 
     @Method()

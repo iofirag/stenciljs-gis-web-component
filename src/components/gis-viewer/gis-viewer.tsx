@@ -91,6 +91,15 @@ export class GisViewer {
     Utils.highlightPOIsByGroupId(groupId);
   }
 
+
+  @Method()
+  importDrawState(parentData: Array<WktShape>): void {
+		if (this.verifyIsMapExist()) {
+      // this.mapContainerEl.toolbarComp.getDrawBar().import(parentData);
+      this.mapContainerEl.importDrawState(parentData);
+		}
+	}
+
   componentWillLoad() {
     store.initState(this.gisViewerProps);
     // Set first base map as working tile
