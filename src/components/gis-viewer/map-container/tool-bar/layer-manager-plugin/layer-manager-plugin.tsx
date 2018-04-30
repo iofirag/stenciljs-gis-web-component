@@ -325,11 +325,14 @@ export class layerManagerPlugin {
                         </div>
                     `;
                     Utils.appendHtmlWithContext(div, container, this);
+
+                    div.addEventListener('click', this.stopEventBubbling)
                 }
                 return div;
             },
 
             onRemove: (map: any) => {
+                store.gisMap.getContainer().querySelector('.custom-layer-controller-header').removeEventListener('click', this.stopEventBubbling);
                 styledLayerConroller.onRemove(map);
             },
 
@@ -363,6 +366,11 @@ export class layerManagerPlugin {
             }
         });
         return new control();
+    }
+
+    stopEventBubbling(e: any) {
+      e.stopPropagation();
+      e.preventDefault();
     }
 
     onChangeImport(event: any) {
