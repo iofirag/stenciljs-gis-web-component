@@ -1,5 +1,5 @@
 import { Component, Prop, State, Method } from "@stencil/core";
-import { DrawBarConfig, ShapeStore, ShapeType, ShapeDefinition, ShapeData, ShapeObject, WktShape } from "../../../../../models";
+import { DrawBarConfig, ShapeStore, ShapeType, ShapeDefinition, ShapeData, ShapeObject, WktShape, MarkerShapeOptions, MarkerShape } from "../../../../../models";
 // import * as leafletDraw from 'leaflet-draw';
 import * as leafletDrawDrag from 'leaflet-draw-drag';
 import L from "leaflet";
@@ -170,9 +170,24 @@ export class DrawBarPlugin {
     }
 
     private onDrawCreated(e: any): void {
-
         const layerEnumType: ShapeType = ShapeManagerRepository.getTypeNumberByDrawableTypeName(e.layerType);
         const shapeDef: ShapeDefinition = this.createShapeDefFromDrawLayer(e.layer, layerEnumType);
+
+        if (layerEnumType === ShapeType.MARKER) {
+          // override marker image icon to svg icon
+          const markerIcon = L.divIcon({
+            html: markerSvg,
+            className: 'marker-svg',
+            iconSize: new L.Point(20, 27)
+          });
+          _.merge(shapeDef, {options: {icon: markerIcon}});
+
+          const markerShape: MarkerShape = shapeDef.shapeObject.shape as MarkerShape;
+          const {lat, lng } = markerShape.coordinate;
+
+          e.layer = new L.Marker([lat, lng], shapeDef.options as MarkerShapeOptions);
+        }
+
 
         // Add shapeDef to layer
         // e.layer = this.addShapeDefToLayer(e.layer, shapeDef) as L.FeatureGroup;
@@ -184,30 +199,6 @@ export class DrawBarPlugin {
         // // Use callback of onDrawCreated
         // const wktShape: WktShape = this.getWktShapeFromWkt(e.layer);
         // this.context.props.onDrawCreated(wktShape);
-
-        // const markerShape: MarkerShape = <MarkerShape>shapeDef.shapeObject.shape;
-
-		// const markerShapeOptions: MarkerShapeOptions = shapeDef.options as MarkerShapeOptions || {};
-        // const {lat, lng } = markerShape.coordinate;
-
-
-
-        /* const markerIcon = L.divIcon({
-            html: markerSvg,
-            className: 'marker-svg',
-            iconSize: new L.Point(20, 27)
-        });
-        // console.log(markerIcon);
-        e.layer.options.icon = markerIcon */
-        // debugger
-
-
-
-        // _.assign(markerShapeOptions, {icon: interceptIcon});
-
-        // const leafletObject: L.Layer = new L.Marker([lat, lng], markerShapeOptions);
-
-
 
         // Add shape to layer
         this.drawnLayer.addLayer(e.layer);
