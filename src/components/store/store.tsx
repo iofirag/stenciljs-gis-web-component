@@ -219,7 +219,7 @@ class Store {
               }
           }
       };
-      
+
         const layerManagerConfig: LayerManagerConfig = {
             enable: true,
             drawBarConfig,

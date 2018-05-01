@@ -1,5 +1,5 @@
 import { Component, Prop, State, Method } from "@stencil/core";
-import { DrawBarConfig, ShapeStore, ShapeType, ShapeDefinition, ShapeData, ShapeObject, WktShape, MarkerShapeOptions, MarkerShape } from "../../../../../models";
+import { DrawBarConfig, ShapeStore, ShapeType, ShapeDefinition, ShapeData, ShapeObject, WktShape } from "../../../../../models";
 // import * as leafletDraw from 'leaflet-draw';
 import * as leafletDrawDrag from 'leaflet-draw-drag';
 import L from "leaflet";
@@ -171,22 +171,11 @@ export class DrawBarPlugin {
     private onDrawCreated(e: any): void {
         const layerEnumType: ShapeType = ShapeManagerRepository.getTypeNumberByDrawableTypeName(e.layerType);
         const shapeDef: ShapeDefinition = this.createShapeDefFromDrawLayer(e.layer, layerEnumType);
+        const manager = ShapeManagerRepository.getManagerByType(_.get(shapeDef, 'shapeObject.type'));
 
-        if (layerEnumType === ShapeType.MARKER) {
-          // override marker image icon to svg icon
-          const markerIcon = L.divIcon({
-            html: markerSvg,
-            className: 'marker-svg',
-            iconSize: new L.Point(33, 40)
-          });
-          _.merge(shapeDef, {options: {icon: markerIcon}});
-
-          const markerShape: MarkerShape = shapeDef.shapeObject.shape as MarkerShape;
-          const {lat, lng } = markerShape.coordinate;
-
-          e.layer = new L.Marker([lat, lng], shapeDef.options as MarkerShapeOptions);
+        if (manager) {
+          e.layer = manager.createShape(shapeDef);
         }
-
 
         // Add shapeDef to layer
         // e.layer = this.addShapeDefToLayer(e.layer, shapeDef) as L.FeatureGroup;

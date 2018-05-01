@@ -457,7 +457,7 @@ export default class Utils {
             }
             _.forEach(groupData, (shapeStore: ShapeStore) => {
                 const manager = ShapeManagerRepository.getManagerByType(_.get(shapeStore, 'shapeDef.shapeObject.type'));
-                if (manager && _.has(shapeStore, 'leafletRef.getLatLng')) {
+                if (manager && (shapeStore.leafletRef as any).getLatLng()) {
                     if (store.gisMap.getBounds().contains((shapeStore.leafletRef as any).getLatLng())) {
                         manager.updateIsSelectedView(shapeStore.leafletRef);
                         // Fix for unselected shapes that theier group is selected

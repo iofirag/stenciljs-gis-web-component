@@ -352,8 +352,11 @@ export class MapContainer {
 
         }
       }
-      Utils.updateViewForSelectedObjects(changedIds);
     });
+
+    if (!_.isEmpty(changedIds)) {
+      Utils.updateViewForSelectedObjects(changedIds);
+    }
     // Execute onGetSelected callback
     // if (shapeDefSelectedList.length) {
     //   // this.context.props.onSelectionDone(shapeDefSelectedList);  // O.A

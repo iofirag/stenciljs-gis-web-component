@@ -65,7 +65,7 @@ export class PolygonShapeManager extends ShapeManagerBase {
   }
 
   isWktOfType(wkt: string): boolean {
-    /* TBD use shapeWktToObject method to parse wkt string, 
+    /* TBD use shapeWktToObject method to parse wkt string,
       if success and get the object, return true
       else return false
     */
@@ -114,7 +114,7 @@ export class PolygonShapeManager extends ShapeManagerBase {
     }
     // tbd , use _.defaults for default options
   }
-  
+
   getShapeObjectFromDrawingLayer(layer: L.Polygon): ShapeObject {
     const polygon: PolygonShape = {
       coordinates: layer.getLatLngs()[0] as any
