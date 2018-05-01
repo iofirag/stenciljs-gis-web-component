@@ -117,6 +117,10 @@ export class GisViewer {
   }
 
   componentDidLoad() {
+    // fix: run material design lite upgrade func after this component appended to dom
+    const mdlComponentHandler = (window as any).componentHandler;
+    mdlComponentHandler && mdlComponentHandler.upgradeAllRegistered();
+
     Utils.log_componentDidLoad(this.compName);
     this.mapContainerEl = document.querySelector("map-container");
     this.getVersion();
