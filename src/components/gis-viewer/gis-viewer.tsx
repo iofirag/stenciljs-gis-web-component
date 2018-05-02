@@ -1,7 +1,7 @@
-import { Component, Prop, Method } from '@stencil/core';
+import { Component, Prop, Method, Event, EventEmitter } from '@stencil/core';
 import { GIS_VIEWER_TAG } from '../../utils/statics';
 import Utils from '../../utils/utilities';
-import { GisViewerProps, MapBounds, ShapeDefinition, ShapeData, WktShape } from '../../models';
+import { GisViewerProps, MapBounds, ShapeDefinition, ShapeData, WktShape, FILE_TYPES } from '../../models';
 import store from '../store/store';
 // import '../../../package';
 // import {version} from '../../../../../stencil.config'
@@ -98,7 +98,22 @@ export class GisViewer {
       // this.mapContainerEl.toolbarComp.getDrawBar().import(parentData);
       this.mapContainerEl.importDrawState(parentData);
 		}
-	}
+  }
+
+  @Method()
+  exportKmlBlob(): Blob {
+		return this.verifyIsMapExist() ? this.mapContainerEl.exportBlobByFileTypeCommand(FILE_TYPES.kml) : undefined;
+  }
+
+  @Method()
+  exportCsvBlob(): Blob {
+		return this.verifyIsMapExist() ? this.mapContainerEl.exportBlobByFileTypeCommand(FILE_TYPES.csv) : undefined;
+  }
+
+  @Method()
+	exportShpBlob(): Blob {
+		return this.verifyIsMapExist() ? this.mapContainerEl.exportBlobByFileTypeCommand(FILE_TYPES.zip) : undefined;
+  }
 
   componentWillLoad() {
     store.initState(this.gisViewerProps);

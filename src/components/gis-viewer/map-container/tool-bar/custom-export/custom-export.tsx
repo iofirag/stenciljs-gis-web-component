@@ -1,6 +1,7 @@
 import { Component, Prop, Element, Method } from "@stencil/core";
 import Utils from "../../../../../utils/utilities";
 import { FILE_TYPES, CUSTOM_EXPORT_TAG, DROP_DOWN_PLUGIN_TAG } from "../../../../../utils/statics";
+import store from "../../../../store/store";
 // import _ from "lodash";
 // import store from "../../../../store/store";
 
@@ -27,18 +28,18 @@ export class CustomExport {
 
 
     render() {
-        
+
         const exportDropDownData: any[] = [{
             label: 'Export KML',
-            onClick: Utils.exportBlobFactory.bind(this, FILE_TYPES.kml, {}, null, 'onSaveKmlBlob'),
+            onClick: Utils.exportBlobFactory.bind(this, FILE_TYPES.kml, store.mapLayers, store.gisMap, 'onSaveKmlBlob'),
             className: 'icon-kml'
         }, {
             label: 'Export CSV',
-            onClick: Utils.exportBlobFactory.bind(this, FILE_TYPES.csv, {}, null, 'onSaveCsvBlob'),
+            onClick: Utils.exportBlobFactory.bind(this, FILE_TYPES.csv, store.mapLayers, store.gisMap, 'onSaveCsvBlob'),
             className: 'icon-csv'
         }, {
             label: 'Export SHP',
-            onClick: Utils.exportBlobFactory.bind(this, FILE_TYPES.zip, {}, null, 'onSaveShpBlob'),
+            onClick: Utils.exportBlobFactory.bind(this, FILE_TYPES.zip, store.mapLayers, store.gisMap, 'onSaveShpBlob'),
             className: 'icon-shp'
         }];
 

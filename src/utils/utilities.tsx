@@ -1,10 +1,14 @@
 import _ from "lodash";
 import { FILE_TYPES, DEFAULT_OSM_TILE, MIN_ZOOM, MAX_ZOOM, FILE_TYPES_ARRAY, GENERATED_ID, ZOOM_TO_EXTEND_PADDING } from "./statics";
+import { zip } from "@cc/shp-write";
 // <<<<<<< HEAD
 import { TileLayerDefinition, BaseMap, ShapeLayerContainer_Dev, ShapeLayerDefinition,
     ShapeType, MapLayers, GroupData, ShapeStore, SelectedObjects, ShapeData, SelectedObjectsValue, ShapeIds,
     GroupIdToShapeStoreMap,
-    Coordinate} from "../models";
+    Coordinate,
+    ShapeDefinition,
+    EXPORT_SHAPE_FIELDS,
+    ExportedCSVFormat} from "../models";
 // =======
 // import { TileLayerDefinition, BaseMap, ShapeLayerContainer_Dev, ShapeLayerDefinition,
 //     ShapeType, MapLayers, GroupData, ShapeStore, SelectedObjects, ShapeData, SelectedObjectsValue, GroupIdToShapeStoreMap } from "../models";
@@ -15,6 +19,9 @@ import LayersFactory from "./LayersFactory";
 import { ShapeEventHandlers, ShapeManagerInterface } from "./shapes/ShapeManager";
 import store from "../components/store/store";
 import { ShapeManagerRepository } from "./shapes/ShapeManagerRepository";
+
+import tokml from 'tokml';
+import { toJS } from "mobx";
 
 export default class Utils {
     public static log_componentWillLoad(compName: string) {
@@ -92,6 +99,32 @@ export default class Utils {
             eventData.stopPropagation();
         });
     }
+
+    public static b64toBlob = function (b64Data: string, contentType: string, sliceSize?: number) {
+      contentType = contentType || '';
+      sliceSize = sliceSize || 512;
+
+      const byteCharacters = atob(b64Data);
+      const byteArrays = [];
+
+      for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+        const slice = byteCharacters.slice(offset, offset + sliceSize);
+        const byteNumbers = new Array(slice.length);
+
+        for (let i = 0; i < slice.length; i++) {
+          byteNumbers[i] = slice.charCodeAt(i);
+        }
+
+        const byteArray = new Uint8Array(byteNumbers);
+
+        byteArrays.push(byteArray);
+      }
+
+      const blob = new Blob(byteArrays, { type: contentType });
+
+      return blob;
+    };
+
     public static fitLayerControllerPosition(LayerControllerMode: string = ''): void {
         const layerControllerButton: any = document.querySelector('.custom-toolbar-button.layer-controller');
         const layerControllerPlugin: any = document.querySelector('.custom-layer-controller');
@@ -109,17 +142,214 @@ export default class Utils {
         // Empty class list for this Form element
         // styledLayerControllerElement.firstElementChild.firstElementChild.classList = '';
     }
-    static exportBlobFactory(
-        fileType: FILE_TYPES,
-        selectedLeafletObjects: { [key: string]: L.Layer },
-        mapState: any,
-        callback: string): Blob {
-            _.noop([fileType, selectedLeafletObjects, mapState, callback])
-        // const relevantExportedLayers: L.Layer[] = Utils.getRelevantExportedLayers(selectedLeafletObjects, mapState, map);
-        // const geoJsonList: L.GeoJSON[] = Utils.shapeListToGeoJson(relevantExportedLayers);
 
-        // return Utils.getBlobByType(fileType, geoJsonList, callback);
-        return null;
+    public static uglifyCsvJson(geoJson: L.GeoJSON): L.GeoJSON {
+      // Uglify shapeDataObj
+      if (geoJson.properties[EXPORT_SHAPE_FIELDS.shapeDataObj]) {
+        geoJson.properties[EXPORT_SHAPE_FIELDS.shapeDataObj] = geoJson.properties[EXPORT_SHAPE_FIELDS.shapeDataObj].replace(/`/g, "");// delete all ` character
+        geoJson.properties[EXPORT_SHAPE_FIELDS.shapeDataObj] = geoJson.properties[EXPORT_SHAPE_FIELDS.shapeDataObj].replace(/"/g, "`");// replace all " with `
+      }
+
+      return geoJson;
+    }
+
+    public static exportBlobFactory(
+        fileType: FILE_TYPES,
+        mapLayers: MapLayers,
+        gisMap: L.Map,
+        callback?: string): Blob {
+
+        const relevantExportedLayers: L.Layer[] = Utils.getRelevantExportedLayers(mapLayers, gisMap);
+        const geoJsonList: L.GeoJSON[] = Utils.shapeListToGeoJson(relevantExportedLayers);
+        console.log(geoJsonList);
+
+        return Utils.getBlobByType(fileType, geoJsonList, callback);
+        // return null;
+    }
+
+    private static getBlobByType(type: FILE_TYPES, geoJsonList: L.GeoJSON[], callback?: string): Blob {
+
+      let blobData: Blob;
+      switch (type) {
+        case FILE_TYPES.kml:
+          const kml: string = Utils.exportToKML(geoJsonList);
+          blobData = new Blob([kml], { type: "text/plain;charset=utf-8" });
+          break;
+        case FILE_TYPES.csv:
+          const csv: string = Utils.exportToCSV(geoJsonList);
+          blobData = new Blob([csv], { type: "text/plain;charset=utf-8" });
+          break;
+        case FILE_TYPES.zip:
+          const shp64b = Utils.exportToSHP(geoJsonList);
+          blobData = Utils.b64toBlob(shp64b, 'application/zip');
+          break;
+        default:
+          console.warn('File type is not recognize');
+          break;
+      }
+      if (blobData && callback) {
+        // callback(blobData);
+      }
+      return blobData;
+    }
+
+    private static exportToCSV(geoJsonList: L.GeoJSON[]): string {
+      const csv: string = Utils.createCsvFormatFromGeoJsonList(geoJsonList);
+      return csv;
+    }
+
+    private static exportToSHP(geoJsonList: L.GeoJSON[]): any {
+      // TODO Fix Export Shp file
+      let shpBase64: any = undefined;
+      try {
+        shpBase64 = zip({
+          type: 'FeatureCollection',
+          features: geoJsonList
+        });
+      } catch(e) {
+        console.log('Shp file failed: ', e.message);
+      }
+
+      return shpBase64;
+    }
+
+    private static exportToKML(geoJsonList: L.GeoJSON[]): string {
+      const kml: string = Utils.createKmlFormatFromLayers(geoJsonList);
+      return kml;
+    }
+
+    private static createCsvFormatFromGeoJsonList(geoJsonList: L.GeoJSON[]): string {
+      let allRows: ExportedCSVFormat[] = [];
+      // var jsonToCsv = require('convert-json-to-csv');
+
+      geoJsonList.forEach((geoJson: L.GeoJSON) => {
+        geoJson = Utils.uglifyCsvJson(geoJson);	// Fix data for creating valid csv	// Check
+        const row: ExportedCSVFormat = geoJson.properties;
+        allRows.push(row);
+      });
+      return this.convertArrayOfObjectsToCSV(allRows);
+    }
+
+    private static convertArrayOfObjectsToCSV(dataList: ExportedCSVFormat[], columnDelimiter?: any, lineDelimiter?: string): string {
+      let result: string;
+      let ctr: number;
+      let keys: string[];
+
+      if (dataList === null || !dataList.length) {
+        return '';
+      }
+
+      columnDelimiter = columnDelimiter || ',';
+      lineDelimiter = lineDelimiter || '\n';
+      keys = Object.keys(dataList[0]);
+      result = '';
+      result += keys.join(columnDelimiter);
+
+      dataList.forEach((item: any) => {
+        ctr = 0;
+        result += lineDelimiter;
+        keys.forEach((key: any) => {
+          if (ctr > 0) {
+            result += columnDelimiter;
+          }
+          result += "\"" + item[key] + "\"";
+          ctr++;
+        });
+      });
+      return result;
+    }
+
+    private static createKmlFormatFromLayers(geoJsonLayers: L.GeoJSON[]): string {
+      if (!geoJsonLayers) { return undefined; }
+
+      let kmlStrHeader = '';
+      let kmlStrFooter = '';
+      let kmlStrContent = '';
+
+      geoJsonLayers.forEach((geoJson: L.GeoJSON, i: number) => {
+        const kml: string = tokml(geoJson);
+        const placeMarkStartTag: string = '<Placemark>';
+        const placeMarkEndTag: string = '</Placemark>';
+        const documentStartTag: string = '<Document>';
+        const documentEndTag: string = '</Document>';
+        const endOfExtendedData = '</ExtendedData>';
+        // const emptyExtendedDataTag: string = '<ExtendedData></ExtendedData>';
+
+        // // kml content
+        // const startPlacemarkIndex: number = kml.indexOf(placeMarkStartTag) + placeMarkStartTag.length;
+        // const endPlacemarkIndex: number = kml.lastIndexOf(placeMarkEndTag) + placeMarkEndTag.length;
+
+        const indexOfEndOfExtendedData  = kml.indexOf(endOfExtendedData) + endOfExtendedData.length;
+        const indexOfEndOfPlacemark = kml.indexOf(placeMarkEndTag) + placeMarkEndTag.length;
+        kmlStrContent = kml.slice(indexOfEndOfExtendedData, indexOfEndOfPlacemark);
+
+        // kmlStrContent = kml.slice(startPlacemarkIndex, endPlacemarkIndex).replace(emptyExtendedDataTag, '');
+
+        if (i === 0) {
+          // kml header syntax tags
+          kmlStrHeader = kml.slice(0, kml.indexOf(documentStartTag) + documentStartTag.length);
+          // Create schema here & kmlStrHeader += schema;
+          // kml closing tags
+          kmlStrFooter = kml.slice(kml.lastIndexOf(documentEndTag));
+        }
+        kmlStrHeader += placeMarkStartTag;
+        kmlStrHeader += this.createKmlExtendedData(geoJson);
+        kmlStrHeader += kmlStrContent;
+      });
+      kmlStrHeader += kmlStrFooter; // Valid KML format
+      return kmlStrHeader;
+    }
+
+    private static createKmlExtendedData(geoJson: L.GeoJSON): string {
+      const shapeData: ShapeData = JSON.parse(geoJson.properties[EXPORT_SHAPE_FIELDS.shapeDataObj]);
+      const shapeDef: ShapeDefinition = {...store.groupIdToShapeStoreMap[shapeData.groupId][shapeData.id].shapeDef};
+      if (_.isEmpty(shapeDef)) { return ''; };
+
+      const manager: ShapeManagerInterface = ShapeManagerRepository.getManagerByType(shapeDef.shapeObject.type);
+      const areaSize: number = manager.getAreaSize(shapeDef.shapeObject);
+
+      const extendedData: string =
+        `<ExtendedData>
+          ${shapeDef.shapeWkt ? `<Data name="${EXPORT_SHAPE_FIELDS.shapeWkt}"><value>${shapeDef.shapeWkt}</value></Data>` : ''}
+          ${shapeData ? `<Data name="${EXPORT_SHAPE_FIELDS.shapeDataObj}"><value>${JSON.stringify(shapeData)}</value></Data>` : ''}
+          <Data name="${EXPORT_SHAPE_FIELDS.areaSize}"><value>${areaSize}</value></Data>
+        </ExtendedData>`;
+
+      return extendedData;
+    }
+
+    // private static updateShapeDefIsSelected(id: string, groupId: string): ShapeData {
+    //   const shape: ShapeStore = store.groupIdToShapeStoreMap[groupId][id];
+    //   const shapeData: ShapeData = {...shape.shapeDef.data};
+    //   const isSelectedObjectsContainsShape: boolean = store.idToSelectedObjectsMap.hasOwnProperty(id)|| store.idToSelectedObjectsMap.hasOwnProperty(groupId);
+
+    //   shapeData.isSelected = isSelectedObjectsContainsShape;
+
+    //   return shapeData;
+    // }
+
+    private static shapeListToGeoJson(visibleLayers: L.Layer[]): L.GeoJSON[] {
+      const geoJsonList: L.GeoJSON[] = [];
+
+      visibleLayers.forEach((layer: L.Layer) => {
+        const shapeStore:             ShapeStore = Utils.getShapeStoreByShapeId(layer.id, layer.groupId);
+        const shapeDefObj:       ShapeDefinition = shapeStore.shapeDef as ShapeDefinition;
+        const shapeData: ShapeData = toJS(shapeDefObj.data);
+        const manager:     ShapeManagerInterface = ShapeManagerRepository.getManagerByType(shapeDefObj.shapeObject.type);
+        const geoJson:                 L.GeoJSON = (layer as L.LayerGroup).toGeoJSON() as any;
+
+        // delete shapeData.isSelected;
+        // delete shapeData.isSelectedFade;
+
+        // shapeDefObj.data = Utils.updateShapeDefIsSelected(layer.id, layer.groupId);
+        geoJson.properties[EXPORT_SHAPE_FIELDS.shapeWkt]     = shapeDefObj.shapeWkt || '';
+        geoJson.properties[EXPORT_SHAPE_FIELDS.areaSize]     = manager.getAreaSize(shapeDefObj.shapeObject);
+        geoJson.properties[EXPORT_SHAPE_FIELDS.shapeDataObj] = JSON.stringify(shapeData) || JSON.stringify({});
+
+        geoJsonList.push(geoJson);
+      });
+
+      return geoJsonList;
     }
     public static toggleCustomDropDownMenu(elm: HTMLElement) {
         const toogleState = elm.style.display;

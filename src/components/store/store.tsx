@@ -61,7 +61,6 @@ class Store {
      */
     @action initState(_props: GisViewerProps) {
         this.state = _.cloneDeep(_props);
-
     }
 
     /**

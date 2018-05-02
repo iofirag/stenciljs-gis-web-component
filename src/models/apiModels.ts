@@ -26,9 +26,9 @@ export type GisViewerProps = {
     // onBoundsChanged?: (mapBounds: MapBounds, programmatic: boolean) => void
     // onSelectionDone?: (shapeDefList: ShapeDefinition[]) => void
     // onMapReady?: () => void
-    // onSaveKmlBlob?: (kml: Blob) => void
-    // onSaveCsvBlob?: (csv: Blob) => void
-    // onSaveShpBlob?: (shp: Blob) => void
+    onSaveKmlBlob?: (kml: Blob) => void
+    onSaveCsvBlob?: (csv: Blob) => void
+    onSaveShpBlob?: (shp: Blob) => void
 }
 
 export type MapConfig = {
@@ -411,3 +411,23 @@ export type ShapeIds = {
     groupId: string,
     shapeId: string
 }
+
+export enum FILE_TYPES {
+  kml= 'kml',
+  csv= 'csv',
+  zip= 'zip' // (shp file)
+}
+
+export const EXPORT_SHAPE_FIELDS: { [key: string]: string } = {
+  shapeWkt: 'shapeWkt',
+  shapeDataObj: 'shapeDat',
+  shapeOptionsObj: 'shapeOpt',
+  areaSize: 'areaSize'
+};
+
+export type ExportedCSVFormat = {
+	shapeWkt: string,
+	shapeDataObj: any,
+	shapeOptionsObj: any,
+	areaSize: number
+};

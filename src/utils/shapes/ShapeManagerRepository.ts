@@ -55,14 +55,14 @@ export class ShapeManagerRepository {
 	// 	return null;
 	// }
 
-	// public static getManagerByShapeDefLayer(layer: L.Layer): ShapeManagerInterface | null {
-	// 	const shapeType: ShapeType = _.get(layer, 'shapeDef.shapeObject.type');
-	// 	if (shapeType !== null && shapeType !== undefined) {
-	// 		return ShapeManagerRepository.getManagerByType(shapeType);
-	// 	}
-	// 	console.error('ShapeManagerRepository: Unable to detect layer');
-	// 	return null;
-	// }
+	public static getManagerByShapeDefLayer(layer: L.Layer): ShapeManagerInterface | null {
+		const shapeType: ShapeType = _.get(layer, 'shapeDef.shapeObject.type');
+		if (shapeType !== null && shapeType !== undefined) {
+			return ShapeManagerRepository.getManagerByType(shapeType);
+		}
+		console.error('ShapeManagerRepository: Unable to detect layer');
+		return null;
+	}
 
 	public static getManagerByWkt(wkt: string): ShapeManagerInterface | null {
 		for (const managerEnum of Object.keys(this.managersByType)) {
@@ -85,7 +85,7 @@ export class ShapeManagerRepository {
 		}
 		console.error('ShapeManagerRepository: Either shapeObject or shapeWkt must not be empty');
 		return null;
-	}
+  }
 
 	public static getTypeNumberByDrawableTypeName(shapeTypeName: string): ShapeType {
 		switch (shapeTypeName.toLowerCase()) {

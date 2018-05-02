@@ -19,6 +19,7 @@ import {
   WktShape,
 } from '../../models';
 import { GIS_VIEWER_TAG } from '../../utils/statics';
+import { saveAs } from 'file-saver';
 
 @Component({
   tag: 'dev-component',
@@ -78,6 +79,9 @@ export class DevComponent {
         <input type='button' value='Import draw layers' onClick={e => this.testImportDrawState(e)} />
         <input type='button' value='Toggle Shape Selection' onClick={e => this.testToggleShapeSelectionById(e)} />
         <input type='button' value='Highlight Group' onClick={e => this.testHighlightPOIsByGroupId(e)} />
+        <input type='button' value='Export Kml' onClick={e => this.testExportKmlBlobCMD(e)} />
+        <input type='button' value='Export Csv' onClick={e => this.testExportCsvBlobCMD(e)} />
+        <input type='button' value='Export Shp' onClick={e => this.testExportShpBlobCMD(e)} />
         {/* <input type='button' value='' onClick={() => {}} /> */}
 
         {/* <RaisedButton label='Export draw' primary={true} onClick={this.testExportDraw} />
@@ -199,6 +203,39 @@ export class DevComponent {
       this.gisViewerEl.importDrawState(drawState);
     }
   }
+
+  testExportKmlBlobCMD(e: UIEvent) {
+    console.log('Testing testExportKmlBlobCMD api method', e.type);
+    const kml: Blob = this.gisViewerEl.exportKmlBlob();
+		// alert('export kml blob'+ kml);
+		saveAs(kml, 'map-data.kml');
+  }
+
+	testExportCsvBlobCMD(e: UIEvent): void {
+    console.log('Testing testExportCsvBlobCMD api method', e.type);
+		const csv: Blob = this.gisViewerEl.exportCsvBlob();
+    saveAs(csv, 'map-data.csv');
+  }
+
+	testExportShpBlobCMD(e: UIEvent): void {
+    console.log('Testing testExportShpBlobCMD api method', e.type);
+		const shp: Blob = this.gisViewerEl.exportShpBlob();
+    saveAs(shp, 'map-data.zip');
+  }
+
+  private onSaveKmlFormatCB(kml: Blob) {
+		// alert('export kml blob'+ kml);
+		saveAs(kml, 'map-data.kml');
+	}
+	private onSaveCsvFormatCB(csv: Blob) {
+		// alert('export csv blob' + csv);
+		saveAs(csv, 'map-data.csv');
+	}
+	private onSaveShpFormatCB(shp: Blob) {
+		// alert('export shp blob' + shp);
+		saveAs(shp, "download.zip");
+	}
+
 
 
 
@@ -518,6 +555,9 @@ export class DevComponent {
 
       toolbarConfig,
       mapPluginsConfig,
+      onSaveKmlBlob: this.onSaveKmlFormatCB.bind(this),
+			onSaveCsvBlob: this.onSaveCsvFormatCB.bind(this),
+			onSaveShpBlob: this.onSaveShpFormatCB.bind(this),
 
       //   onMapReady: this.onMapReadyCB.bind(this),
       //   onDrawEdited: this.drawEditedCB.bind(this),
