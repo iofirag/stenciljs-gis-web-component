@@ -1,7 +1,6 @@
 import _ from "lodash";
 import { FILE_TYPES, DEFAULT_OSM_TILE, MIN_ZOOM, MAX_ZOOM, FILE_TYPES_ARRAY, GENERATED_ID, ZOOM_TO_EXTEND_PADDING } from "./statics";
 import { zip } from "@cc/shp-write";
-// <<<<<<< HEAD
 import { TileLayerDefinition, BaseMap, ShapeLayerContainer_Dev, ShapeLayerDefinition,
     ShapeType, MapLayers, GroupData, ShapeStore, SelectedObjects, ShapeData, SelectedObjectsValue, ShapeIds,
     GroupIdToShapeStoreMap,
@@ -9,10 +8,6 @@ import { TileLayerDefinition, BaseMap, ShapeLayerContainer_Dev, ShapeLayerDefini
     ShapeDefinition,
     EXPORT_SHAPE_FIELDS,
     ExportedCSVFormat} from "../models";
-// =======
-// import { TileLayerDefinition, BaseMap, ShapeLayerContainer_Dev, ShapeLayerDefinition,
-//     ShapeType, MapLayers, GroupData, ShapeStore, SelectedObjects, ShapeData, SelectedObjectsValue, GroupIdToShapeStoreMap } from "../models";
-// >>>>>>> 6df301df83b46aae835fdc470c4128b13b9eb044
 import L from "leaflet";
 import html2canvas from "html2canvas";
 import LayersFactory from "./LayersFactory";
@@ -735,13 +730,9 @@ export default class Utils {
                 const highlightMarkerCluster = _.get(shapeStore, 'leafletRef.__parent._group');
 
                 if (!!highlightMarkerCluster) {
-// <<<<<<< HEAD
+
                     const cluster = highlightMarkerCluster.getVisibleParent(shapeStore.leafletRef);
 
-// =======
-//                     const cluster = highlightMarkerCluster && highlightMarkerCluster.getVisibleParent(shapeStore.leafletRef);
-
-// >>>>>>> 6df301df83b46aae835fdc470c4128b13b9eb044
                     let isSelected = false;
                     if (store.idToSelectedObjectsMap.hasOwnProperty(shapeStore.leafletRef.groupId)
                         || store.idToSelectedObjectsMap.hasOwnProperty(shapeStore.leafletRef.id)) {
