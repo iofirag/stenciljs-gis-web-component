@@ -25,6 +25,12 @@ export class GisViewer {
   @Event() saveShpFormat: EventEmitter<Blob>;
   @Event() endImportDraw: EventEmitter<WktShape[]>;
   @Event() drawCreated: EventEmitter<WktShape>;
+  @Event() drawEdited: EventEmitter<WktShape[]>;
+
+  @Listen('onDrawEditedCB')
+  drawEditedHandler(event: CustomEvent<WktShape[]>): void {
+    this.drawEdited.emit(event.detail);
+  }
 
   @Listen('onDrawCreatedCB')
   drawCreatedHandler(event: CustomEvent<WktShape>): void {
