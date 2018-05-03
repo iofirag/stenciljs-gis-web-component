@@ -36,12 +36,12 @@
     "leaflet.styledlayercontrol": "git+https://github.com/iofirag/Leaflet.StyledLayerControl.git",
     "lodash": "4.17.5",
     "mobx": "4.1.1",
-    "tokml": "^0.4.0"
+    "tokml": "0.4.0"
   },
   "devDependencies": {
-    "@stencil/core": "0.7.26",
+    "@stencil/core": "0.8.0",
     "@stencil/dev-server": "0.0.18",
-    "@stencil/sass": "0.0.3",
+    "@stencil/sass": "0.0.5",
     "@stencil/utils": "0.0.4",
     "@types/file-saver": "0.0.1",
     "@types/html2canvas": "0.5.34",
