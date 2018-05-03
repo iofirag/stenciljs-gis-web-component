@@ -31,11 +31,11 @@ export class ToolBar {
     @State() settingsDropDownData: any[];
 
     constructor() {
-        this.toolbarFeaturesDecision = this.toolbarFeaturesDecision.bind(this);
+      this.toolbarFeaturesDecision = this.toolbarFeaturesDecision.bind(this);
     }
 
     componentWillLoad() {
-        this.element = this.createElement();
+      this.element = this.createElement();
     }
 
     render() {
