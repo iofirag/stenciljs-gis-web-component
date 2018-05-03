@@ -24,6 +24,12 @@ export class GisViewer {
   @Event() saveCsvFormat: EventEmitter<Blob>;
   @Event() saveShpFormat: EventEmitter<Blob>;
   @Event() endImportDraw: EventEmitter<WktShape[]>;
+  @Event() drawCreated: EventEmitter<WktShape>;
+
+  @Listen('onDrawCreatedCB')
+  drawCreatedHandler(event: CustomEvent<WktShape>): void {
+    this.drawCreated.emit(event.detail);
+  }
 
   @Listen('endImportDrawCB')
   endImportDrawHandler(event: CustomEvent<WktShape[]>): void {

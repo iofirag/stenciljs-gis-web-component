@@ -27,6 +27,7 @@ export class DrawBarPlugin {
     @Prop() gisMap: L.Map
 
     @Event() endImportDrawCB: EventEmitter<WktShape[]>;
+    @Event() onDrawCreatedCB: EventEmitter<WktShape>
 
     @State() control: L.Control;
     @State() drawnLayer: L.FeatureGroup;
@@ -187,8 +188,8 @@ export class DrawBarPlugin {
         // this.drawEventHandler(e);
 
         // // Use callback of onDrawCreated
-        // const wktShape: WktShape = this.getWktShapeFromWkt(e.layer);
-        // this.context.props.onDrawCreated(wktShape);
+        const wktShape: WktShape = this.getWktShapeFromWkt(shapeDef);
+        this.onDrawCreatedCB.emit(wktShape);
 
         // Add shape to layer
         this.drawnLayer.addLayer(e.layer);
@@ -206,6 +207,28 @@ export class DrawBarPlugin {
         }
         store.addShape(shapeStore);
     }
+
+    private getWktShapeFromWkt(shapeDef: ShapeDefinition): WktShape {
+      const { shapeWkt, shapeObject } = shapeDef;
+      const manager: ShapeManagerInterface = ShapeManagerRepository.getManagerByWkt(shapeDef.shapeWkt);
+
+      if (manager) {
+        // Create WktShape from wkt, id, area size
+        const id:       string = shapeDef.data.id;	// Get leaflet layer id
+        const areaSize: number = this.calculateAreaSizeFromShapeObj(manager, shapeObject);
+        return { wkt: shapeWkt, areaSize, id };
+      } else {
+        console.error('Cant find shape manager by ShapeManagerRepository.getManagerByWkt()', shapeDef);
+        return null;
+      }
+    }
+
+    private calculateAreaSizeFromShapeObj(manager: ShapeManagerInterface, shapeObj: ShapeObject): number {
+      const areaSize = manager.getAreaSize(shapeObj);
+      return areaSize || 0;
+    }
+
+
     private createShapeDefFromDrawLayer(layer: L.Layer, shapeType: ShapeType): ShapeDefinition {
         const manager: ShapeManagerInterface = ShapeManagerRepository.getManagerByType(shapeType);
         if (!manager) { return null; }

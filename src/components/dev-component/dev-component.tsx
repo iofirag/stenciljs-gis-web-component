@@ -63,7 +63,8 @@ export class DevComponent {
       onSaveKmlFormat: ev => this.onSaveFileTypeFormatCB(ev.detail, 'kml'),
       onSaveCsvFormat: ev => this.onSaveFileTypeFormatCB(ev.detail, 'csv'),
       onSaveShpFormat: ev => this.onSaveFileTypeFormatCB(ev.detail, 'zip'),
-      onEndImportDraw: ev => this.endImportDrawCB(ev.detail)
+      onEndImportDraw: ev => this.endImportDrawCB(ev.detail),
+      onDrawCreated: ev => this.drawCreatedCB(ev.detail)
     };
 
     return (
@@ -233,6 +234,10 @@ export class DevComponent {
 
   private endImportDrawCB(allImportedLayers: WktShape[]): void {
 		console.log('Imported shapes:', allImportedLayers);
+  }
+
+  private drawCreatedCB(shape: WktShape): void {
+		console.log("Shape is drawn: ", shape);
 	}
 	// private onSaveCsvFormatCB(csv: Blob) {
 	// 	// alert('export csv blob' + csv);
