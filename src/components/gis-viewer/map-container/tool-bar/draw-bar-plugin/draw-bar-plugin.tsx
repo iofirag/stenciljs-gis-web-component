@@ -1,4 +1,4 @@
-import { Component, Prop, State, Method } from "@stencil/core";
+import { Component, Prop, State, Method, Event ,EventEmitter } from "@stencil/core";
 import { DrawBarConfig, ShapeStore, ShapeType, ShapeDefinition, ShapeData, ShapeObject, WktShape } from "../../../../../models";
 // import * as leafletDraw from 'leaflet-draw';
 import * as leafletDrawDrag from 'leaflet-draw-drag';
@@ -25,6 +25,8 @@ export class DrawBarPlugin {
     compName: string = DRAW_BAR_PLUGIN_TAG;
     @Prop() config: DrawBarConfig
     @Prop() gisMap: L.Map
+
+    @Event() endImportDrawCB: EventEmitter<WktShape[]>;
 
     @State() control: L.Control;
     @State() drawnLayer: L.FeatureGroup;
@@ -91,8 +93,8 @@ export class DrawBarPlugin {
       });
 
       // Run onEndImportDraw Callback
-      // const allDrawableLayers: WktShape[] = this.export();
-      // this.context.props.onEndImportDraw(allDrawableLayers);
+      const allDrawableLayers: WktShape[] = this.export();
+      this.endImportDrawCB.emit(allDrawableLayers);
     }
 
     @Method()

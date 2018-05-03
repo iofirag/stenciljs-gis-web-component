@@ -62,15 +62,12 @@ export class DevComponent {
     const callbacks = {
       onSaveKmlFormat: ev => this.onSaveFileTypeFormatCB(ev.detail, 'kml'),
       onSaveCsvFormat: ev => this.onSaveFileTypeFormatCB(ev.detail, 'csv'),
-      onSaveShpFormat: ev => this.onSaveFileTypeFormatCB(ev.detail, 'zip')
+      onSaveShpFormat: ev => this.onSaveFileTypeFormatCB(ev.detail, 'zip'),
+      onEndImportDraw: ev => this.endImportDrawCB(ev.detail)
     };
 
-    return <div class='dev-components'>
-      {/* <div class='header'>
-        <header title='This is a GIS Viewer component Application' />
-<<<<<<< HEAD
-      </div> */}
-      {/* <div class='body'> */}
+    return (
+    <div class='dev-components'>
       <header>
         <input type='button' value='Zoom To Extend' onClick={e => this.testZoomToExtend(e)} />
         <input type='button' value='Change Units distance' onClick={e => this.testChangeDistanceUnits(e)} />
@@ -109,7 +106,7 @@ export class DevComponent {
       <main class='gisWrapper'>
           <gis-viewer gisViewerProps={this.gisViewerState} {...callbacks} />
       </main>
-    </div>
+    </div>)
     // </div>;
     ;
   }
@@ -232,6 +229,10 @@ export class DevComponent {
   private onSaveFileTypeFormatCB(blob: Blob, fileType: string) {
 		// alert('export kml blob'+ kml);
 		saveAs(blob, `map-data.${fileType}`);
+  }
+
+  private endImportDrawCB(allImportedLayers: WktShape[]): void {
+		console.log('Imported shapes:', allImportedLayers);
 	}
 	// private onSaveCsvFormatCB(csv: Blob) {
 	// 	// alert('export csv blob' + csv);

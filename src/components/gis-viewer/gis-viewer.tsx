@@ -23,19 +23,25 @@ export class GisViewer {
   @Event() saveKmlFormat: EventEmitter<Blob>;
   @Event() saveCsvFormat: EventEmitter<Blob>;
   @Event() saveShpFormat: EventEmitter<Blob>;
+  @Event() endImportDraw: EventEmitter<WktShape[]>;
+
+  @Listen('endImportDrawCB')
+  endImportDrawHandler(event: CustomEvent<WktShape[]>): void {
+    this.endImportDraw.emit(event.detail);
+  }
 
   @Listen('saveKmlFormatCB')
-  saveKmlFormatHandler(event: CustomEvent) {
+  saveKmlFormatHandler(event: CustomEvent<Blob>): void {
     this.saveKmlFormat.emit(event.detail);
   }
 
   @Listen('saveCsvFormatCB')
-  saveCsvFormatHandler(event: CustomEvent) {
+  saveCsvFormatHandler(event: CustomEvent<Blob>): void {
     this.saveCsvFormat.emit(event.detail);
   }
 
   @Listen('saveShpFormatCB')
-  saveShpFormatHandler(event: CustomEvent) {
+  saveShpFormatHandler(event: CustomEvent<Blob>): void {
     this.saveShpFormat.emit(event.detail);
   }
 
