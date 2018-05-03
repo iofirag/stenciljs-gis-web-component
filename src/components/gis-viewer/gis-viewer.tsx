@@ -1,4 +1,4 @@
-import { Component, Prop, Method, Event, EventEmitter } from '@stencil/core';
+import { Component, Prop, Method, Event, EventEmitter, Listen } from '@stencil/core';
 import { GIS_VIEWER_TAG } from '../../utils/statics';
 import Utils from '../../utils/utilities';
 import { GisViewerProps, MapBounds, ShapeDefinition, ShapeData, WktShape, FILE_TYPES } from '../../models';
@@ -20,7 +20,24 @@ export class GisViewer {
   mapContainerEl: HTMLMapContainerElement;
   // @Element() el: HTMLElement;
   @Prop() gisViewerProps: GisViewerProps;
+  @Event() saveKmlFormat: EventEmitter<Blob>;
+  @Event() saveCsvFormat: EventEmitter<Blob>;
+  @Event() saveShpFormat: EventEmitter<Blob>;
 
+  @Listen('saveKmlFormatCB')
+  saveKmlFormatHandler(event: CustomEvent) {
+    this.saveKmlFormat.emit(event.detail);
+  }
+
+  @Listen('saveCsvFormatCB')
+  saveCsvFormatHandler(event: CustomEvent) {
+    this.saveCsvFormat.emit(event.detail);
+  }
+
+  @Listen('saveShpFormatCB')
+  saveShpFormatHandler(event: CustomEvent) {
+    this.saveShpFormat.emit(event.detail);
+  }
 
   @Method()
   getVersion() {

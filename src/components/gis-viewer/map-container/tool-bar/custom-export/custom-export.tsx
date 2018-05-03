@@ -1,4 +1,4 @@
-import { Component, Prop, Element, Method } from "@stencil/core";
+import { Component, Prop, Element, Method, Event, EventEmitter } from "@stencil/core";
 import Utils from "../../../../../utils/utilities";
 import { FILE_TYPES, CUSTOM_EXPORT_TAG, DROP_DOWN_PLUGIN_TAG } from "../../../../../utils/statics";
 import store from "../../../../store/store";
@@ -15,6 +15,9 @@ export class CustomExport {
     compName: string = CUSTOM_EXPORT_TAG;
     @Prop() gisMap: L.Map
     @Element() el: HTMLElement;
+    @Event() saveKmlFormatCB: EventEmitter<Blob>;
+    @Event() saveCsvFormatCB: EventEmitter<Blob>;
+    @Event() saveShpFormatCB: EventEmitter<Blob>;
 
     dropDownPluginEl: HTMLDropDownPluginElement;
 
@@ -23,23 +26,31 @@ export class CustomExport {
         return this.el;
     }
 
-    componentWillLoad() {
+    saveKmlFormatCBHandler(kml: Blob): void {
+      this.saveKmlFormatCB.emit(kml);
     }
 
+    saveCsvFormatCBHandler(csv: Blob): void {
+      this.saveCsvFormatCB.emit(csv);
+    }
+
+    saveShpFormatCBHandler(zip: Blob): void {
+      this.saveShpFormatCB.emit(zip);
+    }
 
     render() {
 
         const exportDropDownData: any[] = [{
             label: 'Export KML',
-            onClick: Utils.exportBlobFactory.bind(this, FILE_TYPES.kml, store.mapLayers, store.gisMap, 'onSaveKmlBlob'),
+            onClick: Utils.exportBlobFactory.bind(this, FILE_TYPES.kml, store.mapLayers, store.gisMap, this.saveKmlFormatCBHandler.bind(this)),
             className: 'icon-kml'
         }, {
             label: 'Export CSV',
-            onClick: Utils.exportBlobFactory.bind(this, FILE_TYPES.csv, store.mapLayers, store.gisMap, 'onSaveCsvBlob'),
+            onClick: Utils.exportBlobFactory.bind(this, FILE_TYPES.csv, store.mapLayers, store.gisMap, this.saveCsvFormatCBHandler.bind(this)),
             className: 'icon-csv'
         }, {
             label: 'Export SHP',
-            onClick: Utils.exportBlobFactory.bind(this, FILE_TYPES.zip, store.mapLayers, store.gisMap, 'onSaveShpBlob'),
+            onClick: Utils.exportBlobFactory.bind(this, FILE_TYPES.zip, store.mapLayers, store.gisMap, this.saveShpFormatCBHandler.bind(this)),
             className: 'icon-shp'
         }];
 

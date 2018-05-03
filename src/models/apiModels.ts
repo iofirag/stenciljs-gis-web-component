@@ -26,9 +26,6 @@ export type GisViewerProps = {
     // onBoundsChanged?: (mapBounds: MapBounds, programmatic: boolean) => void
     // onSelectionDone?: (shapeDefList: ShapeDefinition[]) => void
     // onMapReady?: () => void
-    onSaveKmlBlob?: (kml: Blob) => void
-    onSaveCsvBlob?: (csv: Blob) => void
-    onSaveShpBlob?: (shp: Blob) => void
 }
 
 export type MapConfig = {

@@ -59,6 +59,12 @@ export class DevComponent {
     this.gisViewerState = this.createDevState();
   }
   render() {
+    const callbacks = {
+      onSaveKmlFormat: ev => this.onSaveFileTypeFormatCB(ev.detail, 'kml'),
+      onSaveCsvFormat: ev => this.onSaveFileTypeFormatCB(ev.detail, 'csv'),
+      onSaveShpFormat: ev => this.onSaveFileTypeFormatCB(ev.detail, 'zip')
+    };
+
     return <div class='dev-components'>
       {/* <div class='header'>
         <header title='This is a GIS Viewer component Application' />
@@ -101,7 +107,7 @@ export class DevComponent {
         {/* <input type='button' value='' onClick={() => {}} /> */}
       </header>
       <main class='gisWrapper'>
-          <gis-viewer gisViewerProps={this.gisViewerState} />
+          <gis-viewer gisViewerProps={this.gisViewerState} {...callbacks} />
       </main>
     </div>
     // </div>;
@@ -223,18 +229,18 @@ export class DevComponent {
     saveAs(shp, 'map-data.zip');
   }
 
-  private onSaveKmlFormatCB(kml: Blob) {
+  private onSaveFileTypeFormatCB(blob: Blob, fileType: string) {
 		// alert('export kml blob'+ kml);
-		saveAs(kml, 'map-data.kml');
+		saveAs(blob, `map-data.${fileType}`);
 	}
-	private onSaveCsvFormatCB(csv: Blob) {
-		// alert('export csv blob' + csv);
-		saveAs(csv, 'map-data.csv');
-	}
-	private onSaveShpFormatCB(shp: Blob) {
-		// alert('export shp blob' + shp);
-		saveAs(shp, "download.zip");
-	}
+	// private onSaveCsvFormatCB(csv: Blob) {
+	// 	// alert('export csv blob' + csv);
+	// 	saveAs(csv, 'map-data.csv');
+	// }
+	// private onSaveShpFormatCB(shp: Blob) {
+	// 	// alert('export shp blob' + shp);
+	// 	saveAs(shp, "download.zip");
+	// }
 
 
 
@@ -554,10 +560,7 @@ export class DevComponent {
       shapeLayers,
 
       toolbarConfig,
-      mapPluginsConfig,
-      onSaveKmlBlob: this.onSaveKmlFormatCB.bind(this),
-			onSaveCsvBlob: this.onSaveCsvFormatCB.bind(this),
-			onSaveShpBlob: this.onSaveShpFormatCB.bind(this),
+      mapPluginsConfig
 
       //   onMapReady: this.onMapReadyCB.bind(this),
       //   onDrawEdited: this.drawEditedCB.bind(this),

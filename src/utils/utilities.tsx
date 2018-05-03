@@ -157,17 +157,15 @@ export default class Utils {
         fileType: FILE_TYPES,
         mapLayers: MapLayers,
         gisMap: L.Map,
-        callback?: string): Blob {
+        callback?: Function): Blob {
 
         const relevantExportedLayers: L.Layer[] = Utils.getRelevantExportedLayers(mapLayers, gisMap);
         const geoJsonList: L.GeoJSON[] = Utils.shapeListToGeoJson(relevantExportedLayers);
-        console.log(geoJsonList);
 
         return Utils.getBlobByType(fileType, geoJsonList, callback);
-        // return null;
     }
 
-    private static getBlobByType(type: FILE_TYPES, geoJsonList: L.GeoJSON[], callback?: string): Blob {
+    private static getBlobByType(type: FILE_TYPES, geoJsonList: L.GeoJSON[], callback?: Function): Blob {
 
       let blobData: Blob;
       switch (type) {
@@ -188,7 +186,7 @@ export default class Utils {
           break;
       }
       if (blobData && callback) {
-        // callback(blobData);
+        callback(blobData);
       }
       return blobData;
     }
@@ -334,7 +332,7 @@ export default class Utils {
       visibleLayers.forEach((layer: L.Layer) => {
         const shapeStore:             ShapeStore = Utils.getShapeStoreByShapeId(layer.id, layer.groupId);
         const shapeDefObj:       ShapeDefinition = shapeStore.shapeDef as ShapeDefinition;
-        const shapeData: ShapeData = toJS(shapeDefObj.data);
+        const shapeData:               ShapeData = toJS(shapeDefObj.data);
         const manager:     ShapeManagerInterface = ShapeManagerRepository.getManagerByType(shapeDefObj.shapeObject.type);
         const geoJson:                 L.GeoJSON = (layer as L.LayerGroup).toGeoJSON() as any;
 
