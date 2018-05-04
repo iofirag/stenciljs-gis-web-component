@@ -1,4 +1,4 @@
-import { Component, Prop, Element, Method } from '@stencil/core';
+import { Component, Prop, Element, Method, Event, EventEmitter } from '@stencil/core';
 import { MAP_CONTAINER_TAG, ZOOM_TO_EXTENT_PLUGIN_TAG, MAX_NORTH_EAST, MAX_SOUTH_WEST, GENERATED_ID, DRAW_BAR_PLUGIN_TAG } from '../../../utils/statics';
 import Utils from '../../../utils/utilities';
 import { GisViewerProps, CoordinateSystemType, DistanceUnitType, ShapeDefinition, Coordinate, ShapeIds, ShapeStore, ShapeLayerContainer_Dev, MapBounds, SelectedObjects, GroupIdToShapeStoreMap, ShapeData, WktShape, FILE_TYPES } from '../../../models';
@@ -22,6 +22,7 @@ export class MapContainer {
   @Prop() gisViewerProps: GisViewerProps;
 
   @Element() el: HTMLElement;
+  @Event() onMapReadyCB: EventEmitter<boolean>;
   // @State() gisMap: L.Map;
   // styleLayerManagerControl: L.Control.StyledLayerControl;
   // layerManagerEl: HTMLLayerManagerPluginElement;
@@ -152,6 +153,12 @@ export class MapContainer {
     // Set initial layers
     store.mapLayers.initialLayers = Utils.initiateLayers(this.gisViewerProps.shapeLayers);
     store.gisMap = this.createMap();
+
+    store.gisMap.whenReady(() => {
+      setTimeout(() => {
+        this.onMapReadyCB.emit(true);
+      }, 0);
+    });
   }
 
   render() {

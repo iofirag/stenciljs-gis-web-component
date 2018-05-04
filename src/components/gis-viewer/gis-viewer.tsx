@@ -27,6 +27,13 @@ export class GisViewer {
   @Event() drawCreated: EventEmitter<WktShape>;
   @Event() drawEdited: EventEmitter<WktShape[]>;
   @Event() drawDeleted: EventEmitter<WktShape[]>;
+  @Event() mapReady: EventEmitter<boolean>;
+
+  @Listen('onMapReadyCB')
+  mapReadyHandler(event: CustomEvent<boolean>): void {
+    this.mapReady.emit(event.detail);
+  }
+
 
   @Listen('onDrawDeletedCB')
   drawDeletedHandler(event: CustomEvent<WktShape[]>): void {
@@ -188,5 +195,5 @@ export class GisViewer {
 			return false;
 		}
 		return true;
-	}
+  }
 }
