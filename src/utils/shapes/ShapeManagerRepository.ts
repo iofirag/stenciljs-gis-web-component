@@ -6,7 +6,7 @@ import { LabelShapeManager } from "./label/labelShapeManager";
 import { PolylineShapeManager } from "./polyline/polylineShapeManager";
 import { MultiPolygonShapeManager } from "./multi-polygon/multipolygonShapeManager";
 import { ShapeManagerInterface } from "./ShapeManager";
-import { ShapeType, ShapeDefinition } from '../../models';
+import { ShapeType, ShapeDefinition, ShapeStore } from '../../models';
 import _ from "lodash";
 
 const DRAWABLE_MARKER: string = 'marker';
@@ -55,7 +55,7 @@ export class ShapeManagerRepository {
 	// 	return null;
 	// }
 
-	public static getManagerByShapeDefLayer(layer: L.Layer): ShapeManagerInterface | null {
+	public static getManagerByShapeDefLayer(layer: ShapeStore): ShapeManagerInterface | null {
 		const shapeType: ShapeType = _.get(layer, 'shapeDef.shapeObject.type');
 		if (shapeType !== null && shapeType !== undefined) {
 			return ShapeManagerRepository.getManagerByType(shapeType);

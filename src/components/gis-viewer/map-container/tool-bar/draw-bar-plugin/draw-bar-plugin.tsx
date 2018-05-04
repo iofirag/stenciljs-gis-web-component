@@ -29,6 +29,7 @@ export class DrawBarPlugin {
     @Event() endImportDrawCB: EventEmitter<WktShape[]>;
     @Event() onDrawCreatedCB: EventEmitter<WktShape>;
     @Event() onDrawEditedCB: EventEmitter<WktShape[]>;
+    @Event() onDrawDeletedCB: EventEmitter<WktShape[]>;
 
     @State() control: L.Control;
     @State() drawnLayer: L.FeatureGroup;
@@ -160,9 +161,7 @@ export class DrawBarPlugin {
         this.gisMap.addControl(this.control);
         this.gisMap.on(L.Draw.Event.CREATED, this.onDrawCreated.bind(this));
         this.gisMap.on(L.Draw.Event.EDITED, this.onDrawEdited.bind(this));
-        this.gisMap.on(L.Draw.Event.DELETED, (/* e: any */) => {
-            // this.drawnLayer.addLayer(e.layer);
-        });
+        this.gisMap.on(L.Draw.Event.DELETED, this.onDrawDeleted.bind(this));
     }
 
     componentDidUnload() {
@@ -220,6 +219,42 @@ export class DrawBarPlugin {
             shapeDef: shapeDef
         }
         store.addShape(shapeStore);
+    }
+
+    private onDrawDeleted(e: any): void {
+      const wktList: WktShape[] = this.getWktShapeListFromEvent(e);
+      // Use callback of onDrawDeleted
+      this.onDrawDeletedCB.emit(wktList);
+    }
+
+    private getWktShapeListFromEvent(e: any) {
+      const wktList: WktShape[] = [];
+      e.layers.eachLayer((layer: L.Layer) => {
+        const wkt: WktShape = this.createWktFromEditableLayer(layer);
+        if (wkt) {
+          wktList.push(wkt);
+        }
+      });
+      return wktList;
+    }
+
+    private createWktFromEditableLayer(drawShapeLayer: L.Layer): WktShape {
+      const shapeStore: ShapeStore = store.groupIdToShapeStoreMap[drawShapeLayer.groupId][drawShapeLayer.id];
+      const manager: ShapeManagerInterface = ShapeManagerRepository.getManagerByShapeDefLayer(shapeStore);
+
+      if (manager) {
+        // Calculate area size
+        const shapeObj: ShapeObject = manager.getShapeObjectFromDrawingLayer(drawShapeLayer);
+
+        // Create WktShape from wkt, id, area size
+        const wkt: string = manager.shapeObjectToWkt(shapeObj);
+        const id: string = drawShapeLayer.id; // L.Util.stamp(drawShapeLayer);	// Get leaflet layer id
+        const areaSize: number = this.calculateAreaSizeFromShapeObj(manager, shapeObj);
+        return { wkt, areaSize, id };
+      } else {
+        console.error('Cant find shape manager by ShapeManagerRepository.getManagerByShapeDefLayer()', drawShapeLayer);
+        return null;
+      }
     }
 
     private getWktShapeFromWkt(shapeDef: ShapeDefinition): WktShape {

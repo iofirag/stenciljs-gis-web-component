@@ -65,7 +65,8 @@ export class DevComponent {
       onSaveShpFormat: ev => this.onSaveFileTypeFormatCB(ev.detail, 'zip'),
       onEndImportDraw: ev => this.endImportDrawCB(ev.detail),
       onDrawCreated: ev => this.drawCreatedCB(ev.detail),
-      onDrawEdited: ev => this.drawEditedCB(ev.detail)
+      onDrawEdited: ev => this.drawEditedCB(ev.detail),
+      onDrawDeleted: ev => this.drawDeletedCB(ev.detail),
     };
 
     return (
@@ -244,6 +245,11 @@ export class DevComponent {
   private drawEditedCB(editedShapes: WktShape[]): void {
 		console.log('Edited shapes:', editedShapes);
   }
+
+  private drawDeletedCB(editedShapes: WktShape[]): void {
+		console.log('Deleted shapes:', editedShapes);
+  }
+
 	// private onSaveCsvFormatCB(csv: Blob) {
 	// 	// alert('export csv blob' + csv);
 	// 	saveAs(csv, 'map-data.csv');
