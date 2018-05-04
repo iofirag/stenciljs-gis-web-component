@@ -3,7 +3,7 @@
   "version": "0.1.2",
   "description": "Stencil Component Starter",
   "main": "dist/gisviewer.js",
-  "types": "dist/types/components.d.ts",
+  "types": "dist/types/index.d.ts",
   "files": [
     "dist/",
     "dist/collection"
