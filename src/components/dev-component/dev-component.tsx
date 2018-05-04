@@ -27,6 +27,7 @@ import { saveAs } from 'file-saver';
 })
 export class DevComponent {
   gisViewerEl: HTMLGisViewerElement;
+  mapReady: boolean;
   @State() gisViewerState: GisViewerProps;
 
   //document.querySelector('gis-viewer').addEventListener('drawCreated', (e) => { console.log(e.detail) })
@@ -57,6 +58,7 @@ export class DevComponent {
 
   componentWillLoad() {
     this.gisViewerState = this.createDevState();
+    this.mapReady = false;
   }
   render() {
     const callbacks = {
@@ -67,6 +69,7 @@ export class DevComponent {
       onDrawCreated: ev => this.drawCreatedCB(ev.detail),
       onDrawEdited: ev => this.drawEditedCB(ev.detail),
       onDrawDeleted: ev => this.drawDeletedCB(ev.detail),
+      onMapReady: ev => this.onMapReadyCB(ev.detail)
     };
 
     return (
@@ -250,18 +253,18 @@ export class DevComponent {
 		console.log('Deleted shapes:', editedShapes);
   }
 
-	// private onSaveCsvFormatCB(csv: Blob) {
-	// 	// alert('export csv blob' + csv);
-	// 	saveAs(csv, 'map-data.csv');
-	// }
-	// private onSaveShpFormatCB(shp: Blob) {
-	// 	// alert('export shp blob' + shp);
-	// 	saveAs(shp, "download.zip");
-	// }
+  private onMapReadyCB(e: UIEvent): void {
+    console.log('Testing onMapReadyCB api method', e);
+		this.mapReady = true;
+		this.doSomethingOnMapReady();
+	}
 
-
-
-
+	private doSomethingOnMapReady(): void {
+		if (this.mapReady) {
+			// console.log(this.wrapper.exportCSV());
+			console.log('Map is ready! :)');
+		}
+	}
 
   createDevState(): GisViewerProps {
 
