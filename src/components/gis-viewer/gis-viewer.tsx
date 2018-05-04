@@ -28,12 +28,18 @@ export class GisViewer {
   @Event() drawEdited: EventEmitter<WktShape[]>;
   @Event() drawDeleted: EventEmitter<WktShape[]>;
   @Event() mapReady: EventEmitter<boolean>;
+  @Event() boundsChanged: EventEmitter<MapBounds>
+
+
+  @Listen('onBoundsChangedCB')
+  boundsChangedHandler(event: CustomEvent<MapBounds>): void {
+    this.boundsChanged.emit(event.detail);
+  }
 
   @Listen('onMapReadyCB')
   mapReadyHandler(event: CustomEvent<boolean>): void {
     this.mapReady.emit(event.detail);
   }
-
 
   @Listen('onDrawDeletedCB')
   drawDeletedHandler(event: CustomEvent<WktShape[]>): void {
