@@ -19,10 +19,12 @@ import { reaction, toJS } from 'mobx';
 })
 export class MapContainer {
   compName: string = MAP_CONTAINER_TAG;
+  private nextBoundsChangeIsProgrammatic: boolean;
   @Prop() gisViewerProps: GisViewerProps;
 
   @Element() el: HTMLElement;
   @Event() onMapReadyCB: EventEmitter<boolean>;
+  @Event() onBoundsChangedCB: EventEmitter<MapBounds>
   // @State() gisMap: L.Map;
   // styleLayerManagerControl: L.Control.StyledLayerControl;
   // layerManagerEl: HTMLLayerManagerPluginElement;
@@ -31,6 +33,7 @@ export class MapContainer {
   zoomToExtent() {
     const zoomToExtentEl: HTMLZoomToExtentPluginElement = this.el.querySelector(ZOOM_TO_EXTENT_PLUGIN_TAG);
     zoomToExtentEl.zoomToExtent();
+    this.nextBoundsChangeIsProgrammatic = true;
   }
   @Method()
   changeDistanceUnits() {
@@ -56,10 +59,10 @@ export class MapContainer {
   }
 
   @Method()
-  getBounds(): MapBounds {
+  getBounds(isProgrammatic: boolean = false): MapBounds {
     const bounds: L.LatLngBounds = store.gisMap.getBounds();
 
-    const boundsState = {
+    const boundsState: MapBounds = {
         precision: store.gisMap.getZoom(),
         bounds: {
             topLeft: {
@@ -70,7 +73,8 @@ export class MapContainer {
                 lat: bounds._southWest.lat,
                 lng: bounds._northEast.lng
             }
-        }
+        },
+        isProgrammatic
     };
 
     return boundsState;
@@ -133,6 +137,12 @@ export class MapContainer {
     return Utils.exportBlobFactory(fileType, store.mapLayers, store.gisMap);
   }
 
+  // @Method()
+  // fitBounds(bounds: L.LatLngBoundsExpression, options?: FitBoundsOptions): void {
+  //   this.nextBoundsChangeIsProgrammatic = true;
+  //   store.gisMap.fitBounds(bounds, options);
+  // }
+
   constructor() {
     reaction(() => store.idToSelectedObjectsMap,
       () => {
@@ -148,6 +158,7 @@ export class MapContainer {
 
   componentWillLoad() {
     Utils.log_componentWillLoad(this.compName);
+    this.nextBoundsChangeIsProgrammatic = false;
     // Set first base map as working tile
     store.mapLayers.baseMaps = Utils.initStoreWithMapTiles(this.gisViewerProps.tileLayers);
     // Set initial layers
@@ -278,6 +289,9 @@ export class MapContainer {
       _.forEach(clusters, ((cluster) => cluster.classList.remove('selected-cluster')));
       Utils.selectClustersBySelectedLeafletObjects(store.idToSelectedObjectsMap); // O.A
       Utils.updateViewForSelectedObjects(store.idToSelectedObjectsMap);
+
+      this.onBoundsChangedCB.emit(this.getBounds(this.nextBoundsChangeIsProgrammatic));
+      this.nextBoundsChangeIsProgrammatic = false;
     });
 
     // Leaflet mouse wheel zoom only after click on map

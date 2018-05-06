@@ -100,7 +100,8 @@ export type IconOptions = {
 
 export type MapBounds = {
     precision: number,
-    bounds: Bounds
+    bounds: Bounds,
+    isProgrammatic?: boolean
 }
 
 export type Bounds = {

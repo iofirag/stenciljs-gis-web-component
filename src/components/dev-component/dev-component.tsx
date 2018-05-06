@@ -69,7 +69,8 @@ export class DevComponent {
       onDrawCreated: ev => this.drawCreatedCB(ev.detail),
       onDrawEdited: ev => this.drawEditedCB(ev.detail),
       onDrawDeleted: ev => this.drawDeletedCB(ev.detail),
-      onMapReady: ev => this.onMapReadyCB(ev.detail)
+      onMapReady: ev => this.onMapReadyCB(ev.detail),
+      onBoundsChanged: ev => this.onBoundsChangedCB(ev.detail),
     };
 
     return (
@@ -257,7 +258,11 @@ export class DevComponent {
     console.log('Testing onMapReadyCB api method', e);
 		this.mapReady = true;
 		this.doSomethingOnMapReady();
-	}
+  }
+
+  private onBoundsChangedCB(e: UIEvent): void {
+    console.log('Testing onBoundsChangedCB api method', e);
+  }
 
 	private doSomethingOnMapReady(): void {
 		if (this.mapReady) {
