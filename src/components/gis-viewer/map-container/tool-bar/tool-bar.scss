@@ -15,23 +15,23 @@ $shadowBox: 4px 4px 4px 0px rgba(0,0,0,0.36);
 
 }
 .leaflet-control-search.leaflet-control a.search-button {
-  background-image: url('./assets/icons/search.png') !important;
+  background-image: url('../../../../assets/icons/search.png') !important;
   background-position: 6px 6px !important;
   background-repeat: no-repeat !important;
   background-size: 16px !important;
 }
 
 .settings {
-  background-image: url('./assets/icons/settings.png') !important;
+  background-image: url('../../../../assets/icons/settings.png') !important;
 }
 .save {
-  background-image: url('./assets/icons/content-save.png') !important;
+  background-image: url('../../../../assets/icons/content-save.png') !important;
 }
 .export {
-  background-image: url('./assets/icons/export.png') !important;
+  background-image: url('../../../../assets/icons/export.png') !important;
 }
 .layer-controller {
-  background-image: url('./assets/icons/layers.png');
+  background-image: url('../../../../assets/icons/layers.png');
   background-position-x: 6px;
   background-position-y: 7px;
 }

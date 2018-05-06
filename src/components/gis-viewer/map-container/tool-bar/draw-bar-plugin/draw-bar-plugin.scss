@@ -8,13 +8,6 @@ $borderColor: #464646;
   border-radius: 50%;
 }
 
-a[title="Add textual marker"] {
-  background-image: url('../../../assets/text-icon.png') !important;
-  background-size: 12px !important;
-  background-position: 9px !important;
-  background-repeat: no-repeat;
-}
-
 ul.leaflet-draw-actions {
   border: 1px solid $borderColor;
   box-shadow: $shadowBox;
@@ -22,10 +15,10 @@ ul.leaflet-draw-actions {
   left: 0px !important;
 
   li a {
-    width: auto !important;  
-    background-image: none !important; 
-    border-radius: 0 !important; 
-    background-color: lightgrey; 
+    width: auto !important;
+    background-image: none !important;
+    border-radius: 0 !important;
+    background-color: lightgrey;
   }
 }
 

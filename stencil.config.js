@@ -1,11 +1,10 @@
 const sass = require("@stencil/sass");
-
-
+const assets = require("./assetsExporter/plugin");
 exports.config = {
   namespace: "gisviewer", // Files prefix name convention
   outputTargets: [
-    { type: 'www' },
-    { type: 'dist' }
+    {type: 'www'},
+    {type: 'dist'}
   ],
 
   bundles: [
@@ -25,18 +24,18 @@ exports.config = {
     }
   ],
 
-  plugins: [sass()],
+  plugins: [assets(), sass()],
 
   copy: [
-    { dest: "images", src: "../node_modules/leaflet/dist/images" },
-    
-    { dest: 'fonts', src: '../node_modules/leaflet.styledlayercontrol/css/fonts' },
-    { dest: 'images', src: '../node_modules/leaflet.styledlayercontrol/css/images' },
+    {dest: "images", src: "../node_modules/leaflet/dist/images"},
 
-    { dest: "images", src: "../node_modules/leaflet-draw/dist/images" },
-    { dest: "images", src: "../node_modules/leaflet-minimap/dist/images" },
-    { dest: "images", src: "../node_modules/leaflet-fullscreen/dist" },
-    { dest: 'images', src: '../node_modules/leaflet-search/images' },
+    {dest: 'fonts', src: '../node_modules/leaflet.styledlayercontrol/css/fonts'},
+    {dest: 'images', src: '../node_modules/leaflet.styledlayercontrol/css/images'},
+
+    {dest: "images", src: "../node_modules/leaflet-draw/dist/images"},
+    {dest: "images", src: "../node_modules/leaflet-minimap/dist/images"},
+    {dest: "images", src: "../node_modules/leaflet-fullscreen/dist"},
+    {dest: 'images', src: '../node_modules/leaflet-search/images'},
     // { dest: 'package.json', src: '../package.json'},
     // { dest: '/', src: '../src/components/gis-viewer/map-container/tool-bar/zoom-to-extent-plugin/allarga-foto.png' },
     // { dest: 'css', src: 'styles'}
