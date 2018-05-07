@@ -7,22 +7,22 @@ exports.config = {
     {type: 'dist'}
   ],
 
-  bundles: [
-    {
-      components: [
-        "dev-component",
-        /*  */ "gis-viewer",
-        /* -- */ "map-container",
-        /* -- -- */ "tool-bar",
-        // /* -- -- -- */ "draw-bar-plugin",
-        // /* -- -- -- */ "zoom-to-extent-plugin",
-        /* -- -- -- */ "full-screen-plugin",
-        // /* -- -- -- */ 'measure-plugin',
-        // /* -- -- */ "scale-control-plugin",
-        // /* -- -- */ "mini-map-plugin"
-      ]
-    }
-  ],
+  // bundles: [
+  //   {
+  //     components: [
+  //       "dev-component",
+  //       /*  */ "gis-viewer",
+  //       /* -- */ "map-container",
+  //       /* -- -- */ "tool-bar",
+  //       // /* -- -- -- */ "draw-bar-plugin",
+  //       // /* -- -- -- */ "zoom-to-extent-plugin",
+  //       /* -- -- -- */ "full-screen-plugin",
+  //       // /* -- -- -- */ 'measure-plugin',
+  //       // /* -- -- */ "scale-control-plugin",
+  //       // /* -- -- */ "mini-map-plugin"
+  //     ]
+  //   }
+  // ],
 
   plugins: [assets(), sass()],
 
