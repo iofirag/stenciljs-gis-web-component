@@ -1,10 +1,12 @@
-.leaflet-control-scale-line {
-  text-align: center;
-  border: 2px solid #777 !important;
-  border-top: none !important;
-  margin-top: 0px !important;
-}
-
-.hidden {
-  display: none;
-}
+// scale-plugin {
+  .leaflet-control-scale-line {
+    text-align: center;
+    border: 2px solid #777 !important;
+    border-top: none !important;
+    margin-top: 0px !important;
+  }
+  
+  .hidden {
+    display: none;
+  }
+// }
