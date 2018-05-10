@@ -136,13 +136,14 @@
 
 .group-item-input-label {
   text-transform: uppercase;
+   margin: 0;
+   margin-right: 5px;
 }
 
 .group-item-input {
   justify-self: self-end;
   display: flex;
-  margin-left: auto;
-  margin-right: 0;
   outline: none;
+  margin: 0 0 0 auto !important;
 }
 
