@@ -77,7 +77,7 @@ export const BUBBLE_TYPE = {
     POPUP: 'Popup',
     TOOLTIP: 'Tooltip'
 };
-export const GENERATED_ID = {
+export const GENERIC_ID = {
     SHAPE_ID: 'shapeId',
     DRAW_LAYER_GROUP_ID: 'draw_layer_groupId',
     DEFAULT_GROUP: 'default_group'

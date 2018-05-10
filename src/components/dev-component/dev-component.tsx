@@ -18,7 +18,6 @@ import {
   MapConfig,
   WktShape,
 } from '../../models';
-import { GIS_VIEWER_TAG } from '../../utils/statics';
 import { saveAs } from 'file-saver';
 
 @Component({
@@ -30,38 +29,13 @@ export class DevComponent {
   mapReady: boolean;
   @State() gisViewerState: GisViewerProps;
 
-  //document.querySelector('gis-viewer').addEventListener('drawCreated', (e) => { console.log(e.detail) })
-  // @Listen('mapReady') mapReadyEventHandler(e: CustomEvent) {
-  //     console.log('Received the custom mapReady event', e);
-  // }
-  // @Listen('moveEnd') moveEndEventHandler(e: CustomEvent) {
-  //     console.log('Received the custom moveEnd event:', e.detail);
-  // }
-  // @Listen('drawCreated') drawCreatedEventHandler(e: CustomEvent) {
-  //     console.log(e.detail)
-  // }
-  // @Listen('drawEdited') drawEditedEventHandler(e: CustomEvent) {
-  //     console.log(e.detail)
-  // }
-  // @Listen('drawDeleted') drawDeletedEventHandler(e: CustomEvent) {
-  //     console.log(e.detail)
-  // }
-  // @Listen('endImportDraw') endImportDrawEventHandler(e: CustomEvent) {
-  //     console.log(e.detail)
-  // }
-  // @Listen('selectionDone') selectionDoneEventHandler(e: CustomEvent) {
-  //     console.log(e.detail)
-  // }
-  // @Listen('boundsChanged') boundsChangedEventHandler(e: CustomEvent) {
-  //     console.log(e.detail)
-  // }
-
   componentWillLoad() {
     this.gisViewerState = this.createDevState();
     this.mapReady = false;
   }
   render() {
-    const callbacks = {
+    const props = {
+      gisViewerProps: this.gisViewerState,
       onSaveKmlFormat: ev => this.onSaveFileTypeFormatCB(ev.detail, 'kml'),
       onSaveCsvFormat: ev => this.onSaveFileTypeFormatCB(ev.detail, 'csv'),
       onSaveShpFormat: ev => this.onSaveFileTypeFormatCB(ev.detail, 'zip'),
@@ -94,42 +68,22 @@ export class DevComponent {
         <input type='button' value='Export Shp' onClick={e => this.testExportShpBlobCMD(e)} />
         {/* <input type='button' value='' onClick={() => {}} /> */}
 
-        {/* <RaisedButton label='Export draw' primary={true} onClick={this.testExportDraw} />
-                    <RaisedButton label='Import user draw' primary={true} onClick={this.testImportUserDraw} />
-                    <RaisedButton label='Clear draws' primary={true} onClick={this.testClearDraws} />
-                    <RaisedButton label='Export bounds' primary={true} onClick={this.testExportBounds} />
-                    <RaisedButton label='test Export CSV' primary={true} onClick={this.testExportCSV} />
-                    <RaisedButton label='Get Selected Shapes' primary={true} onClick={this.testGetAllSelectedShape} />
-                    <RaisedButton label='Get Drawable Multipolygon wkt' primary={true} onClick={this.testGetMultiPolygon} />
-                    <RaisedButton label='Select shape by id' primary={true} onClick={this.testSelectShapeById} />
-                    <RaisedButton label='Zoom to extend' primary={true} onClick={this.testZoomToExtend} />
-                    <RaisedButton label='Export image' primary={true} onClick={this.testExportImage} />
-                    <RaisedButton label='Export KML' primary={true} onClick={this.exportKmlCMD} />
-                    <RaisedButton label='Add shape' primary={true} onClick={this.addShape} />
-                    <input type='file' id='fileInput' onChange={this.testImportKmlFormatByStringCMD} accept={ImportFileFormats} /> */}
+        {/* 
+          <RaisedButton label='Get Drawable Multipolygon wkt' primary={true} onClick={this.testGetMultiPolygon} />
+          <RaisedButton label='Select shape by id' primary={true} onClick={this.testSelectShapeById} />
+          <input type='file' id='fileInput' onChange={this.testImportKmlFormatByStringCMD} accept={ImportFileFormats} /> */
+        }
 
-        {/* <input type='button' value='' onClick={() => {}} /> */}
       </header>
       <main class='gisWrapper'>
-          <gis-viewer gisViewerProps={this.gisViewerState} {...callbacks} />
+          <gis-viewer {...props} />
       </main>
     </div>)
     // </div>;
     ;
   }
   componentDidLoad() {
-    this.gisViewerEl = document.querySelector(GIS_VIEWER_TAG);
-    // this.gisViewerEl.addEventListener('moveEnd', (ev: any) => {
-    //     console.log(ev.detail);
-    // });
-    // this.gisViewerEl.addEventListener('mapReady', (ev) => {
-    //     console.log(ev, this);
-    //     // ev.detail contains the data passed out from the component
-    //     // Handle event here...
-    // });
   }
-
-  // @Event
 
   testHighlightPOIsByGroupId(e: UIEvent): void {
     console.log('Testing HighlightPOIsByGroupId: ', e.type);
@@ -255,20 +209,15 @@ export class DevComponent {
   }
 
   private onMapReadyCB(e: UIEvent): void {
-    console.log('Testing onMapReadyCB api method', e);
-		this.mapReady = true;
-		this.doSomethingOnMapReady();
+		this.doSomethingOnMapReady(e);
   }
 
   private onBoundsChangedCB(e: UIEvent): void {
     console.log('Testing onBoundsChangedCB api method', e);
   }
 
-	private doSomethingOnMapReady(): void {
-		if (this.mapReady) {
-			// console.log(this.wrapper.exportCSV());
-			console.log('Map is ready! :)');
-		}
+	private doSomethingOnMapReady(e: UIEvent): void {
+    console.log('onMapReadyCB - Map is ready! :)', e);
 	}
 
   createDevState(): GisViewerProps {
@@ -587,16 +536,10 @@ export class DevComponent {
       toolbarConfig,
       mapPluginsConfig
 
-      //   onMapReady: this.onMapReadyCB.bind(this),
-      //   onDrawEdited: this.drawEditedCB.bind(this),
-      //   onDrawCreated: this.drawCreatedCB.bind(this),
       //   onSaveKmlBlob: this.onSaveKmlFormatCB.bind(this),
       //   onSaveCsvBlob: this.onSaveCsvFormatCB.bind(this),
-      //   onDrawDeleted: this.drawDeletedCB.bind(this),
       //   onSaveShpBlob: this.onSaveShpFormatCB.bind(this),
       //   onSelectionDone: this.onSelectionDoneCB.bind(this),
-      //   onBoundsChanged: this.onBoundsChangedCB.bind(this),
-      //   onEndImportDraw: this.endImportDrawCB.bind(this),
       //   onChangeMapMode: this.changeMapModeCD.bind(this),
       //   onFetchDataByShapeId: this.fetchDataByShapeIdCB.bind(this)
     };

@@ -11,14 +11,10 @@ import _ from 'lodash';
 import { ShapeLayerDefinition, Coordinate, ClusterOptions, ShapeLayerContainer_Dev, 
 	ShapeStore, ShapeType, ShapeData, ShapeIds, SelectedObjects } from '../models';
 import { ShapeManagerInterface } from './shapes/ShapeManager';
-import { MIN_OPACITY, BUBBLE_TYPE, GENERATED_ID } from './statics';
+import { MIN_OPACITY, BUBBLE_TYPE, GENERIC_ID } from './statics';
 import { ShapeManagerRepository } from './shapes/ShapeManagerRepository';
 import store from '../components/store/store';
 import Utils from './utilities';
-import Generator from 'id-generator';
-const shapeIdGenerator = new Generator(() => { return GENERATED_ID.SHAPE_ID });
-// const groupIdGenerator = new Generator(() => { return 'groupId' })
-// import Utils from './utilities';
 
 
 export const HEAT_LAYER    = 'Heat Layer';
@@ -120,8 +116,8 @@ export default class LayersFactory {
 			shapeDef.data = shapeDef.data || {};
 			shapeDef.data.isSelected = _.get(shapeDef, 'data.isSelected', false);
 			shapeDef.data.isSelectedFade = _.get(shapeDef, 'data.isSelectedFade', false);
-			shapeDef.data.groupId = _.get(shapeDef, 'data.groupId', GENERATED_ID.DEFAULT_GROUP);
-			shapeDef.data.id = _.get(shapeDef, 'data.id', shapeIdGenerator.newId());
+			shapeDef.data.groupId = _.get(shapeDef, 'data.groupId', GENERIC_ID.DEFAULT_GROUP);
+			shapeDef.data.id = _.get(shapeDef, 'data.id', Utils.generateIdWithPrefix(GENERIC_ID.SHAPE_ID));
 			
 			// Iterate all shapes in this layer (some object types)
 			const manager: ShapeManagerInterface | null = ShapeManagerRepository.getManagerByShapeDefinition(shapeDef);
@@ -202,8 +198,8 @@ export default class LayersFactory {
 						shapeId: layer.id
 					}
 
-					if (layer.groupId === GENERATED_ID.DEFAULT_GROUP
-						|| layer.groupId === GENERATED_ID.DRAW_LAYER_GROUP_ID) {
+					if (layer.groupId === GENERIC_ID.DEFAULT_GROUP
+						|| layer.groupId === GENERIC_ID.DRAW_LAYER_GROUP_ID) {
 						if (!changedIds[layer.id]) {
 							changedIds[layer.id] = { selectionType: 'single', groupId: shapeIds.groupId };
 							store.setSelectionMode(shapeIds, !isClusterSelected);

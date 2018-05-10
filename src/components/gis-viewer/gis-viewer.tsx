@@ -1,7 +1,7 @@
-import { Component, Prop, Method, Event, EventEmitter, Listen } from '@stencil/core';
+import { Component, Prop, Method, Event, EventEmitter, Element } from '@stencil/core';
 import { GIS_VIEWER_TAG } from '../../utils/statics';
 import Utils from '../../utils/utilities';
-import { GisViewerProps, MapBounds, ShapeDefinition, ShapeData, WktShape, FILE_TYPES } from '../../models';
+import { GisViewerProps, MapBounds, ShapeDefinition, ShapeData, WktShape, FILE_TYPES, EventNames } from '../../models';
 import store from '../store/store';
 // import '../../../package';
 // import {version} from '../../../../../stencil.config'
@@ -9,7 +9,8 @@ import store from '../store/store';
 @Component({
   tag: "gis-viewer",
   styleUrls: [
-    "../../../node_modules/leaflet/dist/leaflet.css",
+    '../../assets/reset.css',
+    '../../../node_modules/leaflet/dist/leaflet.css',
     '../../../node_modules/leaflet.markercluster/dist/MarkerCluster.css',
     '../../../node_modules/leaflet.markercluster/dist/MarkerCluster.Default.css',
     'gis-viewer.scss',
@@ -18,63 +19,108 @@ import store from '../store/store';
 export class GisViewer {
   compName: string = GIS_VIEWER_TAG;
   mapContainerEl: HTMLMapContainerElement;
-  // @Element() el: HTMLElement;
+  @Element() el: HTMLElement;
   @Prop() gisViewerProps: GisViewerProps;
+
   @Event() saveKmlFormat: EventEmitter<Blob>;
   @Event() saveCsvFormat: EventEmitter<Blob>;
   @Event() saveShpFormat: EventEmitter<Blob>;
   @Event() endImportDraw: EventEmitter<WktShape[]>;
   @Event() drawCreated: EventEmitter<WktShape>;
-  @Event() drawEdited: EventEmitter<WktShape[]>;
+  @Event() drawEdited: EventEmitter<WktShape[] | WktShape>;
   @Event() drawDeleted: EventEmitter<WktShape[]>;
   @Event() mapReady: EventEmitter<boolean>;
   @Event() boundsChanged: EventEmitter<MapBounds>
 
-
-  @Listen('onBoundsChangedCB')
-  boundsChangedHandler(event: CustomEvent<MapBounds>): void {
-    this.boundsChanged.emit(event.detail);
+  @Method()
+  brodcastEvent(eventName: EventNames, data: (Blob | WktShape[] | WktShape | boolean | MapBounds)): void {
+    switch (eventName) {
+      case 'saveKmlFormat':
+        this.saveKmlFormat.emit(data as Blob);
+        break;
+      case 'saveCsvFormat':
+        this.saveCsvFormat.emit(data as Blob);
+        break;
+      case 'saveShpFormat':
+        this.saveShpFormat.emit(data as Blob);
+        break;
+      case 'endImportDraw':
+        this.endImportDraw.emit(data as WktShape[]);
+        break;
+      case 'drawCreated':
+        this.drawCreated.emit(data as WktShape);
+        break;
+      case 'drawEdited':
+        this.drawEdited.emit(data as WktShape[]);
+        break;
+      case 'drawDeleted':
+        this.drawDeleted.emit(data as WktShape[]);
+        break;
+      case 'mapReady':
+        this.mapReady.emit(data as boolean);
+        break;
+      case 'boundsChanged':
+        this.boundsChanged.emit(data as MapBounds);
+        break;
+    
+      default:
+        break;
+    }
   }
+  // @Method()
+  // mapReadyEventEmitter(data: boolean): void {
+  //   this.mapReady.emit(data);
+  // }
+  // @Method()
+  // drawDeletedEventEmitter(data: WktShape[]): void {
+  //   this.drawDeleted.emit(data);
+  // }
 
-  @Listen('onMapReadyCB')
-  mapReadyHandler(event: CustomEvent<boolean>): void {
-    this.mapReady.emit(event.detail);
-  }
 
-  @Listen('onDrawDeletedCB')
-  drawDeletedHandler(event: CustomEvent<WktShape[]>): void {
-    this.drawDeleted.emit(event.detail);
-  }
+  // @Listen('onBoundsChangedCB')
+  // boundsChangedHandler(event: CustomEvent<MapBounds>): void {
+  //   this.boundsChanged.emit(event.detail);
+  // }
 
-  @Listen('onDrawEditedCB')
-  drawEditedHandler(event: CustomEvent<WktShape[]>): void {
-    this.drawEdited.emit(event.detail);
-  }
+  // @Listen('onMapReadyCB')
+  // mapReadyHandler(event: CustomEvent<boolean>): void {
+  //   this.mapReady.emit(event.detail);
+  // }
 
-  @Listen('onDrawCreatedCB')
-  drawCreatedHandler(event: CustomEvent<WktShape>): void {
-    this.drawCreated.emit(event.detail);
-  }
+  // @Listen('onDrawDeletedCB')
+  // drawDeletedHandler(event: CustomEvent<WktShape[]>): void {
+  //   this.drawDeleted.emit(event.detail);
+  // }
 
-  @Listen('endImportDrawCB')
-  endImportDrawHandler(event: CustomEvent<WktShape[]>): void {
-    this.endImportDraw.emit(event.detail);
-  }
+  // @Listen('onDrawEditedCB')
+  // drawEditedHandler(event: CustomEvent<WktShape[]>): void {
+  //   this.drawEdited.emit(event.detail);
+  // }
 
-  @Listen('saveKmlFormatCB')
-  saveKmlFormatHandler(event: CustomEvent<Blob>): void {
-    this.saveKmlFormat.emit(event.detail);
-  }
+  // @Listen('onDrawCreatedCB')
+  // drawCreatedHandler(event: CustomEvent<WktShape>): void {
+  //   this.drawCreated.emit(event.detail);
+  // }
 
-  @Listen('saveCsvFormatCB')
-  saveCsvFormatHandler(event: CustomEvent<Blob>): void {
-    this.saveCsvFormat.emit(event.detail);
-  }
+  // @Listen('endImportDrawCB')
+  // endImportDrawHandler(event: CustomEvent<WktShape[]>): void {
+  //   this.endImportDraw.emit(event.detail);
+  // }
 
-  @Listen('saveShpFormatCB')
-  saveShpFormatHandler(event: CustomEvent<Blob>): void {
-    this.saveShpFormat.emit(event.detail);
-  }
+  // @Listen('saveKmlFormatCB')
+  // saveKmlFormatHandler(event: CustomEvent<Blob>): void {
+  //   this.saveKmlFormat.emit(event.detail);
+  // }
+
+  // @Listen('saveCsvFormatCB')
+  // saveCsvFormatHandler(event: CustomEvent<Blob>): void {
+  //   this.saveCsvFormat.emit(event.detail);
+  // }
+
+  // @Listen('saveShpFormatCB')
+  // saveShpFormatHandler(event: CustomEvent<Blob>): void {
+  //   this.saveShpFormat.emit(event.detail);
+  // }
 
   @Method()
   getVersion() {
@@ -173,7 +219,6 @@ export class GisViewer {
     store.initState(this.gisViewerProps);
     // Set first base map as working tile
     // store.mapLayers.baseMaps = Utils.initStoreWithMapTiles(this.gisViewerProps.tileLayers);
-
   }
   componentWillUpdate() {
     store.updateState(this.gisViewerProps)
@@ -191,7 +236,8 @@ export class GisViewer {
     mdlComponentHandler && mdlComponentHandler.upgradeAllRegistered();
 
     Utils.log_componentDidLoad(this.compName);
-    this.mapContainerEl = document.querySelector("map-container");
+    this.mapContainerEl = this.el.querySelector('map-container');
+    this.brodcastEvent('mapReady', true);
     this.getVersion();
   }
 

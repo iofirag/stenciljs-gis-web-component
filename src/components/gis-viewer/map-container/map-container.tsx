@@ -1,7 +1,10 @@
-import { Component, Prop, Element, Method, Event, EventEmitter } from '@stencil/core';
-import { MAP_CONTAINER_TAG, ZOOM_TO_EXTENT_PLUGIN_TAG, MAX_NORTH_EAST, MAX_SOUTH_WEST, GENERATED_ID, DRAW_BAR_PLUGIN_TAG } from '../../../utils/statics';
+import { Component, Prop, Element, Method } from '@stencil/core';
+import { MAP_CONTAINER_TAG, ZOOM_TO_EXTENT_PLUGIN_TAG, MAX_NORTH_EAST, MAX_SOUTH_WEST, 
+  GENERIC_ID, DRAW_BAR_PLUGIN_TAG, GIS_VIEWER_TAG } from '../../../utils/statics';
 import Utils from '../../../utils/utilities';
-import { GisViewerProps, CoordinateSystemType, DistanceUnitType, ShapeDefinition, Coordinate, ShapeIds, ShapeStore, ShapeLayerContainer_Dev, MapBounds, SelectedObjects, GroupIdToShapeStoreMap, ShapeData, WktShape, FILE_TYPES } from '../../../models';
+import { GisViewerProps, CoordinateSystemType, DistanceUnitType, ShapeDefinition, Coordinate, 
+  ShapeIds, ShapeStore, ShapeLayerContainer_Dev, MapBounds, SelectedObjects, 
+  GroupIdToShapeStoreMap, ShapeData, WktShape, FILE_TYPES } from '../../../models';
 import _ from 'lodash';
 import L from 'leaflet';
 import store from '../../store/store';
@@ -11,8 +14,13 @@ import { reaction, toJS } from 'mobx';
 
 @Component({
   tag: "map-container",
+  // shadow: true,
   styleUrls: [
-    // "../../../../node_modules/leaflet/dist/leaflet.css"
+    // '../../../../node_modules/leaflet/dist/leaflet.css',
+    // '../../../../node_modules/leaflet.markercluster/dist/MarkerCluster.css',
+    // '../../../../node_modules/leaflet.markercluster/dist/MarkerCluster.Default.css',
+    // '../gis-viewer.scss',
+
     'map-container.scss',
     '../../../utils/shapes/ShapeManager.scss'
   ]
@@ -23,8 +31,6 @@ export class MapContainer {
   @Prop() gisViewerProps: GisViewerProps;
 
   @Element() el: HTMLElement;
-  @Event() onMapReadyCB: EventEmitter<boolean>;
-  @Event() onBoundsChangedCB: EventEmitter<MapBounds>
   // @State() gisMap: L.Map;
   // styleLayerManagerControl: L.Control.StyledLayerControl;
   // layerManagerEl: HTMLLayerManagerPluginElement;
@@ -163,13 +169,9 @@ export class MapContainer {
     store.mapLayers.baseMaps = Utils.initStoreWithMapTiles(this.gisViewerProps.tileLayers);
     // Set initial layers
     store.mapLayers.initialLayers = Utils.initiateLayers(this.gisViewerProps.shapeLayers);
-    store.gisMap = this.createMap();
 
-    store.gisMap.whenReady(() => {
-      setTimeout(() => {
-        this.onMapReadyCB.emit(true);
-      }, 0);
-    });
+
+    store.gisMap = this.createMap();
   }
 
   render() {
@@ -226,8 +228,6 @@ export class MapContainer {
      * movestart / moveend - (check those)
      */
   private createEvents() {
-    // const hasOnBoundsChanged: boolean = _.hasIn(this, 'context.props.onBoundsChanged');  // O.A
-
     store.gisMap.on('click', () => {
       Utils.closeAllCustomDropDownMenus();
       Utils.removeHighlightPOIs();
@@ -251,13 +251,6 @@ export class MapContainer {
     // Selecting area
     store.gisMap.on('boxzoomend', this.areaSelection);
 
-    // Zoom event
-    // if (hasOnBoundsChanged) {// O.A
-    //   store.gisMap.on('moveend', (e: any) => {
-    //     // store.state.onBoundsChanged(this.getBounds(), this.nextBoundsChangeIsProgrammatic);
-    //     // this.nextBoundsChangeIsProgrammatic = false;
-    //   });
-    // }
     store.gisMap.on('zoomstart', () => {
       // console.log(1)
     })
@@ -290,7 +283,8 @@ export class MapContainer {
       Utils.selectClustersBySelectedLeafletObjects(store.idToSelectedObjectsMap); // O.A
       Utils.updateViewForSelectedObjects(store.idToSelectedObjectsMap);
 
-      this.onBoundsChangedCB.emit(this.getBounds(this.nextBoundsChangeIsProgrammatic));
+      const gisViewerEl: HTMLGisViewerElement = document.querySelector(GIS_VIEWER_TAG);
+      gisViewerEl.brodcastEvent('boundsChanged', this.getBounds(this.nextBoundsChangeIsProgrammatic));
       this.nextBoundsChangeIsProgrammatic = false;
     });
 
@@ -363,8 +357,8 @@ export class MapContainer {
       if (latLng && event.boxZoomBounds.contains(latLng)) {
         if (!isSelected) {
 
-          if (layer.groupId === GENERATED_ID.DEFAULT_GROUP
-            || layer.groupId === GENERATED_ID.DRAW_LAYER_GROUP_ID) {
+          if (layer.groupId === GENERIC_ID.DEFAULT_GROUP
+            || layer.groupId === GENERIC_ID.DRAW_LAYER_GROUP_ID) {
             if (!changedIds[layer.id]) {
               changedIds[layer.id] = { selectionType: 'single', groupId: shapeIds.groupId };
               store.setSelectionMode(shapeIds, true);

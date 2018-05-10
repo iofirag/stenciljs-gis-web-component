@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { FILE_TYPES, DEFAULT_OSM_TILE, MIN_ZOOM, MAX_ZOOM, FILE_TYPES_ARRAY, GENERATED_ID, ZOOM_TO_EXTEND_PADDING } from "./statics";
+import { FILE_TYPES, DEFAULT_OSM_TILE, MIN_ZOOM, MAX_ZOOM, FILE_TYPES_ARRAY, GENERIC_ID, ZOOM_TO_EXTEND_PADDING } from "./statics";
 import { zip } from "@cc/shp-write";
 import { TileLayerDefinition, BaseMap, ShapeLayerContainer_Dev, ShapeLayerDefinition,
     ShapeType, MapLayers, GroupData, ShapeStore, SelectedObjects, ShapeData, SelectedObjectsValue, ShapeIds,
@@ -14,7 +14,7 @@ import LayersFactory from "./LayersFactory";
 import { ShapeEventHandlers, ShapeManagerInterface } from "./shapes/ShapeManager";
 import store from "../components/store/store";
 import { ShapeManagerRepository } from "./shapes/ShapeManagerRepository";
-
+import * as uuid from 'node-uuid';
 import tokml from 'tokml';
 import { toJS } from "mobx";
 
@@ -426,7 +426,7 @@ export default class Utils {
         }
 
         let groupData: GroupData = null;
-        if (shapeIds.groupId === GENERATED_ID.DEFAULT_GROUP || shapeIds.groupId === GENERATED_ID.DRAW_LAYER_GROUP_ID) {
+        if (shapeIds.groupId === GENERIC_ID.DEFAULT_GROUP || shapeIds.groupId === GENERIC_ID.DRAW_LAYER_GROUP_ID) {
             groupData = {
                 [shapeIds.shapeId]: store.groupIdToShapeStoreMap[shapeIds.groupId][shapeIds.shapeId]
             }
@@ -609,8 +609,8 @@ export default class Utils {
 
           _.forIn(group, (value: ShapeStore) => selectedShapes.push(value));
         } else if (value.selectionType === 'single') {
-          const defaultGroup: GroupData = groupIdToShapeStoreMap[GENERATED_ID.DEFAULT_GROUP];
-          const drawGroup:    GroupData = groupIdToShapeStoreMap[GENERATED_ID.DRAW_LAYER_GROUP_ID];
+            const defaultGroup: GroupData = groupIdToShapeStoreMap[GENERIC_ID.DEFAULT_GROUP];
+            const drawGroup: GroupData = groupIdToShapeStoreMap[GENERIC_ID.DRAW_LAYER_GROUP_ID];
           const valueInGroup: GroupData = defaultGroup || drawGroup;
 
           if (valueInGroup) {
@@ -851,6 +851,9 @@ export default class Utils {
         const vNewLng = vLng1 + Math.atan2(Math.sin(angle) * Math.sin(distance) * Math.cos(vLat1), Math.cos(distance) - Math.sin(vLat1) * Math.sin(vNewLat));
 
         return (isNaN(vNewLat) || isNaN(vNewLng)) ? null : Utils.toDeg(vNewLat) + ' ' + Utils.toDeg(vNewLng);  // vNewLatLng;
+    }
+    public static generateIdWithPrefix (prefix) {
+        return `${prefix}_${uuid.default()}`
     }
     private static toRad(vInput: number) {
         return vInput * Math.PI / 180;

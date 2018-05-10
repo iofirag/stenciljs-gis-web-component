@@ -1,9 +1,7 @@
-import { Component, Prop, Element, Method, Event, EventEmitter } from "@stencil/core";
+import { Component, Prop, Element, Method } from "@stencil/core";
 import Utils from "../../../../../utils/utilities";
-import { FILE_TYPES, CUSTOM_EXPORT_TAG, DROP_DOWN_PLUGIN_TAG } from "../../../../../utils/statics";
+import { FILE_TYPES, CUSTOM_EXPORT_TAG, DROP_DOWN_PLUGIN_TAG, GIS_VIEWER_TAG } from "../../../../../utils/statics";
 import store from "../../../../store/store";
-// import _ from "lodash";
-// import store from "../../../../store/store";
 
 @Component({
     tag: 'custom-export',
@@ -15,9 +13,6 @@ export class CustomExport {
     compName: string = CUSTOM_EXPORT_TAG;
     @Prop() gisMap: L.Map
     @Element() el: HTMLElement;
-    @Event() saveKmlFormatCB: EventEmitter<Blob>;
-    @Event() saveCsvFormatCB: EventEmitter<Blob>;
-    @Event() saveShpFormatCB: EventEmitter<Blob>;
 
     dropDownPluginEl: HTMLDropDownPluginElement;
 
@@ -27,15 +22,18 @@ export class CustomExport {
     }
 
     saveKmlFormatCBHandler(kml: Blob): void {
-      this.saveKmlFormatCB.emit(kml);
+        const gisViewerEl: HTMLGisViewerElement = document.querySelector(GIS_VIEWER_TAG);
+        gisViewerEl.brodcastEvent('saveKmlFormat', kml);
     }
 
     saveCsvFormatCBHandler(csv: Blob): void {
-      this.saveCsvFormatCB.emit(csv);
+        const gisViewerEl: HTMLGisViewerElement = document.querySelector(GIS_VIEWER_TAG);
+        gisViewerEl.brodcastEvent('saveCsvFormat', csv);
     }
 
     saveShpFormatCBHandler(zip: Blob): void {
-      this.saveShpFormatCB.emit(zip);
+        const gisViewerEl: HTMLGisViewerElement = document.querySelector(GIS_VIEWER_TAG);
+        gisViewerEl.brodcastEvent('saveShpFormat', zip);
     }
 
     render() {

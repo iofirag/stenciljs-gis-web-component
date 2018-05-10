@@ -14,16 +14,11 @@ export type GisViewerProps = {
 
     toolbarConfig?: ToolbarConfig       // Toolbar Plugins
     mapPluginsConfig?: MapPluginsConfig // Map Plugins
-    // configFlags?: ConfigFlags           // Config Flags
 
     shapeForPopup?: any
     // gisSetState?: Function
     // Callbacks
     // onEndImportDraw?: (allImportedLayers: WktShape[]) => void
-    // onDrawCreated?: (shapeWkt: WktShape) => void
-    // onDrawEdited?: (shapeWktList: WktShape[]) => void
-    // onDrawDeleted?: (shapeWktList: WktShape[]) => void
-    // onBoundsChanged?: (mapBounds: MapBounds, programmatic: boolean) => void
     // onSelectionDone?: (shapeDefList: ShapeDefinition[]) => void
     // onMapReady?: () => void
 }
@@ -429,3 +424,6 @@ export type ExportedCSVFormat = {
 	shapeOptionsObj: any,
 	areaSize: number
 };
+
+export type EventNames = 'saveKmlFormat' | 'saveCsvFormat' | 'saveShpFormat' | 'endImportDraw' 
+    | 'drawCreated' | 'drawEdited' | 'drawDeleted' | 'mapReady' | 'boundsChanged';

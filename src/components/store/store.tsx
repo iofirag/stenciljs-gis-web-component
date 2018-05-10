@@ -6,7 +6,7 @@ import { GisViewerProps, MapConfig, TileLayerDefinition, ShapeLayerDefinition,
     ClusterHeat, MapLayers, ShapeStore, ShapeIds,
     SelectedObjects, GroupIdToShapeStoreMap } from '../../models';
 import _ from 'lodash';
-import { GENERATED_ID } from '../../utils/statics';
+import { GENERIC_ID } from '../../utils/statics';
 // import { CoordinateType } from '../../utils/statics';
 
 
@@ -116,8 +116,8 @@ class Store {
     @action
     setSelectionMode(shapeIds: ShapeIds, isSelected: boolean) {
         if (isSelected) {
-            if (shapeIds.groupId === GENERATED_ID.DEFAULT_GROUP
-                || shapeIds.groupId === GENERATED_ID.DRAW_LAYER_GROUP_ID) {
+            if (shapeIds.groupId === GENERIC_ID.DEFAULT_GROUP
+                || shapeIds.groupId === GENERIC_ID.DRAW_LAYER_GROUP_ID) {
                 // Add shape-id to selected list with group id (DEFAULT_GROUP / DRAW_LAYER_GROUP_ID)
                 this.idToSelectedObjectsMap[shapeIds.shapeId] = { selectionType: 'single', groupId: shapeIds.groupId };
             } else {
@@ -303,19 +303,6 @@ class Store {
 
             toolbarConfig,
             mapPluginsConfig,
-
-            //   onMapReady: this.onMapReadyCB.bind(this),
-            //   onDrawEdited: this.drawEditedCB.bind(this),
-            //   onDrawCreated: this.drawCreatedCB.bind(this),
-            //   onSaveKmlBlob: this.onSaveKmlFormatCB.bind(this),
-            //   onSaveCsvBlob: this.onSaveCsvFormatCB.bind(this),
-            //   onDrawDeleted: this.drawDeletedCB.bind(this),
-            //   onSaveShpBlob: this.onSaveShpFormatCB.bind(this),
-            //   onSelectionDone: this.onSelectionDoneCB.bind(this),
-            //   onBoundsChanged: this.onBoundsChangedCB.bind(this),
-            //   onEndImportDraw: this.endImportDrawCB.bind(this),
-            //   onChangeMapMode: this.changeMapModeCD.bind(this),
-            //   onFetchDataByShapeId: this.fetchDataByShapeIdCB.bind(this)
         };
     }
 }

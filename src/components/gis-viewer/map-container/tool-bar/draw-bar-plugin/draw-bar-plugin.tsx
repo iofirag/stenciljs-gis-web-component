@@ -1,18 +1,16 @@
-import { Component, Prop, State, Method, Event ,EventEmitter } from "@stencil/core";
+import { Component, Prop, State, Method, Element } from "@stencil/core";
 import { DrawBarConfig, ShapeStore, ShapeType, ShapeDefinition, ShapeData, ShapeObject, WktShape, GroupIdToShapeStoreMap } from "../../../../../models";
 // import * as leafletDraw from 'leaflet-draw';
 import * as leafletDrawDrag from 'leaflet-draw-drag';
 import L from "leaflet";
-import { DRAW_BAR_PLUGIN_TAG, LAYER_MANAGER_PLUGIN_TAG, GENERATED_ID } from "../../../../../utils/statics";
+import { DRAW_BAR_PLUGIN_TAG, LAYER_MANAGER_PLUGIN_TAG, GENERIC_ID, GIS_VIEWER_TAG } from "../../../../../utils/statics";
 import Utils from "../../../../../utils/utilities";
 import _ from "lodash";
 import store from "../../../../store/store";
 import { reaction } from "mobx";
 import { ShapeManagerRepository } from "../../../../../utils/shapes/ShapeManagerRepository";
 import { ShapeManagerInterface } from "../../../../../utils/shapes/ShapeManager";
-import Generator from 'id-generator';
 import { markerSvg } from "../../../../../utils/shapes/Marker/maker";
-const drawIdGenerator = new Generator(() => { return GENERATED_ID.DRAW_LAYER_GROUP_ID })
 
 @Component({
     tag: 'draw-bar-plugin',
@@ -23,17 +21,15 @@ const drawIdGenerator = new Generator(() => { return GENERATED_ID.DRAW_LAYER_GRO
 })
 export class DrawBarPlugin {
     compName: string = DRAW_BAR_PLUGIN_TAG;
-    @Prop() config: DrawBarConfig
-    @Prop() gisMap: L.Map
+    layerManagerEl: HTMLLayerManagerPluginElement;
 
-    @Event() endImportDrawCB: EventEmitter<WktShape[]>;
-    @Event() onDrawCreatedCB: EventEmitter<WktShape>;
-    @Event() onDrawEditedCB: EventEmitter<WktShape[]>;
-    @Event() onDrawDeletedCB: EventEmitter<WktShape[]>;
+    @Prop() config: DrawBarConfig;
+    @Prop() gisMap: L.Map;
 
+    @Element() el: HTMLElement;
     @State() control: L.Control;
     @State() drawnLayer: L.FeatureGroup;
-    layerManagerEl: HTMLLayerManagerPluginElement;
+
 
     @Method()
     getControl(): L.Control {
@@ -71,7 +67,7 @@ export class DrawBarPlugin {
 
         const shapeObject: ShapeObject = manager.shapeWktToObject(shapeWkt);
         const data: ShapeData = {
-          groupId: GENERATED_ID.DRAW_LAYER_GROUP_ID,
+          groupId: GENERIC_ID.DRAW_LAYER_GROUP_ID,
           id,
           name: 'Editable layer',
           isSelected: false,
@@ -95,9 +91,10 @@ export class DrawBarPlugin {
         store.addShape(shapeStore);
       });
 
-      // Run onEndImportDraw Callback
-      const allDrawableLayers: WktShape[] = this.export();
-      this.endImportDrawCB.emit(allDrawableLayers);
+        // Run onEndImportDraw Callback
+        const allDrawableLayers: WktShape[] = this.export();
+        const gisViewerEl: HTMLGisViewerElement = document.querySelector(GIS_VIEWER_TAG);
+        gisViewerEl.brodcastEvent('endImportDraw', allDrawableLayers);
     }
 
     @Method()
@@ -108,7 +105,7 @@ export class DrawBarPlugin {
         })
 
         // Remove from shapes data
-        store.removeGroup(GENERATED_ID.DRAW_LAYER_GROUP_ID);
+        store.removeGroup(GENERIC_ID.DRAW_LAYER_GROUP_ID);
 
         // Clear shapes from layer
         this.drawnLayer.clearLayers();
@@ -154,7 +151,7 @@ export class DrawBarPlugin {
     }
     componentDidLoad() {
         Utils.log_componentDidLoad(this.compName);
-        this.layerManagerEl = this.gisMap.getContainer().querySelector(LAYER_MANAGER_PLUGIN_TAG);
+        this.layerManagerEl = this.gisMap.getContainer()./* shadowRoot. */querySelector(LAYER_MANAGER_PLUGIN_TAG);
         this.gisMap.addLayer(this.drawnLayer);
         this.layerManagerEl.addingDrawableLayerToLayerController(this.drawnLayer);  // check
 
@@ -170,26 +167,28 @@ export class DrawBarPlugin {
     }
 
     private onDrawEdited(e: any): void {
-      // Save output
-      const wktList: WktShape[] = [];
-      const groupIdToShapeStoreMap: GroupIdToShapeStoreMap = store.groupIdToShapeStoreMap;
+        // Save output
+        const wktList: WktShape[] = [];
+        const groupIdToShapeStoreMap: GroupIdToShapeStoreMap = store.groupIdToShapeStoreMap;
 
-      e.layers.eachLayer((layer: L.Layer) => {
-        // Create shapeDef object for this layer
-        const prevShapeDef: ShapeDefinition = groupIdToShapeStoreMap[layer.groupId][layer.id].shapeDef;
-        const newShapeDef: ShapeDefinition = this.createShapeDefFromDrawLayer(layer, prevShapeDef.shapeObject.type);
+        e.layers.eachLayer((layer: L.Layer) => {
+            // Create shapeDef object for this layer
+            const prevShapeDef: ShapeDefinition = groupIdToShapeStoreMap[layer.groupId][layer.id].shapeDef;
+            const newShapeDef: ShapeDefinition = this.createShapeDefFromDrawLayer(layer, prevShapeDef.shapeObject.type);
 
-        groupIdToShapeStoreMap[layer.groupId][layer.id].shapeDef = newShapeDef;
+            groupIdToShapeStoreMap[layer.groupId][layer.id].shapeDef = newShapeDef;
 
-        // Create WktShape from layer
-        const wktShape: WktShape = this.getWktShapeFromWkt(newShapeDef);
-        if (wktShape) {
-          wktList.push(wktShape);
-        }
-      });
+            // Create WktShape from layer
+            const wktShape: WktShape = this.getWktShapeFromWkt(newShapeDef);
+            if (wktShape) {
+                wktList.push(wktShape);
+            }
+        });
 
-      // Use callback of onDrawEdited
-      this.onDrawEditedCB.emit(wktList);
+        // Use callback of onDrawEdited
+        // this.onDrawEditedCB.emit(wktList);
+        const gisViewerEl: HTMLGisViewerElement = document.querySelector(GIS_VIEWER_TAG);
+        gisViewerEl.brodcastEvent('drawEdited', wktList);
     }
 
     private onDrawCreated(e: any): void {
@@ -201,9 +200,10 @@ export class DrawBarPlugin {
           e.layer = manager.createShape(shapeDef);
         }
 
-        // // Use callback of onDrawCreated
+        // Use callback of onDrawCreated
         const wktShape: WktShape = this.getWktShapeFromWkt(shapeDef);
-        this.onDrawCreatedCB.emit(wktShape);
+        const gisViewerEl: HTMLGisViewerElement = document.querySelector(GIS_VIEWER_TAG);
+        gisViewerEl.brodcastEvent('drawCreated', wktShape);
 
         // Add shape to layer
         this.drawnLayer.addLayer(e.layer);
@@ -222,9 +222,10 @@ export class DrawBarPlugin {
     }
 
     private onDrawDeleted(e: any): void {
-      const wktList: WktShape[] = this.getWktShapeListFromEvent(e);
-      // Use callback of onDrawDeleted
-      this.onDrawDeletedCB.emit(wktList);
+        const wktList: WktShape[] = this.getWktShapeListFromEvent(e);
+        // Use callback of onDrawDeleted
+        const gisViewerEl: HTMLGisViewerElement = document.querySelector(GIS_VIEWER_TAG);
+        gisViewerEl.brodcastEvent('drawDeleted', wktList);
     }
 
     private getWktShapeListFromEvent(e: any) {
@@ -288,8 +289,8 @@ export class DrawBarPlugin {
         // Create WktShape from wkt, id, area size
         const shapeWkt: string = manager.shapeObjectToWkt(shapeObject);
         const shapeData: ShapeData = {
-            groupId: GENERATED_ID.DRAW_LAYER_GROUP_ID,
-            id: layer.id || drawIdGenerator.newId(),
+            groupId: GENERIC_ID.DRAW_LAYER_GROUP_ID,
+            id: layer.id || Utils.generateIdWithPrefix(GENERIC_ID.DRAW_LAYER_GROUP_ID),
             name: 'Editable layer',
             isSelected: false,
             count: 1,
