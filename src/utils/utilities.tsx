@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { FILE_TYPES, DEFAULT_OSM_TILE, MIN_ZOOM, MAX_ZOOM, FILE_TYPES_ARRAY, GENERIC_ID, ZOOM_TO_EXTEND_PADDING } from "./statics";
+import { FILE_TYPES, DEFAULT_OSM_TILE, MIN_ZOOM, MAX_ZOOM, FILE_TYPES_ARRAY, GENERIC_ID, ZOOM_TO_EXTEND_PADDING, GIS_VIEWER_TAG } from "./statics";
 import { zip } from "@cc/shp-write";
 import { TileLayerDefinition, BaseMap, ShapeLayerContainer_Dev, ShapeLayerDefinition,
     ShapeType, MapLayers, GroupData, ShapeStore, SelectedObjects, ShapeData, SelectedObjectsValue, ShapeIds,
@@ -438,6 +438,8 @@ export default class Utils {
             groupData = store.groupIdToShapeStoreMap[shapeIds.groupId];
             // Utils.highlightPOIsByGroupId(shapeIds.groupId);
         }
+
+        const shapeDefSelectedList: ShapeDefinition[] = [];
         _.forEach(groupData, (shapeStore: ShapeStore) => {
             const shapeType: ShapeType = _.get(shapeStore, 'shapeDef.shapeObject.type');
             const manager: ShapeManagerInterface = ShapeManagerRepository.getManagerByType(shapeType);
@@ -447,13 +449,14 @@ export default class Utils {
                 manager.updateIsSelectedView(shapeStore.leafletRef);
                 Utils.updateBubble(shapeStore.leafletRef);
 
-                // Iterate all this cluster's leaflet ref childs and check if we need to remove 'cluster-selected' class
-                // if (_.get(element, '_icon.classList.contains("highlighted")', false)
-                // const b = shapeStore.leafletRef;
-                // console.log(b)
+                const selectedId: string = shapeIds.groupId === GENERIC_ID.DEFAULT_GROUP || shapeIds.groupId === GENERIC_ID.DRAW_LAYER_GROUP_ID ? shapeIds.shapeId : shapeIds.groupId;
+                const shapeDef: ShapeDefinition = _.get(shapeStore, 'shapeDef');
+                shapeDef.data.isSelected = store.idToSelectedObjectsMap.hasOwnProperty(selectedId);
+                shapeDefSelectedList.push(shapeDef);
             }
         })
-        // context.props.onSelectionDone([clickEvent.target.shapeDef]);
+        const gisViewerEl: HTMLGisViewerElement = document.querySelector(GIS_VIEWER_TAG);
+        gisViewerEl.brodcastEvent('selectionDone', shapeDefSelectedList);
     }
     public static updateBubble(leafletObject: L.Layer): void {
         const shapeData: ShapeData = store.groupIdToShapeStoreMap[leafletObject.groupId][leafletObject.id].shapeDef.data;

@@ -426,4 +426,4 @@ export type ExportedCSVFormat = {
 };
 
 export type EventNames = 'saveKmlFormat' | 'saveCsvFormat' | 'saveShpFormat' | 'endImportDraw' 
-    | 'drawCreated' | 'drawEdited' | 'drawDeleted' | 'mapReady' | 'boundsChanged';
+    | 'drawCreated' | 'drawEdited' | 'drawDeleted' | 'mapReady' | 'boundsChanged' | 'selectionDone';

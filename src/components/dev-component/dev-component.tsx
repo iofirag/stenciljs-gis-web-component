@@ -19,6 +19,7 @@ import {
   WktShape,
 } from '../../models';
 import { saveAs } from 'file-saver';
+import { GIS_VIEWER_TAG } from '../../utils/statics';
 
 @Component({
   tag: 'dev-component',
@@ -45,6 +46,7 @@ export class DevComponent {
       onDrawDeleted: ev => this.drawDeletedCB(ev.detail),
       onMapReady: ev => this.onMapReadyCB(ev.detail),
       onBoundsChanged: ev => this.onBoundsChangedCB(ev.detail),
+      onSelectionDone: ev => this.onSelectionDoneCB(ev.detail)
     };
 
     return (
@@ -61,7 +63,7 @@ export class DevComponent {
         <input type='button' value='Clear draw layer' onClick={e => this.testClearDrawLayer(e)} />
         <input type='button' value='Export draw layers' onClick={e => this.testExportDrawLayer(e)} />
         <input type='button' value='Import draw layers' onClick={e => this.testImportDrawState(e)} />
-        <input type='button' value='Toggle Shape Selection' onClick={e => this.testToggleShapeSelectionById(e)} />
+        <input type='button' value='Update Selection Mode' onClick={e => this.testUpdateSelectionMode(e)} />
         <input type='button' value='Highlight Group' onClick={e => this.testHighlightPOIsByGroupId(e)} />
         <input type='button' value='Export Kml' onClick={e => this.testExportKmlBlobCMD(e)} />
         <input type='button' value='Export Csv' onClick={e => this.testExportCsvBlobCMD(e)} />
@@ -83,6 +85,7 @@ export class DevComponent {
     ;
   }
   componentDidLoad() {
+    this.gisViewerEl = document.querySelector(GIS_VIEWER_TAG);
   }
 
   testHighlightPOIsByGroupId(e: UIEvent): void {
@@ -90,9 +93,10 @@ export class DevComponent {
     this.gisViewerEl.highlightPOIsByGroupId('cell1');
   }
 
-  testToggleShapeSelectionById(e: UIEvent): void {
-    console.log('Testing ToggleShapeSelectionById: ', e.type);
-    this.gisViewerEl.toggleShapeSelectionById([{id: 'cell1coverage', isSelected: true}, {groupId: 'group0', isSelected: false}]);
+  testUpdateSelectionMode(e: UIEvent): void {
+    console.log('Testing UpdateSelectionMode: ', e.type);
+    // this.gisViewerEl.updateSelectionMode([{ id: 'cell1coverage', isSelected: true }, { groupId: 'group0', isSelected: false }]);
+    this.gisViewerEl.updateSelectionMode([{id: 'd1', isSelected: true}]);
   }
 
   testGetAllSelectedShape(e: UIEvent): void {
@@ -214,6 +218,9 @@ export class DevComponent {
 
   private onBoundsChangedCB(e: UIEvent): void {
     console.log('Testing onBoundsChangedCB api method', e);
+  }
+  private onSelectionDoneCB(e: UIEvent): void {
+    console.log('onSelectionDoneCB -', e);
   }
 
 	private doSomethingOnMapReady(e: UIEvent): void {
