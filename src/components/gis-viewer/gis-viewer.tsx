@@ -31,9 +31,10 @@ export class GisViewer {
   @Event() drawDeleted: EventEmitter<WktShape[]>;
   @Event() mapReady: EventEmitter<boolean>;
   @Event() boundsChanged: EventEmitter<MapBounds>
+  @Event() selectionDone: EventEmitter<ShapeDefinition[]>;
 
   @Method()
-  brodcastEvent(eventName: EventNames, data: (Blob | WktShape[] | WktShape | boolean | MapBounds)): void {
+  brodcastEvent(eventName: EventNames, data: (Blob | WktShape[] | WktShape | boolean | MapBounds | ShapeDefinition[])): void {
     switch (eventName) {
       case 'saveKmlFormat':
         this.saveKmlFormat.emit(data as Blob);
@@ -61,6 +62,9 @@ export class GisViewer {
         break;
       case 'boundsChanged':
         this.boundsChanged.emit(data as MapBounds);
+        break;
+      case 'selectionDone':
+        this.selectionDone.emit(data as ShapeDefinition[]);
         break;
     
       default:
@@ -180,9 +184,9 @@ export class GisViewer {
   }
 
   @Method()
-  toggleShapeSelectionById(shapeDataArr: ShapeData[]): void {
+  updateSelectionMode(shapeDataArr: ShapeData[]): void {
     if (!this.verifyIsMapExist()) { return; }
-    this.mapContainerEl.toggleShapeSelectionById(shapeDataArr);
+    this.mapContainerEl.updateSelectionMode(shapeDataArr);
   }
 
   @Method()
