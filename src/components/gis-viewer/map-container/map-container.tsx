@@ -4,12 +4,14 @@ import { MAP_CONTAINER_TAG, ZOOM_TO_EXTENT_PLUGIN_TAG, MAX_NORTH_EAST, MAX_SOUTH
 import Utils from '../../../utils/utilities';
 import { GisViewerProps, CoordinateSystemType, DistanceUnitType, ShapeDefinition, Coordinate, 
   ShapeIds, ShapeStore, ShapeLayerContainer_Dev, MapBounds, SelectedObjects, 
-  GroupIdToShapeStoreMap, ShapeData, WktShape, FILE_TYPES } from '../../../models';
+  GroupIdToShapeStoreMap, ShapeData, WktShape, FILE_TYPES, SelectedObjectsValue, ShapeType } from '../../../models';
 import _ from 'lodash';
 import L from 'leaflet';
 import store from '../../store/store';
 // import { ShapeManagerRepository } from '../../../utils/shapes/ShapeManagerRepository';
 import { reaction, toJS } from 'mobx';
+import { ShapeManagerRepository } from '../../../utils/shapes/ShapeManagerRepository';
+import { ShapeManagerInterface } from '../../../utils/shapes/ShapeManager';
 // import { reaction } from 'mobx';
 
 @Component({
@@ -121,9 +123,9 @@ export class MapContainer {
   }
 
   @Method()
-  toggleShapeSelectionById(shapeDataArr: ShapeData[]): void {
+  updateSelectionMode(shapeDataArr: ShapeData[]): void {
+    const shapeDefList: ShapeDefinition[] = [];
     const visibleLayers: L.Layer[] = Utils.getVisibleLayers(store.mapLayers, store.gisMap);
-
     shapeDataArr.forEach((item: ShapeData) => {
       // TBD need to find better solution
       visibleLayers.forEach((layer: L.Layer) => {
