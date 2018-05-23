@@ -96,7 +96,7 @@ export class DevComponent {
   testUpdateSelectionMode(e: UIEvent): void {
     console.log('Testing UpdateSelectionMode: ', e.type);
     // this.gisViewerEl.updateSelectionMode([{ id: 'cell1coverage', isSelected: true }, { groupId: 'group0', isSelected: false }]);
-    this.gisViewerEl.updateSelectionMode([{id: 'd1', isSelected: true}]);
+    this.gisViewerEl.updateSelectionMode([{ id:'samepoint1a'/* , groupId:'samepoint1' */, isSelected: true}]);
   }
 
   testGetAllSelectedShape(e: UIEvent): void {
@@ -385,6 +385,14 @@ export class DevComponent {
             data: {
               name: 'd3 in default group',
               id: 'd3',
+            }
+          },
+          {
+            shapeWkt: 'POINT(-34 48)',
+            data: {
+              name: 'test in default group',
+              id: 'test',
+              isSelected: false
             }
           },
 
