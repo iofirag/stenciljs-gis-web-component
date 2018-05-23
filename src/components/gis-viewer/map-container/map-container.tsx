@@ -153,12 +153,29 @@ export class MapContainer {
 
   constructor() {
     reaction(() => store.idToSelectedObjectsMap,
-      () => {
+      (/* e */) => {
+        // console.log(e)
+        // _.map(toJS(e), (item, key: string)=> {
+        //   console.log(key, item);
+        //   debugger
+        // })
         _.forEach(store.mapLayers.initialLayers, (initialLayer: ShapeLayerContainer_Dev) => {
           let leafletClusterLayer = initialLayer.leafletClusterLayer;
-          for (let cluster in leafletClusterLayer._featureGroup._layers) {
-            leafletClusterLayer._featureGroup._layers[cluster]._updateIcon && leafletClusterLayer._featureGroup._layers[cluster]._updateIcon();
-          }
+          _.map(leafletClusterLayer._featureGroup._layers, layer => {
+            if (layer._updateIcon) {
+              // Cluster
+              layer._updateIcon();
+            } else {
+              // Single
+              if (store.idToSelectedObjectsMap[layer.groupId] || store.idToSelectedObjectsMap[layer.id]) {
+                // Selected object
+                const shapeStore: ShapeStore = store.groupIdToShapeStoreMap[layer.groupId][layer.id]
+                const shapeType: ShapeType = _.get(shapeStore, 'shapeDef.shapeObject.type');
+                const manager: ShapeManagerInterface = ShapeManagerRepository.getManagerByType(shapeType);
+                manager.updateIsSelectedView(layer);
+              }
+            }
+          })
         })
       }
     )
