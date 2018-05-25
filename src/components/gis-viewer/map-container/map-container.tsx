@@ -1,18 +1,16 @@
 import { Component, Prop, Element, Method } from '@stencil/core';
 import { MAP_CONTAINER_TAG, ZOOM_TO_EXTENT_PLUGIN_TAG, MAX_NORTH_EAST, MAX_SOUTH_WEST, 
-  GENERIC_ID, DRAW_BAR_PLUGIN_TAG, GIS_VIEWER_TAG } from '../../../utils/statics';
+  DRAW_BAR_PLUGIN_TAG, GIS_VIEWER_TAG } from '../../../utils/statics';
 import Utils from '../../../utils/utilities';
 import { GisViewerProps, CoordinateSystemType, DistanceUnitType, ShapeDefinition, Coordinate, 
   ShapeIds, ShapeStore, ShapeLayerContainer_Dev, MapBounds, SelectedObjects, 
-  GroupIdToShapeStoreMap, ShapeData, WktShape, FILE_TYPES, SelectedObjectsValue, ShapeType } from '../../../models';
+  GroupIdToShapeStoreMap, ShapeData, WktShape, FILE_TYPES, ShapeType } from '../../../models';
 import _ from 'lodash';
 import L from 'leaflet';
 import store from '../../store/store';
-// import { ShapeManagerRepository } from '../../../utils/shapes/ShapeManagerRepository';
 import { reaction, toJS } from 'mobx';
 import { ShapeManagerRepository } from '../../../utils/shapes/ShapeManagerRepository';
 import { ShapeManagerInterface } from '../../../utils/shapes/ShapeManager';
-// import { reaction } from 'mobx';
 
 @Component({
   tag: "map-container",
@@ -33,9 +31,6 @@ export class MapContainer {
   @Prop() gisViewerProps: GisViewerProps;
 
   @Element() el: HTMLElement;
-  // @State() gisMap: L.Map;
-  // styleLayerManagerControl: L.Control.StyledLayerControl;
-  // layerManagerEl: HTMLLayerManagerPluginElement;
 
   @Method()
   zoomToExtent() {
@@ -124,20 +119,24 @@ export class MapContainer {
 
   @Method()
   updateSelectionMode(shapeDataArr: ShapeData[]): void {
+    const changedIds: SelectedObjects = {};
     const shapeDefList: ShapeDefinition[] = [];
+
     const visibleLayers: L.Layer[] = Utils.getVisibleLayers(store.mapLayers, store.gisMap);
     shapeDataArr.forEach((item: ShapeData) => {
       // TBD need to find better solution
       visibleLayers.forEach((layer: L.Layer) => {
-        const shapeId: string = layer.id;
-        const groupId: string = layer.groupId;
-        const shapeIds: ShapeIds = {shapeId, groupId};
-
-        if (groupId === item.groupId || shapeId === item.id) {
-          store.setSelectionMode(shapeIds, item.isSelected);
+        const shapeIds: ShapeIds = {
+          groupId: layer.groupId,
+          shapeId: layer.id,
+        }
+        if (shapeIds.groupId === item.groupId || shapeIds.shapeId === item.id) {
+          Utils.createShapeDefList(shapeIds, item.isSelected, changedIds, shapeDefList);
         }
       })
     })
+    const gisViewerEl: HTMLGisViewerElement = document.querySelector(GIS_VIEWER_TAG);
+    gisViewerEl.brodcastEvent('selectionDone', shapeDefList);
   }
 
   @Method()
@@ -356,8 +355,8 @@ export class MapContainer {
   private areaSelection(event: any): void {
     if (store.state.mapConfig.isSelectionDisable) { return; }
 
-    // const shapeDefSelectedList: ShapeDefinition[] = [];
     const changedIds: SelectedObjects = {};
+    const shapeDefList: ShapeDefinition[] = [];
 
     const visibleLayers = Utils.getVisibleLayers(store.mapLayers, store.gisMap);
     visibleLayers.forEach((layer: L.Layer) => {
@@ -365,30 +364,13 @@ export class MapContainer {
         groupId: layer.groupId,
         shapeId: layer.id
       };
-      // const shapeStore: ShapeStore = store.groupIdToShapeStoreMap[layerIds.groupId][layerIds.shapeId];
-
-      // const manager = ShapeManagerRepository.getManagerByType(_.get(shapeStore, 'shapeDef.shapeObject.type'));
-      // if (manager) {
       const latLng: Coordinate | Coordinate[] = layer._latlngs ? layer._latlngs : layer._latlng;
       const isSelected: boolean = store.idToSelectedObjectsMap.hasOwnProperty(shapeIds.shapeId)/* shapeStore.shapeDef.data.isSelected; */
-
+      
       // Object found in bounds
       if (latLng && event.boxZoomBounds.contains(latLng)) {
         if (!isSelected) {
-
-          if (layer.groupId === GENERIC_ID.DEFAULT_GROUP
-            || layer.groupId === GENERIC_ID.DRAW_LAYER_GROUP_ID) {
-            if (!changedIds[layer.id]) {
-              changedIds[layer.id] = { selectionType: 'single', groupId: shapeIds.groupId };
-              store.setSelectionMode(shapeIds, true);
-            }
-          } else {
-            if (!changedIds[layer.groupId]) {
-              changedIds[layer.groupId] = { selectionType: 'group', groupId: shapeIds.groupId };;
-              store.setSelectionMode(shapeIds, true);
-            }
-          }
-
+          Utils.createShapeDefList(shapeIds, true, changedIds, shapeDefList);
         }
       }
     });
@@ -396,9 +378,8 @@ export class MapContainer {
     if (!_.isEmpty(changedIds)) {
       Utils.updateViewForSelectedObjects(changedIds);
     }
-    // Execute onGetSelected callback
-    // if (shapeDefSelectedList.length) {
-    //   // this.context.props.onSelectionDone(shapeDefSelectedList);  // O.A
-    // }
+    // Execute onSelectionDone callback
+    const gisViewerEl: HTMLGisViewerElement = document.querySelector(GIS_VIEWER_TAG);
+    gisViewerEl.brodcastEvent('selectionDone', shapeDefList);
   }
 }
