@@ -411,6 +411,42 @@ export default class Utils {
             });
         }
     }
+    public static createShapeDefList(shapeIds: ShapeIds, newIsSelectedState: boolean, 
+        alreadyChangedIds: SelectedObjects, shapeDefList: ShapeDefinition[]): void {
+        // Build Changed object list for on-Selection-done 
+        if (shapeIds.groupId === GENERIC_ID.DEFAULT_GROUP
+            || shapeIds.groupId === GENERIC_ID.DRAW_LAYER_GROUP_ID) {
+            // Single
+            alreadyChangedIds[shapeIds.shapeId] = { selectionType: 'single', groupId: shapeIds.groupId };
+            const oldIsSelectedState: boolean = store.idToSelectedObjectsMap.hasOwnProperty(shapeIds.shapeId);
+            // Detect if isSelected change
+            if (newIsSelectedState !== oldIsSelectedState) {
+                // Update Selected state
+                const shapeDef: ShapeDefinition = store.groupIdToShapeStoreMap[shapeIds.groupId][shapeIds.shapeId].shapeDef;
+                shapeDef.data.isSelected = newIsSelectedState; // Update isSelected state of this object
+                shapeDefList.push(toJS(shapeDef));
+                // Do the change
+                store.setSelectionMode(shapeIds, newIsSelectedState);
+            }
+        } else {
+            // Group
+            if (!alreadyChangedIds[shapeIds.groupId]) {
+                alreadyChangedIds[shapeIds.groupId] = { selectionType: 'group', groupId: shapeIds.groupId };
+                const currIsSelectedState: boolean = store.idToSelectedObjectsMap.hasOwnProperty(shapeIds.groupId);
+                // Detect if isSelected change
+                if (newIsSelectedState !== currIsSelectedState) {
+                    // Update Selected state
+                    _.map(store.groupIdToShapeStoreMap[shapeIds.groupId], (itemInGroup: ShapeStore) => {
+                        const shapeDef: ShapeDefinition = itemInGroup.shapeDef;
+                        shapeDef.data.isSelected = newIsSelectedState; // Update isSelected state of this object
+                        shapeDefList.push(toJS(shapeDef));
+                        // Do the change
+                        store.setSelectionMode(shapeIds, newIsSelectedState);
+                    });
+                }
+            }
+        }
+    }
     public static shapeOnClickHandler(clickEvent: any) {
         L.DomEvent.stopPropagation(clickEvent);
 

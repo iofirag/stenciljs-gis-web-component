@@ -9,9 +9,9 @@ import 'leaflet.markercluster';
 
 import _ from 'lodash';
 import { ShapeLayerDefinition, Coordinate, ClusterOptions, ShapeLayerContainer_Dev, 
-	ShapeStore, ShapeType, ShapeData, ShapeIds, SelectedObjects } from '../models';
+	ShapeStore, ShapeType, ShapeData, ShapeIds, SelectedObjects, ShapeDefinition } from '../models';
 import { ShapeManagerInterface } from './shapes/ShapeManager';
-import { MIN_OPACITY, BUBBLE_TYPE, GENERIC_ID } from './statics';
+import { MIN_OPACITY, BUBBLE_TYPE, GENERIC_ID, GIS_VIEWER_TAG } from './statics';
 import { ShapeManagerRepository } from './shapes/ShapeManagerRepository';
 import store from '../components/store/store';
 import Utils from './utilities';
@@ -190,6 +190,7 @@ export default class LayersFactory {
 
 				// let processedIds: string[] = [];
 				const changedIds: SelectedObjects = {};
+				const shapeDefList: ShapeDefinition[] = [];
 
 				const markersInsideCluster: any = e.layer.getAllChildMarkers();
 				markersInsideCluster.forEach((layer: L.Layer | L.FeatureGroup) => {
@@ -197,24 +198,14 @@ export default class LayersFactory {
 						groupId: layer.groupId,
 						shapeId: layer.id
 					}
-
-					if (layer.groupId === GENERIC_ID.DEFAULT_GROUP
-						|| layer.groupId === GENERIC_ID.DRAW_LAYER_GROUP_ID) {
-						if (!changedIds[layer.id]) {
-							changedIds[layer.id] = { selectionType: 'single', groupId: shapeIds.groupId };
-							store.setSelectionMode(shapeIds, !isClusterSelected);
-						}
-					} else {
-						if (!changedIds[layer.groupId]) {
-							changedIds[layer.groupId] = { selectionType: 'group', groupId: shapeIds.groupId };;
-							store.setSelectionMode(shapeIds, !isClusterSelected);
-						}
-					}
-
+					Utils.createShapeDefList(shapeIds, !isClusterSelected, changedIds, shapeDefList);
 				});
 				Utils.updateViewForSelectedObjects(changedIds);	// update the unselected objects
+
+				// Execute onSelectionDone callback
+				const gisViewerEl: HTMLGisViewerElement = document.querySelector(GIS_VIEWER_TAG);
+				gisViewerEl.brodcastEvent('selectionDone', shapeDefList);
 			}
-			// context.props.onSelectionDone(selectedLayersShapeDef); // O.A
 		});
 
 		return clusterLayer;
