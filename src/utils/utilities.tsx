@@ -457,32 +457,18 @@ export default class Utils {
             groupId: clickEvent.target.groupId,
             shapeId: clickEvent.target.id
         }
+        const changedIds: SelectedObjects = {};
         const shapeDefList: ShapeDefinition[] = [];
         if (!store.state.mapConfig.isSelectionDisable && clickEvent.originalEvent.ctrlKey) {
-            // Build Changed object list for on-Selection-done 
-            if (shapeIds.groupId === GENERIC_ID.DEFAULT_GROUP
-                || shapeIds.groupId === GENERIC_ID.DRAW_LAYER_GROUP_ID) {
-                // Single
-                const shapeDef: ShapeDefinition = store.groupIdToShapeStoreMap[shapeIds.groupId][shapeIds.shapeId].shapeDef;
-                const currIsSelectedState: boolean = store.idToSelectedObjectsMap.hasOwnProperty(shapeIds.shapeId);
-                // if (!currIsSelectedState !== currIsSelectedState) {
-                    shapeDef.data.isSelected = !currIsSelectedState; // Update isSelected state of this object
-                    shapeDefList.push(toJS(shapeDef));
-                // }
-            } else {
-                // Group
-                const currIsSelectedState: boolean = store.idToSelectedObjectsMap.hasOwnProperty(shapeIds.groupId);
-                _.map(store.groupIdToShapeStoreMap[shapeIds.groupId], (itemInGroup: ShapeStore) => {
-                    const shapeDef: ShapeDefinition = itemInGroup.shapeDef;
-                    // Selected state will change
-                    // if (!currIsSelectedState !== currIsSelectedState) {
-                        shapeDef.data.isSelected = !currIsSelectedState; // Update isSelected state of this object
-                        shapeDefList.push(toJS(shapeDef));
-                    // }
-                });
+            let currIsSelectedState: boolean = false;
+            if (store.idToSelectedObjectsMap.hasOwnProperty(shapeIds.groupId)
+                || store.idToSelectedObjectsMap.hasOwnProperty(shapeIds.shapeId)) {
+                currIsSelectedState = true;
             }
+            // Build Changed object list for on-Selection-done 
+            Utils.createShapeDefList(shapeIds, !currIsSelectedState, changedIds, shapeDefList);
 
-            store.toggleSelectionMode(shapeIds);
+            // store.toggleSelectionMode(shapeIds);
         }
 
         let groupData: GroupData = null;
