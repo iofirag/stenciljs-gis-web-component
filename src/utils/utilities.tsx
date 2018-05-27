@@ -200,7 +200,7 @@ export default class Utils {
           features: geoJsonList
         });
       } catch(e) {
-        console.log('Shp file failed: ', e.message);
+        console.error('Shp file failed: ', e.message);
       }
 
       return shpBase64;
