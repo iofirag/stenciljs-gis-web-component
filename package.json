@@ -1,6 +1,6 @@
 {
   "name": "@cc/wc-gis-viewer",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Stencil Component Starter",
   "main": "dist/gisviewer.js",
   "types": "dist/types/index.d.ts",
